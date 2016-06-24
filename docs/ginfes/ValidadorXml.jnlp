@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<jnlp spec="6.0+" codebase="http://www.ginfes.com.br/ValidadorXml/desktop/" href="ValidadorXml.jnlp">
+	<information>
+        <title>ValidadorXml</title>
+        <vendor>Eicon Controles Inteligentes Ltda.</vendor>
+        <homepage href="http://www.ginfes.com.br"/>
+		<description>Validação de XML por Schema</description>
+		<description kind="short">Validação de XML por Schema</description>
+        <offline-allowed/>
+	    <shortcut online="false">
+        	<desktop/>
+ 			<menu submenu="GINFES"/>
+		</shortcut>
+    </information>
+     <resources>
+		<j2se version="1.6+"/>
+        	<jar href="ValidadorXml.jar" main="true" download="eager"/>
+    </resources>
+	<security>
+		<all-permissions/>
+	</security>
+	<application-desc name="ValidadorXml" main-class="br.com.eicon.validadorxml.principal.ValidadorXml"></application-desc>
+</jnlp>

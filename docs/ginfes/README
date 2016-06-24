@@ -1,0 +1,18 @@
+
+Acesse o site de seu município ([prefeitura].ginfes.com.br) 
+Servidor de Produção: https://producao.ginfes.com.br/ServiceGinfesImpl?wsdl
+Servidor de Homologação: https://homologacao.ginfes.com.br/ServiceGinfesImpl?wsdl
+
+Acesso as notas emitidas no hambiente de homolocação:
+http://municipio.ginfesh.com.br/
+
++11 2175-1145 Atendimento Ginfes
+atendimento@ginfes.com.br (Todo o suporte deve ser feito por e-mail);
+
+
+Consulta situação lote RPS
+Situação do lote RPS
+1 – Não Recebido
+2 – Não Processado
+3 – Processado com Erro
+4 – Processado com Sucesso

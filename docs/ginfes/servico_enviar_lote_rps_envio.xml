@@ -1,0 +1,262 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<EnviarLoteRpsEnvio>
+	<LoteRps id="1">
+		<NumeroLote>
+			1
+		</NumeroLote>
+		<Cnpj>
+			07393407000175
+		</Cnpj>
+		<InscricaoMunicipal>
+			1001322
+		</InscricaoMunicipal>
+		<QuantidadeRps>
+			1
+		</QuantidadeRps>
+		<ListaRps>
+			<Rps>
+				<InfRps id="15">
+					<IdentificacaoRps>
+						<Numero>
+							1
+						</Numero>
+						<Serie>
+							1
+						</Serie>
+						<Tipo>
+							<!--
+							1 - Recibo Provisório de Serviços
+							2 - RPS Nota Fiscal Conjugada (Mista)
+							3 - Cupom. Campo Obrigatório apenas para NFS-e geradas pela emissão de RPS
+							-->
+						</Tipo>
+					</IdentificacaoRps>
+					<DataEmissao>
+						<!--Data Emissão do RPS-->
+						2016-01-19
+					</DataEmissao>
+					<NaturezaOperacao>
+						1
+						<!--
+						1 - Tributação no Municipio
+						2 - Tributação fora do Municipio
+						3 - Isenção
+						4 - Imune
+						5 - Exigibilidade suspensa por decisão judicial
+						6 - Exigibilidade suspensa por procedimento administrativo
+						-->
+					</NaturezaOperacao>
+					<RegimeEspecialTributacao>
+						1
+						<!--
+						1 - Microempresa Municipal
+						2 - Estimativa
+						3 - Sociedade de profissionais
+						4 - Cooperativa
+						5 - Microempresário Incividual(MEI)
+						6 - Microempresário e Empresa de Pequeno Porte (ME EPP)
+						-->
+					</RegimeEspecialTributacao>
+					<OptanteSimplesNacional>
+						1
+						<!--
+						1 - Sim
+						2 - Não
+						-->
+					</OptanteSimplesNacional>
+					<IncentivadorCultural>
+						2
+						<!--
+						1 - Sim
+						2 - Não
+						-->
+					</IncentivadorCultural>
+					<Status>
+						1
+						<!--
+						1 - Normal
+						2 - Cancelado
+						-->
+					</Status>
+					<RpsSubstituido>
+						<Numero>
+							
+						</Numero>
+						<Serie>
+							
+						</Serie>
+						<Tipo>
+							
+						</Tipo>
+					</RpsSubstituido>
+					<Servico>
+						<Valores>
+							<ValorServicos>
+								3500.00
+								<!--3500.55-->
+							</ValorServicos>
+							<ValorDeducoes>
+								0.0
+								<!--3500.55-->
+							</ValorDeducoes>
+							<ValorPis>
+								0.0
+								<!--3500.55-->
+							</ValorPis>
+							<ValorCofins>
+								0.0
+								<!--3500.55-->
+							</ValorCofins>
+							<ValorInss>
+								0.0
+								<!--3500.55-->
+							</ValorInss>
+							<ValorIr>
+								0.0
+								<!--3500.55-->
+							</ValorIr>
+							<ValorCsll>
+								0.0
+								<!--3500.55-->
+							</ValorCsll>
+							<IssRetido>
+								2
+								<!--
+								1 - Sim
+								2 - Não
+								-->
+							</IssRetido>
+							<ValorIss>
+								0.0
+								<!--3500.55-->
+							</ValorIss>
+							<ValorIssRetido>
+								0.0
+								<!--3500.55-->
+							</ValorIssRetido>
+							<OutrasRetencoes>
+								0.0
+								<!--3500.55-->
+							</OutrasRetencoes>
+							<BaseCalculo>
+								3500.00
+								<!--Valor dos Serviços - Valor das deduções - descontos incondicionados-->
+							</BaseCalculo>
+							<Aliquota>
+								2
+							</Aliquota>
+							<ValorLiquidoNfse>
+								3500.00
+								<!--
+									Valor Serviços - ValorPIS, ValorConfins, ValorINSS, ValorIR, ValorCSLL, OutrasRetencoes, ValorISSRetido, DescontoIncondicionado, DescontoCondicionado
+								-->
+							</ValorLiquidoNfse>
+							<DescontoIncondicionado>
+								0.0
+							</DescontoIncondicionado>
+							<DescontoCondicionado>
+								0.0
+							</DescontoCondicionado>
+						</Valores>
+						<ItemListaServico>
+							<!--
+								Somente numeros
+								ITEM DÁ LISTA DE SERVIÇO 
+								http://www1.receita.fazenda.gov.br/sistemas/nfse/tabelas-de-codigos.htm
+							-->
+						</ItemListaServico>
+						<CodigoCnae>
+							
+						</CodigoCnae>
+						<CodigoTributacaoMunicipio>
+							<!--
+								código de atividade
+							-->
+						</CodigoTributacaoMunicipio>
+						<Discriminacao>
+							Serviço de Incineração de resíduos.
+							<!--Serviço de Analise e Desenvolvimento de Dados-->
+						</Discriminacao>
+						<!--Local da Prestação-->
+						<CodigoMunicipio>
+							
+						</CodigoMunicipio>
+					</Servico>
+					<Prestador>
+						<Cnpj>
+							07393407000175
+						</Cnpj>
+						<InscricaoMunicipal>
+							1001322
+						</InscricaoMunicipal>
+					</Prestador>
+					<Tomador>
+						<IdentificacaoTomador>
+							<CpfCnpj>
+								<Cnpj>
+									17745550000132
+								</Cnpj>
+							</CpfCnpj>
+							<InscricaoMunicipal>
+								1001322
+							</InscricaoMunicipal>
+						</IdentificacaoTomador>
+						<RazaoSocial>
+							W. MORAES SILVA EIRELI
+						</RazaoSocial>
+						<Endereco>
+							<Endereco>
+								Rua Benjamin Santos
+							</Endereco>
+							<Numero>
+								S/N
+							</Numero>
+							<Complemento>
+								QD. 2F, LT 27
+							</Complemento>
+							<Bairro>
+								Jardim Todos os Santos
+							</Bairro>
+							<CodigoMunicipio>
+								
+							</CodigoMunicipio>
+							<Uf>
+								GO
+							</Uf>
+							<Cep>
+								75250000
+							</Cep>
+						</Endereco>
+						<Contato>
+							<Telefone>6292985707</Telefone>
+							<Email>willkerms@gmail.com</Email>
+						</Contato>
+					</Tomador>
+					<IntermediarioServico>
+						<RazaoSocial>
+							
+						</RazaoSocial>
+						<CpfCnpj>
+								<Cnpj>
+									
+								</Cnpj>
+						</CpfCnpj>
+						<InscricaoMunicipal>
+							
+						</InscricaoMunicipal>
+					</IntermediarioServico>
+					<ContrucaoCivil>
+						<CodigoObra>
+							
+						</CodigoObra>
+						<Art>
+							
+						</Art>
+					</ContrucaoCivil>
+				</InfRps>
+				<Signature></Signature>
+			</Rps>
+		</ListaRps>
+	</LoteRps>
+	<Signature></Signature>
+</EnviarLoteRpsEnvio>
