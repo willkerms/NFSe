@@ -83,18 +83,21 @@ class NFSeGinfes extends NFSe {
 		$CancelarNfseEnvio->appendChild($document->createElement("co:NumeroNfse", $NFSe));
 
 		$XMLAssinado = $this->signXML($document->saveXML(), "CancelarNfseEnvio");
-		//echo $XMLAssinado; exit();
+		if(isset($this->aConfig['pathCert'])){
+			file_put_contents($this->aConfig['pathCert'] . '/cancela_nfse_' . $NFSe . ".xml", $XMLAssinado);
+			$pathFile = $this->aConfig['pathCert'] . '/cancela_nfse_' . $protocolo . "_ret.xml";
+		}
 		$url = $this->isHomologacao ? $this->homologacao: $this->producao;
 		$action = "CancelarNfse";
 
-		return NFSeGinfesReturn::getReturn($this->curl($url, $this->retXMLSoap($XMLAssinado, $action, false), array('Content-Type: text/xml')), $action);
+		return NFSeGinfesReturn::getReturn($this->curl($url, $this->retXMLSoap($XMLAssinado, $action, false), array('Content-Type: text/xml')), $action, $pathFile);
 	}
 
 	/**
 	 * Consulta de notas fiscais eletrônicas
 	 *
 	 * @param NFSeGinfesConsultarNFSe $oConsultarNFSe
-	 * @return string
+	 * @return array[NFSeGinfesInfNFSe]|array[NFSeGinfesMensagemRetorno]
 	 */
 	public function consultaNFSe(NFSeGinfesConsultarNFSe $oConsultarNFSe){
 
@@ -317,13 +320,14 @@ class NFSeGinfes extends NFSe {
 		foreach ($aListaRps as $oRps)
 			$this->addRps($document, $ListaRps, $oRps);
 
-		$XMLAssinado = $this->signXML($document->saveXML(), "LoteRps");
+		$XMLAssinado = $this->signXML(trim($document->saveXML()), "LoteRps");
 		$action = "RecepcionarLoteRpsV3";
 
 		$pathFile = null;
 		if(isset($this->aConfig['pathCert'])){
 			file_put_contents($this->aConfig['pathCert'] . '/env_lt_' . $oLote->NumeroLote . ".xml", $XMLAssinado);
 			$pathFile = $this->aConfig['pathCert'] . '/env_lt_' . $oLote->NumeroLote . "_ret.xml";
+			file_put_contents($this->aConfig['pathCert'] . '/env_lt_soap_' . $oLote->NumeroLote . ".xml", $this->retXMLSoap($XMLAssinado, $action));
 		}
 
 		return NFSeGinfesReturn::getReturn($this->soap($url, $url, $action, $this->retXMLSoap($XMLAssinado, $action)), $action, $pathFile);
