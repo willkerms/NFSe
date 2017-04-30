@@ -28,6 +28,19 @@ class NFSeGinfesReturn extends NFSeReturn{
 				$return[] = $oMensagem;
 			}
 		}
+		else{
+			$MensagemRetorno = $oDocument->getElementsByTagName("MensagemRetorno");
+			if($MensagemRetorno->length > 0){
+
+				$MensagemRetorno = $MensagemRetorno->item(0);
+				$oMensagem = new NFSeGinfesMensagemRetorno();
+				$oMensagem->Codigo = PQDUtil::utf8_decode($MensagemRetorno->childNodes->item(0)->nodeValue);//codigo do erro
+				$oMensagem->Mensagem = PQDUtil::utf8_decode($MensagemRetorno->childNodes->item(1)->nodeValue);//mensagem de erro
+				$oMensagem->Correcao = PQDUtil::utf8_decode($MensagemRetorno->childNodes->item(2)->nodeValue);//correcao
+
+				$return[] = $oMensagem;
+			}
+		}
 
 		return $return;
 	}
@@ -52,7 +65,10 @@ class NFSeGinfesReturn extends NFSeReturn{
 		$nSTp = $oDocument->documentElement->lookupPrefix(NFSeGinfes::XMLNS_TIPOS);
 		$nSMain = $oDocument->documentElement->lookupPrefix($nsPrefix);
 
-		$ListaNfse = $oDocument->getElementsByTagNameNS($nsPrefix, "ListaNfse")->item(0);
+		if(NFSeGinfes::XMLNS_CONS_NFSE_RPS_RES == $nsPrefix)
+			$ListaNfse = $oDocument->getElementsByTagName("ConsultarNfseRpsResposta")->item(0);
+		else
+			$ListaNfse = $oDocument->getElementsByTagNameNS($nsPrefix, "ListaNfse")->item(0);
 
 		$return = array();
 		for ($i = 0; $i < $ListaNfse->childNodes->length; $i++){
@@ -67,7 +83,7 @@ class NFSeGinfesReturn extends NFSeReturn{
 			$oNFSeGinfesInfNFSe->DataEmissao = $InfNfse->childNodes->item(2)->nodeValue;
 
 			$index = 3;
-			if (NFSeGinfes::XMLNS_CONS_LT_RPS_RES == $nsPrefix){
+			if (NFSeGinfes::XMLNS_CONS_LT_RPS_RES == $nsPrefix || NFSeGinfes::XMLNS_CONS_NFSE_RPS_RES == $nsPrefix){
 				$oNFSeGinfesInfNFSe->IdentificacaoRps->Numero = $InfNfse->childNodes->item($index)->childNodes->item(0)->nodeValue;
 				$oNFSeGinfesInfNFSe->IdentificacaoRps->Serie = $InfNfse->childNodes->item($index)->childNodes->item(1)->nodeValue;
 				$oNFSeGinfesInfNFSe->IdentificacaoRps->Tipo = $InfNfse->childNodes->item($index)->childNodes->item(2)->nodeValue;
@@ -229,6 +245,27 @@ class NFSeGinfesReturn extends NFSeReturn{
 
 					return $oEnviarLoteResposta;
 				break;
+				case "ConsultarNfsePorRpsV3":
+					$oConsulta = $dom->getElementsByTagName("ConsultarNfsePorRpsV3Response")->item(0);
+					$domReturn = $oConsulta->getElementsByTagName("return");
+					if($domReturn->length == 1 && !empty($domReturn->item(0)->nodeValue)){
+						$oReturn->loadXML($domReturn->item(0)->nodeValue);
+						$ListaMensagemRetorno = self::retListaMensagem($oReturn);
+
+						if (count($ListaMensagemRetorno) == 0){
+
+							if(!is_null($pathFile))
+								file_put_contents($pathFile, $oReturn->saveXML());
+
+							$aNFSe = self::retListNFSe($oReturn, NFSeGinfes::XMLNS_CONS_NFSE_RPS_RES);
+							return $aNFSe[0];
+						}
+						else
+							return $ListaMensagemRetorno;
+					}
+					else
+						return array(self::retMsgForaEsperado());
+				break;
 				case "ConsultarLoteRpsV3":
 
 					$oConsulta = $dom->getElementsByTagName("ConsultarLoteRpsV3Response")->item(0);
@@ -277,20 +314,20 @@ class NFSeGinfesReturn extends NFSeReturn{
 				case "CancelarNfse":
 
 					$oCancelarNfse = $dom->getElementsByTagName("CancelarNfseResponse")->item(0);
-					$domReturn = $oConsulta->getElementsByTagName("return");
+					$domReturn = $oCancelarNfse->getElementsByTagName("return");
 					$oCancelarResposta = new NFSeGinfesCancelarResposta();
 
 					if($domReturn->length == 1 && !empty($domReturn->item(0)->nodeValue)){
 						$oReturn->loadXML($domReturn->item(0)->nodeValue);
 						$oCancelarResposta->ListaMensagemRetorno = self::retListaMensagem($oReturn);
 
-						if (count($oEnviarLoteResposta->ListaMensagemRetorno) == 0){
+						if (count($oCancelarResposta->ListaMensagemRetorno) == 0){
 
 							if(!is_null($pathFile))
 								file_put_contents($pathFile, $oReturn->saveXML());
 
-							$oCancelarResposta->Sucesso = $oReturn->childNodes->item(0)->nodeValue;
-							$oCancelarResposta->DataHora = $oReturn->childNodes->item(2)->nodeValue;
+							$oCancelarResposta->Sucesso = $oReturn->childNodes->item(0)->childNodes->item(0)->nodeValue;
+							$oCancelarResposta->DataHora = $oReturn->childNodes->item(0)->childNodes->item(1)->nodeValue;
 						}
 					}
 					else

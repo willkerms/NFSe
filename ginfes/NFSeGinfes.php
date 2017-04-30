@@ -85,7 +85,7 @@ class NFSeGinfes extends NFSe {
 		$XMLAssinado = $this->signXML($document->saveXML(), "CancelarNfseEnvio");
 		if(isset($this->aConfig['pathCert'])){
 			file_put_contents($this->aConfig['pathCert'] . '/cancela_nfse_' . $NFSe . ".xml", $XMLAssinado);
-			$pathFile = $this->aConfig['pathCert'] . '/cancela_nfse_' . $protocolo . "_ret.xml";
+			$pathFile = $this->aConfig['pathCert'] . '/cancela_nfse_' . $NFSe . "_ret.xml";
 		}
 		$url = $this->isHomologacao ? $this->homologacao: $this->producao;
 		$action = "CancelarNfse";
@@ -465,5 +465,12 @@ class NFSeGinfes extends NFSe {
 			$ConstrucaoCivil->appendChild($document->createElement("ts:CodigoObra", $oRps->ConstrucaoCivil->CodigoObra));
 			$ConstrucaoCivil->appendChild($document->createElement("ts:CodigoObra", $oRps->ConstrucaoCivil->Art));
 		}
+	}
+
+	/**
+	 * @return the $isHomologacao
+	 */
+	public function getIsHomologacao() {
+		return $this->isHomologacao;
 	}
 }
