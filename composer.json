@@ -1,0 +1,14 @@
+{
+    "name": "willkerms/nfs-e",
+    "description": "Nota Fiscal Eletronica de Servico",
+    "type": "library",
+    "license": "GPL-2.0+",
+    "authors": [
+        {
+            "name": "Willker Moraes Silva",
+            "email": "willkerms@gmail.com"
+        }
+    ],
+    "minimum-stability": "dev",
+    "require": {}
+}
