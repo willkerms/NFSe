@@ -391,6 +391,10 @@ class NFSeISSWeb extends NFSe {
 		$Valores = $Servico->appendChild($document->createElement("lt:Valores"));
 
 		$Valores->appendChild($document->createElement("lt:ValorServicos", number_format($oRps->Servico->Valores->ValorServicos, 2, '.', '')));
+
+		if(!empty($oRps->Servico->Valores->ValorIssRetido))
+			$Valores->appendChild($document->createElement("lt:ValorIssRetido", number_format($oRps->Servico->Valores->ValorIssRetido, 2, '.', '')));
+
 		$Valores->appendChild($document->createElement("lt:ValorDeducoes", number_format($oRps->Servico->Valores->ValorDeducoes, 2, '.', '')));
 		$Valores->appendChild($document->createElement("lt:ValorPis", number_format($oRps->Servico->Valores->ValorPis, 2, '.', '')));
 		$Valores->appendChild($document->createElement("lt:ValorCofins", number_format($oRps->Servico->Valores->ValorCofins, 2, '.', '')));
