@@ -392,6 +392,7 @@ class NFSeISSWeb extends NFSe {
 
 		$Valores->appendChild($document->createElement("lt:ValorServicos", number_format($oRps->Servico->Valores->ValorServicos, 2, '.', '')));
 
+		//Quando informado o ISS e retido
 		if(!empty($oRps->Servico->Valores->ValorIssRetido))
 			$Valores->appendChild($document->createElement("lt:ValorIssRetido", number_format($oRps->Servico->Valores->ValorIssRetido, 2, '.', '')));
 
