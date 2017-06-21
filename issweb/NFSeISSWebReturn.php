@@ -35,21 +35,6 @@ class NFSeISSWebReturn extends NFSeReturn{
 				$return[] = $oMensagem;
 			}
 		}
-		/*
-		else{
-			$MensagemRetorno = $oDocument->getElementsByTagName("MensagemRetorno");
-			if($MensagemRetorno->length > 0){
-
-				$MensagemRetorno = $MensagemRetorno->item(0);
-				$oMensagem = new NFSeISSWebMensagemRetorno();
-				$oMensagem->Codigo = $oDocument->getValue($MensagemRetorno, 'Codigo');//codigo do erro
-				$oMensagem->Mensagem = $oDocument->getValue($MensagemRetorno, 'Mensagem');//mensagem de erro
-				$oMensagem->Correcao = $oDocument->getValue($MensagemRetorno, 'Correcao');//correcao
-
-				$return[] = $oMensagem;
-			}
-		}
-		*/
 
 		return $return;
 	}
@@ -61,6 +46,125 @@ class NFSeISSWebReturn extends NFSeReturn{
 		$oMensagem->Correcao = "Verificar XML Retornado!";//correcao
 
 		return $oMensagem;
+	}
+
+	private static function retInfNFSe($oCompNfse, $oDocument){
+
+		$Nfse = $oCompNfse->getElementsByTagName('Nfse')->item(0);
+
+		$InfNfse 					= $Nfse->getElementsByTagName('InfNfse')->item(0);
+		$ValoresNfse 				= $Nfse->getElementsByTagName('ValoresNfse')->item(0);
+		$EnderecoPrestadorServico 	= $Nfse->getElementsByTagName('EnderecoPrestadorServico')->item(0);
+		$DeclaracaoPrestacaoServico = $Nfse->getElementsByTagName('DeclaracaoPrestacaoServico')->item(0);
+
+		$InfDeclaracaoPrestacaoServico = $DeclaracaoPrestacaoServico->getElementsByTagName('InfDeclaracaoPrestacaoServico')->item(0);
+
+		//Rps e opciional
+		$Rps = $InfDeclaracaoPrestacaoServico->getElementsByTagName("Rps")->item(0);
+
+		$IdentificacaoRps = $Rps->getElementsByTagName("IdentificacaoRps")->item(0);
+
+		$Servico = $InfDeclaracaoPrestacaoServico->getElementsByTagName("Servico")->item(0);
+
+		$Prestador = $InfDeclaracaoPrestacaoServico->getElementsByTagName("Prestador")->item(0);
+
+		//Tomador e opciional
+		$Tomador = $InfDeclaracaoPrestacaoServico->getElementsByTagName("Tomador")->item(0);
+
+		$IdentificacaoTomador = $Tomador->getElementsByTagName("IdentificacaoTomador")->item(0);
+
+		$EnderecoTomador = $Tomador->getElementsByTagName("Endereco")->item(0);
+
+		$ContatoTomador = $Tomador->getElementsByTagName("Contato")->item(0);
+
+
+		$oNFSeISSWebInfNFSe = new NFSeISSWebInfNFSe();
+		$oNFSeISSWebInfNFSe->Numero = $oDocument->getValue($InfNfse, "Numero");
+		$oNFSeISSWebInfNFSe->CodigoVerificacao = $oDocument->getValue($InfNfse, "CodigoVerificacao");
+		$oNFSeISSWebInfNFSe->DataEmissao = $oDocument->getValue($InfNfse, "DataEmissao");
+		$oNFSeISSWebInfNFSe->StatusNfse = $oDocument->getValue($InfNfse, "StatusNfse");
+		$oNFSeISSWebInfNFSe->NfseSubstituida = $oDocument->getValue($InfNfse, "NfseSubstituida");
+		$oNFSeISSWebInfNFSe->OutrasInformacoes = $oDocument->getValue($InfNfse, "OutrasInformacoes");
+		$oNFSeISSWebInfNFSe->Url = 'http://' . $oDocument->getValue($InfNfse, "UrlNfse");
+		$oNFSeISSWebInfNFSe->ValorCredito = $oDocument->getValue($InfNfse, "ValorCredito");
+
+		$oNFSeISSWebInfNFSe->IdentificacaoRps->Numero = $oDocument->getValue($IdentificacaoRps, "Numero");
+		$oNFSeISSWebInfNFSe->IdentificacaoRps->Tipo = $oDocument->getValue($IdentificacaoRps, "Tipo");
+		$oNFSeISSWebInfNFSe->DataEmissaoRps = $oDocument->getValue($Rps, "DataEmissao");
+
+		$Valores = $Servico->getElementsByTagName("Valores")->item(0);
+
+		$oNFSeISSWebInfNFSe->Servico->Valores->ValorServicos = $oDocument->getValue($Valores, "ValorServicos");
+		$oNFSeISSWebInfNFSe->Servico->Valores->BaseCalculo = $oDocument->getValue($ValoresNfse, "BaseCalculo");
+		$oNFSeISSWebInfNFSe->Servico->Valores->Aliquota = $oDocument->getValue($ValoresNfse, "Aliquota");
+		$oNFSeISSWebInfNFSe->Servico->Valores->ValorIss = $oDocument->getValue($ValoresNfse, "ValorIss");
+		$oNFSeISSWebInfNFSe->Servico->Valores->ValorLiquidoNfse = $oDocument->getValue($ValoresNfse, "ValorLiquidoNfse");
+
+		$oNFSeISSWebInfNFSe->Servico->Valores->ValorDeducoes = $oDocument->getValue($Valores, "ValorDeducoes");
+		$oNFSeISSWebInfNFSe->Servico->Valores->ValorPis = $oDocument->getValue($Valores, "ValorPis");
+		$oNFSeISSWebInfNFSe->Servico->Valores->ValorCofins = $oDocument->getValue($Valores, "ValorCofins");
+		$oNFSeISSWebInfNFSe->Servico->Valores->ValorInss = $oDocument->getValue($Valores, "ValorInss");
+		$oNFSeISSWebInfNFSe->Servico->Valores->ValorIr = $oDocument->getValue($Valores, "ValorIr");
+		$oNFSeISSWebInfNFSe->Servico->Valores->ValorCsll = $oDocument->getValue($Valores, "ValorCsll");
+		$oNFSeISSWebInfNFSe->Servico->Valores->ValorIssRetido = $oDocument->getValue($Valores, "ValorIssRetido");
+
+		$oNFSeISSWebInfNFSe->Servico->Valores->OutrasRetencoes = $oDocument->getValue($Valores, "OutrasRetencoes");
+		$oNFSeISSWebInfNFSe->Servico->Valores->DescontoCondicionado = $oDocument->getValue($Valores, "DescontoCondicionado");
+		$oNFSeISSWebInfNFSe->Servico->Valores->DescontoIncondicionado = $oDocument->getValue($Valores, "DescontoIncondicionado");
+
+		$oNFSeISSWebInfNFSe->Servico->ItemListaServico = $oDocument->getValue($Servico, "ItemListaServico");
+		$oNFSeISSWebInfNFSe->Servico->CodigoCnae = $oDocument->getValue($Servico, "CodigoCnae");
+		$oNFSeISSWebInfNFSe->Servico->CodigoTributacaoMunicipio = $oDocument->getValue($Servico, "CodigoTributacaoMunicipio");
+		$oNFSeISSWebInfNFSe->Servico->Discriminacao = $oDocument->getValue($Servico, "Discriminacao");
+		$oNFSeISSWebInfNFSe->Servico->CodigoMunicipio = $oDocument->getValue($Servico, "CodigoMunicipio");
+		$oNFSeISSWebInfNFSe->Servico->ExigibilidadeISS = $oDocument->getValue($Servico, "ExigibilidadeISS");
+
+		if($Prestador->getElementsByTagName("Cnpj")->length == 1)
+			$oNFSeISSWebInfNFSe->PrestadorServico->Identificacao->setCpfCnpj($oDocument->getValue($Prestador, "Cnpj"));
+		else
+			$oNFSeISSWebInfNFSe->PrestadorServico->Identificacao->setCpfCnpj($oDocument->getValue($Prestador, "Cpf"), 0);
+
+		$oNFSeISSWebInfNFSe->PrestadorServico->Identificacao->InscricaoMunicipal = $oDocument->getValue($Prestador, "InscricaoMunicipal");
+
+		$oNFSeISSWebInfNFSe->PrestadorServico->Endereco->TipoLogradouro = $oDocument->getValue($EnderecoPrestadorServico, "TipoLogradouro");
+		$oNFSeISSWebInfNFSe->PrestadorServico->Endereco->Logradouro = $oDocument->getValue($EnderecoPrestadorServico, "Logradouro");
+		$oNFSeISSWebInfNFSe->PrestadorServico->Endereco->Numero = $oDocument->getValue($EnderecoPrestadorServico, "Numero");
+		$oNFSeISSWebInfNFSe->PrestadorServico->Endereco->Complemento = $oDocument->getValue($EnderecoPrestadorServico, "Complemento");
+		$oNFSeISSWebInfNFSe->PrestadorServico->Endereco->Bairro = $oDocument->getValue($EnderecoPrestadorServico, "Bairro");
+		$oNFSeISSWebInfNFSe->PrestadorServico->Endereco->CodigoMunicipio = $oDocument->getValue($EnderecoPrestadorServico, "CodigoMunicipio");
+		$oNFSeISSWebInfNFSe->PrestadorServico->Endereco->CodigoPaisEstrangeiro = $oDocument->getValue($EnderecoPrestadorServico, "CodigoPaisEstrangeiro");
+		$oNFSeISSWebInfNFSe->PrestadorServico->Endereco->EstadoPaisEstrangeiro = $oDocument->getValue($EnderecoPrestadorServico, "EstadoPaisEstrangeiro");
+		$oNFSeISSWebInfNFSe->PrestadorServico->Endereco->CidadePaisEstrangeiro = $oDocument->getValue($EnderecoPrestadorServico, "CidadePaisEstrangeiro");
+		$oNFSeISSWebInfNFSe->PrestadorServico->Endereco->Uf = $oDocument->getValue($EnderecoPrestadorServico, "Uf");
+		$oNFSeISSWebInfNFSe->PrestadorServico->Endereco->Cep = $oDocument->getValue($EnderecoPrestadorServico, "Cep");
+
+		if($IdentificacaoTomador->getElementsByTagName("Cnpj")->length == 1)
+			$oNFSeISSWebInfNFSe->PrestadorServico->Identificacao->setCpfCnpj($oDocument->getValue($IdentificacaoTomador, "Cnpj"));
+		else
+			$oNFSeISSWebInfNFSe->PrestadorServico->Identificacao->setCpfCnpj($oDocument->getValue($IdentificacaoTomador, "Cpf"), 0);
+
+		$oNFSeISSWebInfNFSe->TomadorServico->IdentificacaoTomador->InscricaoMunicipal = $oDocument->getValue($IdentificacaoTomador, "InscricaoMunicipal");
+
+		$oNFSeISSWebInfNFSe->TomadorServico->RazaoSocial = $oDocument->getValue($Tomador, "RazaoSocial");
+
+		$oNFSeISSWebInfNFSe->TomadorServico->Endereco->TipoLogradouro = $oDocument->getValue($EnderecoTomador, "TipoLogradouro");
+		$oNFSeISSWebInfNFSe->TomadorServico->Endereco->Logradouro = $oDocument->getValue($EnderecoTomador, "Logradouro");
+		$oNFSeISSWebInfNFSe->TomadorServico->Endereco->Numero = $oDocument->getValue($EnderecoTomador, "Numero");
+		$oNFSeISSWebInfNFSe->TomadorServico->Endereco->Complemento = $oDocument->getValue($EnderecoTomador, "Complemento");
+		$oNFSeISSWebInfNFSe->TomadorServico->Endereco->Bairro = $oDocument->getValue($EnderecoTomador, "Bairro");
+		$oNFSeISSWebInfNFSe->TomadorServico->Endereco->CodigoMunicipio = $oDocument->getValue($EnderecoTomador, "CodigoMunicipio");
+		$oNFSeISSWebInfNFSe->TomadorServico->Endereco->CodigoPaisEstrangeiro = $oDocument->getValue($EnderecoTomador, "CodigoPaisEstrangeiro");
+		$oNFSeISSWebInfNFSe->TomadorServico->Endereco->EstadoPaisEstrangeiro = $oDocument->getValue($EnderecoTomador, "EstadoPaisEstrangeiro");
+		$oNFSeISSWebInfNFSe->TomadorServico->Endereco->CidadePaisEstrangeiro = $oDocument->getValue($EnderecoTomador, "CidadePaisEstrangeiro");
+		$oNFSeISSWebInfNFSe->TomadorServico->Endereco->Uf = $oDocument->getValue($EnderecoTomador, "Uf");
+		$oNFSeISSWebInfNFSe->TomadorServico->Endereco->Cep = $oDocument->getValue($EnderecoTomador, "Cep");
+
+		$oNFSeISSWebInfNFSe->TomadorServico->Contato->Ddd = $oDocument->getValue($ContatoTomador, "Ddd");
+		$oNFSeISSWebInfNFSe->TomadorServico->Contato->Telefone = $oDocument->getValue($ContatoTomador, "Telefone");
+		$oNFSeISSWebInfNFSe->TomadorServico->Contato->TipoTelefone = $oDocument->getValue($ContatoTomador, "TipoTelefone");
+		$oNFSeISSWebInfNFSe->TomadorServico->Contato->Email = $oDocument->getValue($ContatoTomador, "Email");
+
+		return $oNFSeISSWebInfNFSe;
 	}
 
 	/**
@@ -95,121 +199,7 @@ class NFSeISSWebReturn extends NFSeReturn{
 			 */
 			$CompNfse = $aCompNfse->item($i);
 
-			$Nfse = $CompNfse->getElementsByTagName('Nfse')->item(0);
-
-			$InfNfse 					= $Nfse->getElementsByTagName('InfNfse')->item(0);
-			$ValoresNfse 				= $Nfse->getElementsByTagName('ValoresNfse')->item(0);
-			$EnderecoPrestadorServico 	= $Nfse->getElementsByTagName('EnderecoPrestadorServico')->item(0);
-			$DeclaracaoPrestacaoServico = $Nfse->getElementsByTagName('DeclaracaoPrestacaoServico')->item(0);
-
-			$InfDeclaracaoPrestacaoServico = $DeclaracaoPrestacaoServico->getElementsByTagName('InfDeclaracaoPrestacaoServico')->item(0);
-
-			//Rps e opciional
-			$Rps = $InfDeclaracaoPrestacaoServico->getElementsByTagName("Rps")->item(0);
-
-			$IdentificacaoRps = $Rps->getElementsByTagName("IdentificacaoRps")->item(0);
-
-			$Servico = $InfDeclaracaoPrestacaoServico->getElementsByTagName("Servico")->item(0);
-
-			$Prestador = $InfDeclaracaoPrestacaoServico->getElementsByTagName("Prestador")->item(0);
-
-			//Tomador e opciional
-			$Tomador = $InfDeclaracaoPrestacaoServico->getElementsByTagName("Tomador")->item(0);
-
-			$IdentificacaoTomador = $Tomador->getElementsByTagName("IdentificacaoTomador")->item(0);
-
-			$EnderecoTomador = $Tomador->getElementsByTagName("Endereco")->item(0);
-
-			$ContatoTomador = $Tomador->getElementsByTagName("Contato")->item(0);
-
-
-			$oNFSeISSWebInfNFSe = new NFSeISSWebInfNFSe();
-			$oNFSeISSWebInfNFSe->Numero = $oDocument->getValue($InfNfse, "Numero");
-			$oNFSeISSWebInfNFSe->CodigoVerificacao = $oDocument->getValue($InfNfse, "CodigoVerificacao");
-			$oNFSeISSWebInfNFSe->DataEmissao = $oDocument->getValue($InfNfse, "DataEmissao");
-			$oNFSeISSWebInfNFSe->StatusNfse = $oDocument->getValue($InfNfse, "StatusNfse");
-			$oNFSeISSWebInfNFSe->NfseSubstituida = $oDocument->getValue($InfNfse, "NfseSubstituida");
-			$oNFSeISSWebInfNFSe->OutrasInformacoes = $oDocument->getValue($InfNfse, "OutrasInformacoes");
-			$oNFSeISSWebInfNFSe->Url = 'http://' . $oDocument->getValue($InfNfse, "UrlNfse");
-			$oNFSeISSWebInfNFSe->ValorCredito = $oDocument->getValue($InfNfse, "ValorCredito");
-
-			$oNFSeISSWebInfNFSe->IdentificacaoRps->Numero = $oDocument->getValue($IdentificacaoRps, "Numero");
-			$oNFSeISSWebInfNFSe->IdentificacaoRps->Tipo = $oDocument->getValue($IdentificacaoRps, "Tipo");
-			$oNFSeISSWebInfNFSe->DataEmissaoRps = $oDocument->getValue($Rps, "DataEmissao");
-
-			$Valores = $Servico->getElementsByTagName("Valores")->item(0);
-
-			$oNFSeISSWebInfNFSe->Servico->Valores->ValorServicos = $oDocument->getValue($Valores, "ValorServicos");
-			$oNFSeISSWebInfNFSe->Servico->Valores->BaseCalculo = $oDocument->getValue($ValoresNfse, "BaseCalculo");
-			$oNFSeISSWebInfNFSe->Servico->Valores->Aliquota = $oDocument->getValue($ValoresNfse, "Aliquota");
-			$oNFSeISSWebInfNFSe->Servico->Valores->ValorIss = $oDocument->getValue($ValoresNfse, "ValorIss");
-			$oNFSeISSWebInfNFSe->Servico->Valores->ValorLiquidoNfse = $oDocument->getValue($ValoresNfse, "ValorLiquidoNfse");
-
-			$oNFSeISSWebInfNFSe->Servico->Valores->ValorDeducoes = $oDocument->getValue($Valores, "ValorDeducoes");
-			$oNFSeISSWebInfNFSe->Servico->Valores->ValorPis = $oDocument->getValue($Valores, "ValorPis");
-			$oNFSeISSWebInfNFSe->Servico->Valores->ValorCofins = $oDocument->getValue($Valores, "ValorCofins");
-			$oNFSeISSWebInfNFSe->Servico->Valores->ValorInss = $oDocument->getValue($Valores, "ValorInss");
-			$oNFSeISSWebInfNFSe->Servico->Valores->ValorIr = $oDocument->getValue($Valores, "ValorIr");
-			$oNFSeISSWebInfNFSe->Servico->Valores->ValorCsll = $oDocument->getValue($Valores, "ValorCsll");
-			$oNFSeISSWebInfNFSe->Servico->Valores->ValorIssRetido = $oDocument->getValue($Valores, "ValorIssRetido");
-
-			$oNFSeISSWebInfNFSe->Servico->Valores->OutrasRetencoes = $oDocument->getValue($Valores, "OutrasRetencoes");
-			$oNFSeISSWebInfNFSe->Servico->Valores->DescontoCondicionado = $oDocument->getValue($Valores, "DescontoCondicionado");
-			$oNFSeISSWebInfNFSe->Servico->Valores->DescontoIncondicionado = $oDocument->getValue($Valores, "DescontoIncondicionado");
-
-			$oNFSeISSWebInfNFSe->Servico->ItemListaServico = $oDocument->getValue($Servico, "ItemListaServico");
-			$oNFSeISSWebInfNFSe->Servico->CodigoCnae = $oDocument->getValue($Servico, "CodigoCnae");
-			$oNFSeISSWebInfNFSe->Servico->CodigoTributacaoMunicipio = $oDocument->getValue($Servico, "CodigoTributacaoMunicipio");
-			$oNFSeISSWebInfNFSe->Servico->Discriminacao = $oDocument->getValue($Servico, "Discriminacao");
-			$oNFSeISSWebInfNFSe->Servico->CodigoMunicipio = $oDocument->getValue($Servico, "CodigoMunicipio");
-			$oNFSeISSWebInfNFSe->Servico->ExigibilidadeISS = $oDocument->getValue($Servico, "ExigibilidadeISS");
-
-			if($Prestador->getElementsByTagName("Cnpj")->length == 1)
-				$oNFSeISSWebInfNFSe->PrestadorServico->Identificacao->setCpfCnpj($oDocument->getValue($Prestador, "Cnpj"));
-			else
-				$oNFSeISSWebInfNFSe->PrestadorServico->Identificacao->setCpfCnpj($oDocument->getValue($Prestador, "Cpf"), 0);
-
-			$oNFSeISSWebInfNFSe->PrestadorServico->Identificacao->InscricaoMunicipal = $oDocument->getValue($Prestador, "InscricaoMunicipal");
-
-			$oNFSeISSWebInfNFSe->PrestadorServico->Endereco->TipoLogradouro = $oDocument->getValue($EnderecoPrestadorServico, "TipoLogradouro");
-			$oNFSeISSWebInfNFSe->PrestadorServico->Endereco->Logradouro = $oDocument->getValue($EnderecoPrestadorServico, "Logradouro");
-			$oNFSeISSWebInfNFSe->PrestadorServico->Endereco->Numero = $oDocument->getValue($EnderecoPrestadorServico, "Numero");
-			$oNFSeISSWebInfNFSe->PrestadorServico->Endereco->Complemento = $oDocument->getValue($EnderecoPrestadorServico, "Complemento");
-			$oNFSeISSWebInfNFSe->PrestadorServico->Endereco->Bairro = $oDocument->getValue($EnderecoPrestadorServico, "Bairro");
-			$oNFSeISSWebInfNFSe->PrestadorServico->Endereco->CodigoMunicipio = $oDocument->getValue($EnderecoPrestadorServico, "CodigoMunicipio");
-			$oNFSeISSWebInfNFSe->PrestadorServico->Endereco->CodigoPaisEstrangeiro = $oDocument->getValue($EnderecoPrestadorServico, "CodigoPaisEstrangeiro");
-			$oNFSeISSWebInfNFSe->PrestadorServico->Endereco->EstadoPaisEstrangeiro = $oDocument->getValue($EnderecoPrestadorServico, "EstadoPaisEstrangeiro");
-			$oNFSeISSWebInfNFSe->PrestadorServico->Endereco->CidadePaisEstrangeiro = $oDocument->getValue($EnderecoPrestadorServico, "CidadePaisEstrangeiro");
-			$oNFSeISSWebInfNFSe->PrestadorServico->Endereco->Uf = $oDocument->getValue($EnderecoPrestadorServico, "Uf");
-			$oNFSeISSWebInfNFSe->PrestadorServico->Endereco->Cep = $oDocument->getValue($EnderecoPrestadorServico, "Cep");
-
-			if($IdentificacaoTomador->getElementsByTagName("Cnpj")->length == 1)
-				$oNFSeISSWebInfNFSe->PrestadorServico->Identificacao->setCpfCnpj($oDocument->getValue($IdentificacaoTomador, "Cnpj"));
-			else
-				$oNFSeISSWebInfNFSe->PrestadorServico->Identificacao->setCpfCnpj($oDocument->getValue($IdentificacaoTomador, "Cpf"), 0);
-
-			$oNFSeISSWebInfNFSe->TomadorServico->IdentificacaoTomador->InscricaoMunicipal = $oDocument->getValue($IdentificacaoTomador, "InscricaoMunicipal");
-
-			$oNFSeISSWebInfNFSe->TomadorServico->RazaoSocial = $oDocument->getValue($Tomador, "RazaoSocial");
-
-			$oNFSeISSWebInfNFSe->TomadorServico->Endereco->TipoLogradouro = $oDocument->getValue($EnderecoTomador, "TipoLogradouro");
-			$oNFSeISSWebInfNFSe->TomadorServico->Endereco->Logradouro = $oDocument->getValue($EnderecoTomador, "Logradouro");
-			$oNFSeISSWebInfNFSe->TomadorServico->Endereco->Numero = $oDocument->getValue($EnderecoTomador, "Numero");
-			$oNFSeISSWebInfNFSe->TomadorServico->Endereco->Complemento = $oDocument->getValue($EnderecoTomador, "Complemento");
-			$oNFSeISSWebInfNFSe->TomadorServico->Endereco->Bairro = $oDocument->getValue($EnderecoTomador, "Bairro");
-			$oNFSeISSWebInfNFSe->TomadorServico->Endereco->CodigoMunicipio = $oDocument->getValue($EnderecoTomador, "CodigoMunicipio");
-			$oNFSeISSWebInfNFSe->TomadorServico->Endereco->CodigoPaisEstrangeiro = $oDocument->getValue($EnderecoTomador, "CodigoPaisEstrangeiro");
-			$oNFSeISSWebInfNFSe->TomadorServico->Endereco->EstadoPaisEstrangeiro = $oDocument->getValue($EnderecoTomador, "EstadoPaisEstrangeiro");
-			$oNFSeISSWebInfNFSe->TomadorServico->Endereco->CidadePaisEstrangeiro = $oDocument->getValue($EnderecoTomador, "CidadePaisEstrangeiro");
-			$oNFSeISSWebInfNFSe->TomadorServico->Endereco->Uf = $oDocument->getValue($EnderecoTomador, "Uf");
-			$oNFSeISSWebInfNFSe->TomadorServico->Endereco->Cep = $oDocument->getValue($EnderecoTomador, "Cep");
-
-			$oNFSeISSWebInfNFSe->TomadorServico->Contato->Ddd = $oDocument->getValue($ContatoTomador, "Ddd");
-			$oNFSeISSWebInfNFSe->TomadorServico->Contato->Telefone = $oDocument->getValue($ContatoTomador, "Telefone");
-			$oNFSeISSWebInfNFSe->TomadorServico->Contato->TipoTelefone = $oDocument->getValue($ContatoTomador, "TipoTelefone");
-			$oNFSeISSWebInfNFSe->TomadorServico->Contato->Email = $oDocument->getValue($ContatoTomador, "Email");
-
-			$return['CompNfse'][] = $oNFSeISSWebInfNFSe;
+			$return['CompNfse'][] = self::retInfNFSe($CompNfse, $oDocument);
 		}
 
 		return $return;
@@ -270,6 +260,26 @@ class NFSeISSWebReturn extends NFSeReturn{
 						file_put_contents($pathFile, $oLoteRpsResposta->saveXML());
 
 					return self::gerarLoteRpsResposta($oLoteRpsResposta);
+				break;
+				case "consultarNfseRps":
+
+					$oReturn = $dom->getElementsByTagName("ConsultarNfseRpsResposta")->item(0);
+					$oConsultarNfseRpsResposta = new NFSeDocument();
+					$oConsultarNfseRpsResposta->loadXML($oReturn->nodeValue);
+
+					if(!is_null($pathFile))
+						file_put_contents($pathFile, $oConsultarNfseRpsResposta->saveXML());
+
+					$return = array(
+						'ListaMensagemRetorno' => self::retListaMensagem($oConsultarNfseRpsResposta)
+					);
+
+					$CompNfse = $oConsultarNfseRpsResposta->getElementsByTagName('CompNfse');
+
+					if ($CompNfse->length == 1)
+						$return['CompNfse'] = self::retInfNFSe($CompNfse->item(0), $oConsultarNfseRpsResposta);
+
+					return $return;
 				break;
 				default:
 					throw new \Exception("Retorno nao definido! Action(" . $action . ") Retorno: " . PHP_EOL . $return);

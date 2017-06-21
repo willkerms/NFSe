@@ -60,7 +60,7 @@ class NFSeISSWeb extends NFSe {
 
 		$CancelarNfseEnvio = $document->appendChild($document->createElement("ca:CancelarNfseEnvio"));
 		$CancelarNfseEnvio->setAttribute("xmlns:ds", 'http://www.w3.org/2000/09/xmldsig#');
-		$CancelarNfseEnvio->setAttribute("xmlns:ca", 'http://www.abrasf.org.br/nfse.xsd');
+		$CancelarNfseEnvio->setAttribute("xmlns:ca", self::XMLNS);
 		$CancelarNfseEnvio->setAttribute("xmlns:xsi", 'http://www.w3.org/2001/XMLSchema-instance');
 		$CancelarNfseEnvio->setAttribute("xsi:schemaLocation", 'http://www.abrasf.org.br/nfse.xsd nfse-v2.xsd ');
 		$credenciais = $CancelarNfseEnvio->appendChild($document->createElement("ca:credenciais"));
@@ -111,7 +111,7 @@ class NFSeISSWeb extends NFSe {
 	 * @return array[NFSeISSWebInfNFSe]|array[NFSeISSWebMensagemRetorno]
 	 */
 	public function consultaNFSe(NFSeISSWebConsultarNFSe $oConsultarNFSe){
-
+		//FIXME: fazer consulta com padrão issweb
 		$document = new NFSeDocument();
 		$ConsultarNfseEnvio = $document->appendChild($document->createElement("co:ConsultarNfseEnvio"));
 		$ConsultarNfseEnvio->setAttribute("xmlns:co", self::XMLNS);
@@ -183,49 +183,28 @@ class NFSeISSWeb extends NFSe {
 
 		$document = new NFSeDocument();
 		$ConsultarNfseRpsEnvio = $document->appendChild($document->createElement("co:ConsultarNfseRpsEnvio"));
+		$ConsultarNfseRpsEnvio->setAttribute("xmlns:ds", 'http://www.w3.org/2000/09/xmldsig#');
+		$ConsultarNfseRpsEnvio->setAttribute("xmlns:xsi", 'http://www.w3.org/2001/XMLSchema-instance');
+		$ConsultarNfseRpsEnvio->setAttribute("xsi:schemaLocation", 'http://www.abrasf.org.br/nfse.xsd nfse-v2.xsd ');
 		$ConsultarNfseRpsEnvio->setAttribute("xmlns:co", self::XMLNS);
+
+		$credenciais = $ConsultarNfseRpsEnvio->appendChild($document->createElement("co:credenciais"));
+		$credenciais->appendChild($document->createElement("co:usuario", $this->aConfig['issweb_usuario']));
+		$credenciais->appendChild($document->createElement("co:senha", $this->aConfig['issweb_senha']));
+		$credenciais->appendChild($document->createElement("co:chavePrivada", $this->aConfig['issweb_chavePrivada']));
 
 		$IdentificacaoRps = $ConsultarNfseRpsEnvio->appendChild($document->createElement("co:IdentificacaoRps"));
 		$IdentificacaoRps->appendChild($document->createElement("co:Numero", $oIdentificacaoRps->Numero));
-		$IdentificacaoRps->appendChild($document->createElement("co:Serie", $oIdentificacaoRps->Serie));
 		$IdentificacaoRps->appendChild($document->createElement("co:Tipo", $oIdentificacaoRps->Tipo));
 
 		$Prestador = $ConsultarNfseRpsEnvio->appendChild($document->createElement("co:Prestador"));
-		$Prestador->appendChild($document->createElement("co:Cnpj", $this->aConfig['cnpj']));
+		$Prestador->appendChild( $document->createElement("co:CpfCnpj"))->appendChild($document->createElement("co:Cnpj", $this->aConfig['cnpj']));
 		$Prestador->appendChild($document->createElement("co:InscricaoMunicipal", $this->aConfig['inscMunicipal']));
 
-		$XMLAssinado = $this->signXML($document->saveXML(), "ConsultarNfseRpsEnvio");
-
 		$url = $this->isHomologacao ? $this->homologacao: $this->producao;
-		$action = "ConsultarNfsePorRpsV3";
+		$action = "consultarNfseRps";
 
-		return NFSeISSWebReturn::getReturn($this->curl($url, $this->retXMLSoap($XMLAssinado, $action), array('Content-Type: text/xml')), $action);
-	}
-
-	/**
-	 * Consulta a situação de um lote
-	 *
-	 * @param string $protocolo
-	 * @return string
-	 */
-	public function consultarSituacaoLoteRps($protocolo){
-
-		$document = new NFSeDocument();
-		$ConsultarLoteRpsEnvio = $document->appendChild($document->createElement("co:ConsultarSituacaoLoteRpsEnvio"));
-		$ConsultarLoteRpsEnvio->setAttribute("xmlns:co", self::XMLNS);
-
-		$Prestador = $ConsultarLoteRpsEnvio->appendChild($document->createElement("co:Prestador"));
-		$Prestador->appendChild($document->createElement("co:Cnpj", $this->aConfig['cnpj']));
-		$Prestador->appendChild($document->createElement("co:InscricaoMunicipal", $this->aConfig['inscMunicipal']));
-
-		$Protocolo = $ConsultarLoteRpsEnvio->appendChild($document->createElement("co:Protocolo", $protocolo));
-
-		$XMLAssinado = $this->signXML($document->saveXML(), "ConsultarSituacaoLoteRpsEnvio");
-
-		$url = $this->isHomologacao ? $this->homologacao: $this->producao;
-		$action = "ConsultarSituacaoLoteRpsV3";
-
-		return NFSeISSWebReturn::getReturn($this->curl($url, $this->retXMLSoap($XMLAssinado, $action), array('Content-Type: text/xml')), $action);
+		return NFSeISSWebReturn::getReturn($this->curl($url, $this->retXMLSoap($document->saveXML(), $action), array('Content-Type: text/xml'), 80), $action);
 	}
 
 	/**
@@ -236,6 +215,7 @@ class NFSeISSWeb extends NFSe {
 	 */
 	public function consultarLoteRps($protocolo){
 
+		//FIXME: Fazer metodo com o padrão ISSWEB
 		$document = new NFSeDocument();
 		$ConsultarLoteRpsEnvio = $document->appendChild($document->createElement("co:ConsultarLoteRpsEnvio"));
 		$ConsultarLoteRpsEnvio->setAttribute("xmlns:co", self::XMLNS);
@@ -293,6 +273,9 @@ class NFSeISSWeb extends NFSe {
 	 * @return NFSeISSWebEnviarLoteRpsResposta
 	 */
 	public function enviarLoteRps(array $aListaRps, NFSeISSWebLoteRps $oLote){
+
+		//FIXME: Fazer envio de lote com o padrão ISSWEB
+
 		$url = $this->isHomologacao ? $this->homologacao: $this->producao;
 
 		$document = new NFSeDocument();
