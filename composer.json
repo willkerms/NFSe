@@ -10,5 +10,20 @@
         }
     ],
     "minimum-stability": "dev",
-    "require": {}
+    "require": {
+        "php" : ">=5.5.0",
+        "willkerms/pqd" : "dev-master"
+    },
+    "autoload": {
+        "psr-4": {
+          "NFSe\\": "./"
+        },
+        "psr-0": {
+            "": ["./"]
+        },
+        "classmap": [
+            "./issweb/",
+            "./ginfes/"
+        ]
+    }
 }
