@@ -339,7 +339,8 @@ class NFSeISSWeb extends NFSe {
 			file_put_contents($this->aConfig['pathCert'] . '/env_gerarNfse_soap_' . $oRps->IdentificacaoRps->Numero . ".xml", $this->retXMLSoap($XMLAssinado, $action));
 		}
 
-		return NFSeISSWebReturn::getReturn($this->soap($url, $url, $action, $this->retXMLSoap($XMLAssinado, $action)), $action, $pathFile);
+		//return NFSeISSWebReturn::getReturn($this->soap($url, $url, $action, $this->retXMLSoap($XMLAssinado, $action)), $action, $pathFile);
+		return NFSeISSWebReturn::getReturn($this->curl($url, $this->retXMLSoap($XMLAssinado, $action), null, 80), $action, $pathFile);
 	}
 
 
