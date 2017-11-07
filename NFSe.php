@@ -378,16 +378,14 @@ class NFSe {
 	public function getSoap($wsdl, array $options = null){
 
 		$options = is_null($options) ? array() : $options;
+
+		$options['features'] = !isset($options['features']) ? SOAP_SINGLE_ELEMENT_ARRAYS : $options['features'];
+		$options['local_cert'] = !isset($options['local_cert']) ? $this->certKey : $options['local_cert'];
+
 		if(IS_DEVELOPMENT){
 			$options['trace'] = !isset($options['trace']) ? 1 : $options['trace'];
 			$options['exceptions'] = !isset($options['exceptions']) ? true : $options['exceptions'];
 			$options['cache_wsdl'] = !isset($options['cache_wsdl']) ? WSDL_CACHE_NONE : $options['cache_wsdl'];
-			$options['features'] = !isset($options['features']) ? SOAP_SINGLE_ELEMENT_ARRAYS : $options['features'];
-			$options['local_cert'] = !isset($options['local_cert']) ? $this->certKey : $options['local_cert'];
-		}
-		else{
-			$options['features'] = !isset($options['features']) ? SOAP_SINGLE_ELEMENT_ARRAYS : $options['features'];
-			$options['local_cert'] = !isset($options['local_cert']) ? $this->certKey : $options['local_cert'];
 		}
 
 		return $this->soapClient = new \SoapClient($wsdl, $options);
