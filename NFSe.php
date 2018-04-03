@@ -22,6 +22,9 @@ class NFSe {
 	 */
 	private $soapClient;
 
+	private $deleteTempFiles = false;
+
+	private $pathTempFiles = null;
 
 	/**
 	 * @param string $certPrivKey
@@ -235,6 +238,41 @@ class NFSe {
 	}
 
 	/**
+	 * Cria um diretório
+	 *
+	 * @param string $path
+	 * @return boolean
+	 */
+	public function mkdir($path){
+		if(!is_dir($path)){
+
+			if(!mkdir($path, 0777, true)){
+				return false;
+			}
+			else{
+				return true;
+			}
+		}
+		else
+			return true;
+	}
+
+	protected function createTempFiles($pfx, $pwd, $nameFiles = '', array &$aReturn = array()){
+
+		$this->pathTempFiles = dirname(__FILE__) . '/temp/';
+		$this->mkdir($this->pathTempFiles);
+		$this->loadPfx(file_get_contents($pfx), $pwd, true, false, $this->pathTempFiles, $nameFiles);
+
+		$aReturn['privKey'] = $this->pathTempFiles . $nameFiles . '_priKEY.pem';
+		$aReturn['pubKey'] = $this->pathTempFiles . $nameFiles . '_pubKEY.pem';
+		$aReturn['certKey'] = $this->pathTempFiles . $nameFiles . '_certKEY.pem';
+
+		$this->deleteTempFiles = true;
+
+		return $aReturn;
+	}
+
+	/**
 	 * Verifica a data de validade do certificado digital
 	 * e compara com a data de hoje.
 	 * Caso o certificado tenha expirado o mesmo será removido das
@@ -417,5 +455,15 @@ class NFSe {
 	 */
 	public function setSslProtocol($sslProtocol) {
 		$this->sslProtocol = $sslProtocol;
+	}
+
+	public function __destruct(){
+		if ($this->deleteTempFiles){
+
+			$aFiles = glob($this->pathTempFiles . '*');
+
+			foreach ($aFiles as $file)
+				unlink($file);
+		}
 	}
 }

@@ -41,6 +41,9 @@ class NFSeISSWeb extends NFSe {
 	 */
 	public function __construct(array $aConfig, $isHomologacao = true){
 
+		if (isset($aConfig['pfx']) && isset($aConfig['pwdPFX']))
+			$this->createTempFiles($aConfig['pfx'], $aConfig['pwdPFX'], $aConfig['cnpj'], $aConfig);
+
 		parent::__construct($aConfig['privKey'], $aConfig['pubKey'], $aConfig['certKey']);
 		$this->aConfig = $aConfig;
 		$this->isHomologacao = $isHomologacao;
