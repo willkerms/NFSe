@@ -43,6 +43,8 @@ class NFSeGinfes extends NFSe {
 	 * O parâmetro de configuração deve ser um array com pelo menos as posições:
 	 * $aConfig['cnpj'] => CNPJ prestador
 	 * $aConfig['inscMunicipal'] => Insc. Municipal do Prestador
+	 * $aConfig['pfx'] => Caminho para o arquivo pfx
+	 * $aConfig['pwdPFX'] => Senha do arquivo pfx
 	 * $aConfig['privKey'] => Caminho para a chave privada do prestador
 	 * $aConfig['pubKey'] => Caminho para a chave publica do prestador
 	 * $aConfig['certKey'] => Caminho para o arquivo que contem a chave publica e privada
