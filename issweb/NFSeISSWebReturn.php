@@ -17,13 +17,19 @@ class NFSeISSWebReturn extends NFSeReturn{
 		$xpath = new \DOMXPath($oDocument);
 		$nSMain = $oDocument->documentElement->lookupPrefix(NFSeISSWeb::XMLNS);
 
-		$ListaMensagemRetorno = $xpath->query($nSMain . ':'  . $listaMensagem, $contextNode);
+		if(empty($nSMain))
+			$ListaMensagemRetorno = $oDocument->documentElement->getElementsByTagName($listaMensagem);
+		else
+			$ListaMensagemRetorno = $xpath->query($nSMain . ':'  . $listaMensagem, $contextNode);
 
 		if($ListaMensagemRetorno->length == 1){
 
 			$ListaMensagemRetorno = $ListaMensagemRetorno->item(0);
 
-			$aMensagens = $xpath->query($nSMain . ':MensagemRetorno', $ListaMensagemRetorno);
+			if(empty($nSMain))
+				$aMensagens = $ListaMensagemRetorno->getElementsByTagName('MensagemRetorno');
+			else
+				$aMensagens = $xpath->query($nSMain . ':MensagemRetorno', $ListaMensagemRetorno);
 
 			for ($i = 0; $i< $aMensagens->length; $i++){
 
