@@ -96,17 +96,24 @@ class NFSeISSWeb extends NFSe {
 
 		$XMLAssinado = $this->signXML(trim($document->saveXML()), "InfPedidoCancelamento", "Pedido", 'ds:');
 
-		if(isset($this->aConfig['pathCert'])){
-			file_put_contents($this->aConfig['pathCert'] . '/cancela_nfse_' . $oCancelar->Numero . ".xml", $XMLAssinado);
-			$pathFile = $this->aConfig['pathCert'] . '/cancela_nfse_' . $oCancelar->Numero . "_ret.xml";
-		}
-		else
-			$pathFile = null;
-
 		$url = $this->isHomologacao ? $this->homologacao: $this->producao;
 		$action = "cancelarNfse";
 
-		return NFSeISSWebReturn::getReturn($this->soap($url, $url, $action, $this->retXMLSoap($XMLAssinado, $action, false)), $action, $pathFile);
+		$pathSoapReturn = $pathFile = null;
+		if(isset($this->aConfig['pathCert'])){
+			file_put_contents($this->aConfig['pathCert'] . '/cancela_nfse_' . $oCancelar->Numero . ".xml", $XMLAssinado);
+			$pathFile = $this->aConfig['pathCert'] . '/cancela_nfse_' . $oCancelar->Numero . "_ret.xml";
+			file_put_contents($this->aConfig['pathCert'] . '/cancela_nfse_soap_' . $oCancelar->Numero . ".xml", $this->retXMLSoap($XMLAssinado, $action, false));
+
+			$pathSoapReturn = $this->aConfig['pathCert'] . '/cancela_nfse_' . $oCancelar->Numero . "_ret_soap.xml";
+		}
+
+		$soapReturn = $this->soap($url, $url, $action, $this->retXMLSoap($XMLAssinado, $action, false));
+
+		if (!is_null($pathSoapReturn))
+			file_put_contents($pathSoapReturn, $soapReturn);
+
+		return NFSeISSWebReturn::getReturn($soapReturn, $action, $pathFile);
 	}
 
 	/**
@@ -209,7 +216,21 @@ class NFSeISSWeb extends NFSe {
 		$url = $this->isHomologacao ? $this->homologacao: $this->producao;
 		$action = "consultarNfseRps";
 
-		return NFSeISSWebReturn::getReturn($this->curl($url, $this->retXMLSoap($document->saveXML(), $action), array('Content-Type: text/xml'), 80), $action);
+		$pathSoapReturn = $pathFile = null;
+		if(isset($this->aConfig['pathCert'])){
+			file_put_contents($this->aConfig['pathCert'] . '/consultar_nfse_rps_' . $oIdentificacaoRps->Numero . ".xml", $document->saveXML());
+			$pathFile = $this->aConfig['pathCert'] . '/consultar_nfse_rps_' . $oIdentificacaoRps->Numero . "_ret.xml";
+			file_put_contents($this->aConfig['pathCert'] . '/consultar_nfse_rps_soap_' . $oIdentificacaoRps->Numero . ".xml", $this->retXMLSoap($document->saveXML(), $action));
+
+			$pathSoapReturn = $this->aConfig['pathCert'] . '/consultar_nfse_rps_' . $oIdentificacaoRps->Numero . "_ret_soap.xml";
+		}
+
+		$soapReturn = $this->curl($url, $this->retXMLSoap($document->saveXML(), $action), array('Content-Type: text/xml'), 80);
+
+		if (!is_null($pathSoapReturn))
+			file_put_contents($pathSoapReturn, $soapReturn);
+
+		return NFSeISSWebReturn::getReturn($soapReturn, $action, $pathFile);
 	}
 
 	/**
@@ -337,14 +358,20 @@ class NFSeISSWeb extends NFSe {
 		$XMLAssinado = $this->signXML(trim($document->saveXML()), "InfDeclaracaoPrestacaoServico", "Rps", 'ds:');
 		$action = "gerarNfse";
 
-		$pathFile = null;
+		$pathSoapReturn = $pathFile = null;
 		if(isset($this->aConfig['pathCert'])){
 			file_put_contents($this->aConfig['pathCert'] . '/env_gerarNfse_' . $oRps->IdentificacaoRps->Numero . ".xml", $XMLAssinado);
 			$pathFile = $this->aConfig['pathCert'] . '/env_gerarNfse_' . $oRps->IdentificacaoRps->Numero . "_ret.xml";
 			file_put_contents($this->aConfig['pathCert'] . '/env_gerarNfse_soap_' . $oRps->IdentificacaoRps->Numero . ".xml", $this->retXMLSoap($XMLAssinado, $action));
+
+			$pathSoapReturn = $this->aConfig['pathCert'] . '/env_gerarNfse_' . $oRps->IdentificacaoRps->Numero . "_ret_soap.xml";
 		}
 
-		return NFSeISSWebReturn::getReturn($this->soap($url, $url, $action, $this->retXMLSoap($XMLAssinado, $action)), $action, $pathFile);
+		$soapReturn = $this->soap($url, $url, $action, $this->retXMLSoap($XMLAssinado, $action));
+		if(!is_null($pathSoapReturn))
+			file_put_contents($pathSoapReturn, $soapReturn);
+
+		return NFSeISSWebReturn::getReturn($soapReturn, $action, $pathFile);
 		//return NFSeISSWebReturn::getReturn($this->curl($url, $this->retXMLSoap($XMLAssinado, $action), null, 80), $action, $pathFile);
 	}
 
