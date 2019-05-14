@@ -6,6 +6,7 @@ use NFSe\NFSeDocument;
 use NFSe\NFSeElement;
 
 /**
+ * Prefeituras: Senador Canedo
  *
  * @since 2017-03-13
  * @author Willker Moraes Silva
@@ -514,5 +515,31 @@ class NFSeISSWeb extends NFSe {
 		$InfRps->appendChild($document->createElement("lt:OptanteSimplesNacional", $oRps->OptanteSimplesNacional));
 		$InfRps->appendChild($document->createElement("lt:IncentivoFiscal", $oRps->IncentivoFiscal));
 		*/
+	}
+
+	/**
+	 * Seta Url do servidor de produção: http://canedo.bsit-br.com.br/integracao/services/nfseWS?wsdl
+	 *
+	 * @param string $urlProducao
+	 */
+	public function setUrlWSProducao($urlProducao){
+		$this->producao = $urlProducao;
+	}
+
+	/**
+	 * Seta url do servidor de homologacao: http://homologacao.canedo.bsit-br.com.br/integracao/services/nfseWS?wsdl
+	 *
+	 * @param string $urlHomologacao
+	 */
+	public function setUrlWSHomologacao($urlHomologacao){
+		$this->homologacao = $urlHomologacao;
+	}
+
+	public function getUrlWSProducao(){
+		return $this->producao;
+	}
+
+	public function getUrlWSHomologacao(){
+		return $this->homologacao;
 	}
 }
