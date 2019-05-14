@@ -19,6 +19,8 @@ class NFSeISSWeb extends NFSe {
 
 	private $producao = "http://canedo.bsit-br.com.br/integracao/services/nfseWS?wsdl";
 
+	private $soap = "http://ws.integration.iss.bsit.com.br/";
+
 	private $isHomologacao = true;
 
 	private $aConfig;
@@ -281,7 +283,7 @@ class NFSeISSWeb extends NFSe {
 		$oXMLSOAP = new NFSeDocument();
 		$Envelope = $oXMLSOAP->appendChild($oXMLSOAP->createElement("soap:Envelope"));
 		$Envelope->setAttribute("xmlns:soap", "http://schemas.xmlsoap.org/soap/envelope/");
-		$Envelope->setAttribute("xmlns:req", "http://ws.integration.iss.bsit.com.br/");
+		$Envelope->setAttribute("xmlns:req", $this->soap);
 
 
 		$Body = $Envelope->appendChild($oXMLSOAP->createElement("soap:Body"));
@@ -541,5 +543,23 @@ class NFSeISSWeb extends NFSe {
 
 	public function getUrlWSHomologacao(){
 		return $this->homologacao;
+	}
+
+	/**
+	 * Seta url do pacote SOAP: http://ws.integration.iss.bsit.com.br/
+	 *
+	 * @param string $urlSOAP
+	 */
+	public function setUrlSOAP($urlSOAP){
+		$this->soap = $urlSOAP;
+	}
+
+	/**
+	 * obtem a url do pacote SOAP: http://ws.integration.iss.bsit.com.br/
+	 *
+	 * @return string
+	 */
+	public function getUrlSOAP(){
+		return $this->soap;
 	}
 }
