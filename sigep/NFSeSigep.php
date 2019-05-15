@@ -275,14 +275,16 @@ class NFSeSigep extends NFSe {
 		$reqNS = $this->isHomologacao ? parse_url($this->homologacao): parse_url($this->producao);
 
 		$oXMLSOAP = new NFSeDocument();
-		$Envelope = $oXMLSOAP->appendChild($oXMLSOAP->createElement("soap:Envelope"));
-		$Envelope->setAttribute("xmlns:soap", "http://schemas.xmlsoap.org/soap/envelope/");
-		$Envelope->setAttribute("xmlns:req", $this->soap);
+		$Envelope = $oXMLSOAP->appendChild($oXMLSOAP->createElement("soapenv:Envelope"));
+		$Envelope->setAttribute("xmlns:soapenv", "http://schemas.xmlsoap.org/soap/envelope/");
+		$Envelope->setAttribute("xmlns:ws", $this->soap);
 
 
-		$Body = $Envelope->appendChild($oXMLSOAP->createElement("soap:Body"));
+		$Envelope->appendChild($oXMLSOAP->createElement("soapenv:Header"));
 
-		$req = $Body->appendChild($oXMLSOAP->createElement("req:" . $action));
+		$Body = $Envelope->appendChild($oXMLSOAP->createElement("soapenv:Body"));
+
+		$req = $Body->appendChild($oXMLSOAP->createElement("ws:" . $action));
 		$GerarNfseEnvio = $req->appendChild($oXMLSOAP->createElement(ucwords($action) . "Envio"));
 		//$GerarNfseEnvio->appendChild($oXMLSOAP->createTextNode($xml));
 
