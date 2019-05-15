@@ -290,8 +290,8 @@ class NFSeISSWeb extends NFSe {
 
 		$req = $Body->appendChild($oXMLSOAP->createElement("req:" . $action));
 		$GerarNfseEnvio = $req->appendChild($oXMLSOAP->createElement(ucwords($action) . "Envio"));
-		//$GerarNfseEnvio->appendChild($oXMLSOAP->createTextNode($xml));
-		$GerarNfseEnvio->appendChild($oXMLSOAP->createCDATASection(preg_replace("/<?xml .*?>/", "", $xml)));
+		$GerarNfseEnvio->appendChild($oXMLSOAP->createTextNode($xml));
+		//$GerarNfseEnvio->appendChild($oXMLSOAP->createCDATASection(preg_replace("/\<\?xml .*\?\>/", "", $xml)));
 		return $oXMLSOAP->saveXML();
 	}
 
