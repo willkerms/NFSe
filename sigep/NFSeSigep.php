@@ -369,13 +369,11 @@ class NFSeSigep extends NFSe {
 			$pathSoapReturn = $this->aConfig['pathCert'] . '/env_gerarNfse_' . $oRps->IdentificacaoRps->Numero . "_ret_soap.xml";
 		}
 
-		/*
 		$soapReturn = $this->soap($url, $url, $action, $this->retXMLSoap($XMLAssinado, $action));
 		if(!is_null($pathSoapReturn))
 			file_put_contents($pathSoapReturn, $soapReturn);
 
 		return NFSeSigepReturn::getReturn($soapReturn, $action, $pathFile);
-		*/
 		//return NFSeSigepReturn::getReturn($this->curl($url, $this->retXMLSoap($XMLAssinado, $action), null, 80), $action, $pathFile);
 	}
 
