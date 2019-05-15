@@ -108,7 +108,8 @@ class NFSeSigep extends NFSe {
 			$pathSoapReturn = $this->aConfig['pathCert'] . '/cancela_nfse_' . $oCancelar->Numero . "_ret_soap.xml";
 		}
 
-		$soapReturn = $this->soap($url, $url, $action, $this->retXMLSoap($XMLAssinado, $action, false));
+		//$soapReturn = $this->soap($url, $url, $action, $this->retXMLSoap($XMLAssinado, $action, false));
+		$soapReturn = $this->curl($url, $this->retXMLSoap($XMLAssinado, $action), array('Content-Type: text/xml'), 80);
 
 		if (!is_null($pathSoapReturn))
 			file_put_contents($pathSoapReturn, $soapReturn);
@@ -341,7 +342,8 @@ class NFSeSigep extends NFSe {
 			file_put_contents($this->aConfig['pathCert'] . '/env_lt_soap_' . $oLote->NumeroLote . ".xml", $this->retXMLSoap($XMLAssinado, $action));
 		}
 
-		return NFSeSigepReturn::getReturn($this->soap($url, $url, $action, $this->retXMLSoap($XMLAssinado, $action)), $action, $pathFile);
+		//return NFSeSigepReturn::getReturn($this->soap($url, $url, $action, $this->retXMLSoap($XMLAssinado, $action)), $action, $pathFile);
+		return NFSeSigepReturn::getReturn($this->curl($url, $this->retXMLSoap($XMLAssinado, $action), array('Content-Type: text/xml'), 80), $action, $pathFile);
 	}
 
 	public function gerarNfse(NFSeSigepInfRps $oRps){
@@ -371,7 +373,8 @@ class NFSeSigep extends NFSe {
 			$pathSoapReturn = $this->aConfig['pathCert'] . '/env_gerarNfse_' . $oRps->IdentificacaoRps->Numero . "_ret_soap.xml";
 		}
 
-		$soapReturn = $this->soap($url, $url, $action, $this->retXMLSoap($XMLAssinado, $action));
+		$soapReturn = $this->curl($url, $this->retXMLSoap($XMLAssinado, $action), array('Content-Type: text/xml'), 80);
+		//$soapReturn = $this->soap($url, $url, $action, $this->retXMLSoap($XMLAssinado, $action));
 		if(!is_null($pathSoapReturn))
 			file_put_contents($pathSoapReturn, $soapReturn);
 
