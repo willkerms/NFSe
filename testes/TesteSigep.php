@@ -3,6 +3,7 @@ require_once 'TesteCase.php';
 
 use NFSe\sigep\NFSeSigep;
 use NFSe\sigep\NFSeSigepInfRps;
+use NFSe\sigep\NFSeSigepReturn;
 
 class TesteSigep extends TesteCase{
 

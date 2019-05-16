@@ -229,8 +229,15 @@ class NFSeSigepReturn extends NFSeReturn{
 			$fault = self::checkForFault($dom);
 
 			if(!empty($fault)){
-				$oReturn->createElement("fault", $fault);
-				return $oReturn;
+				$fault;
+				$oMensagem = new NFSeSigepMensagemRetorno();
+				$oMensagem->Mensagem = $fault;//mensagem de erro
+
+				return array(
+					'ListaMensagemRetorno' => array(
+						$oMensagem
+					)
+				);
 			}
 
 			switch ($action){
@@ -292,8 +299,18 @@ class NFSeSigepReturn extends NFSeReturn{
 				break;
 			}
 		}
-		else
-			$oReturn->createElement("fault", $fault);
+		else{
+			$oMensagem = new NFSeSigepMensagemRetorno();
+			$oMensagem->Mensagem = "Nenhum retorno informado!";//mensagem de erro
+
+			return array(
+				'ListaMensagemRetorno' => array(
+					$oMensagem
+				)
+			);
+
+			//$oReturn->createElement("fault", $fault);
+		}
 
 		return $oReturn;
 	}

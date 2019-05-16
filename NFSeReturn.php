@@ -8,7 +8,7 @@ class NFSeReturn {
 	 * Verifica se a mensagem de retorno Ã© uma FAULT
 	 * Normalmente essas falhas ocorrem devido a falhas internas
 	 * nos servidores da SEFAZ
-	 * 
+	 *
 	 * Função retirada do projeto nfephp-org
 	 * @link https://github.com/nfephp-org
 	 * @param NFePHP\Common\Dom\Dom $dom
@@ -18,9 +18,26 @@ class NFSeReturn {
 
 		$fault = $dom->getElementsByTagName('Fault')->item(0);
 		$reason = '';
-		if (isset($fault)) 
-			$reason = $fault->getElementsByTagName('Text')->item(0)->nodeValue;
-		
+		if (isset($fault)) {
+
+			$text = $fault->getElementsByTagName('Text');
+
+			if($text->length == 1)
+				$reason = $text->item(0)->nodeValue;
+			else{
+
+				$text = $fault->getElementsByTagName('faultcode');
+
+				if($text->length == 1){
+					$reason = $text->item(0)->nodeValue;
+					$reason .= " " . $fault->getElementsByTagName('faultstring')->item(0)->nodeValue;;
+				}
+				else{
+					$reason = "Fault fora do especificado!";
+				}
+			}
+		}
+
 		return $reason;
 	}
 }
