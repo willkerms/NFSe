@@ -196,7 +196,7 @@ class NFSeSigep extends NFSe {
 
 		$document = new NFSeDocument();
 		$ConsultarNfseRpsEnvio = $document->appendChild($document->createElement("ConsultarNfseRpsEnvio"));
-		$ConsultarNfseRpsEnvio->setAttribute("xmlns:co", self::XMLNS);
+		$ConsultarNfseRpsEnvio->setAttribute("xmlns", self::XMLNS);
 
 		$credenciais = $ConsultarNfseRpsEnvio->appendChild($document->createElement("credenciais"));
 		$credenciais->appendChild($document->createElement("usuario", $this->aConfig['sigep_usuario']));
