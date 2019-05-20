@@ -91,7 +91,8 @@ class NFSeSigepReturn extends NFSeReturn{
 		$oNFSeSigepInfNFSe->StatusNfse = $oDocument->getValue($InfNfse, "StatusNfse");
 		$oNFSeSigepInfNFSe->NfseSubstituida = $oDocument->getValue($InfNfse, "NfseSubstituida");
 		$oNFSeSigepInfNFSe->OutrasInformacoes = $oDocument->getValue($InfNfse, "OutrasInformacoes");
-		$oNFSeSigepInfNFSe->Url = 'http://' . $oDocument->getValue($InfNfse, "UrlNfse");
+		$url = $oDocument->getValue($InfNfse, "UrlNfse");
+		$oNFSeSigepInfNFSe->Url = ( substr($url, 0, 7) != 'http://' && substr($url, 0, 8) != 'https://' ? 'http://' : '') . $url;
 		$oNFSeSigepInfNFSe->ValorCredito = $oDocument->getValue($InfNfse, "ValorCredito");
 
 		$oNFSeSigepInfNFSe->IdentificacaoRps->Numero = $oDocument->getValue($IdentificacaoRps, "Numero");
