@@ -422,6 +422,7 @@ class NFSeGenerico extends NFSe {
             $RpsSubstituido->appendChild($document->createElementNS($this->sNfseNS, "Tipo", $oRps->RpsSubstituido->Tipo));            
         }
         
+        $InfRps->appendChild($document->createElementNS($this->sNfseNS, "Competencia", substr($oRps->DataEmissao, 0, 10)));
         $Servico = $InfRps->appendChild($document->createElementNS($this->sNfseNS, "Servico"));
         
         $Valores = $Servico->appendChild($document->createElementNS($this->sNfseNS, "Valores"));
@@ -446,6 +447,7 @@ class NFSeGenerico extends NFSe {
         
         $Valores->appendChild($document->createElementNS($this->sNfseNS, "DescontoCondicionado", number_format($oRps->Servico->Valores->DescontoCondicionado, 2, '.', '')));
         
+		$Servico->appendChild($document->createElementNS($this->sNfseNS, "IssRetido", $oRps->Servico->IssRetido));
         if(!empty($oRps->Servico->ItemListaServico)){
             $Servico->appendChild($document->createElementNS($this->sNfseNS, "ItemListaServico", $oRps->Servico->ItemListaServico));
         }
@@ -530,15 +532,18 @@ class NFSeGenerico extends NFSe {
             $IntermediarioServico->appendChild($document->createElementNS($this->sNfseNS, "RazaoSocial"))->appendChild($document->createCDATASection($oRps->IntermediarioServico->RazaoSocial));
             $IntermediarioServico->appendChild($document->createElementNS($this->sNfseNS, "CodigoMunicipio"))->appendChild($document->createCDATASection($oRps->IntermediarioServico->CodigoMunicipio));
             
-        }
-        
+		}
+		
         if (!empty($oRps->ConstrucaoCivil->CodigoObra)) {
         
             $ConstrucaoCivil = $InfRps->appendChild($document->createElementNS($this->sNfseNS, "ConstrucaoCivil"));
             $ConstrucaoCivil->appendChild($document->createElementNS($this->sNfseNS, "CodigoObra", $oRps->ConstrucaoCivil->CodigoObra));
             $ConstrucaoCivil->appendChild($document->createElementNS($this->sNfseNS, "CodigoObra", $oRps->ConstrucaoCivil->Art));
             
-        }
+		}
+		
+		$InfRps->appendChild($document->createElementNS($this->sNfseNS, "OptanteSimplesNacional", $oRps->OptanteSimplesNacional));
+		$InfRps->appendChild($document->createElementNS($this->sNfseNS, "IncentivoFiscal", $oRps->IncentivoFiscal));
 
         if($this->bPrintXml) {
 
