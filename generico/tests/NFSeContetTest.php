@@ -7,19 +7,19 @@ use NFSe\generico\NFSeGenericoPeriodoEmissao;
 
 class NFSeContentTest {
 
-    public static function getCancelar() {
+
+    public static function getCancelarNfse() {
 
         $json = self::getJson();
         $oCancelar = new NFSeGenericoCancelarNfseEnvio();
 
-        $oCancelar->tpPessoa = 1;
-        $oCancelar->cpfCnpj = $json->cnpjPrestador;
-
+        $oCancelar->setCpfCnpj($json->cnpjPrestador);
         $oCancelar->InscricaoMunicipal = $json->inscMunicipalPrestador;
+        $oCancelar->Numero = $json->idNfse;
 
         return $oCancelar;
 
-    } 
+    }
 
     public static function getConsultarNfseSericoPrestado() {
         
