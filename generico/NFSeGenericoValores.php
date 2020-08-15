@@ -23,6 +23,13 @@ class NFSeGenericoValores{
 	public $DescontoIncondicionado = 0.0;
 	public $DescontoCondicionado = 0.0;
 
+	/**
+	 * 1 - Sim
+	 * 2 - Não
+	 * 
+	 * @var number
+	 */
+	public $IssRetido = 2;
 	public $ValorIss = 0.0;
 	public $ValorIssRetido = 0.0;
 

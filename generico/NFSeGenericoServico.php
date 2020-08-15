@@ -14,6 +14,14 @@ class NFSeGenericoServico {
 	public $Valores;
 
 	/**
+	 * 1 - Sim
+	 * 2 - Não
+	 * 
+	 * @var number
+	 */
+	public $IssRetido = 2;
+
+	/**
 	 * @var string
 	 */
 	public $ItemListaServico;
