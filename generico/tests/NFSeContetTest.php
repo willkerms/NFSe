@@ -43,6 +43,7 @@ class NFSeContentTest {
         
         $oRps->IdentificacaoRps->Numero = 00000000030603;
         $oRps->IdentificacaoRps->Tipo = 1;
+        $oRps->IdentificacaoRps->Serie = 1;
 
         $oRps->Servico->Valores->ValorServicos = 30.00;
         $oRps->Servico->Valores->ValorDeducoes = 0.00;

@@ -2,7 +2,6 @@
 
 namespace NFSe\generico;
 
-use Exception;
 use NFSe\NFSe;
 use NFSe\NFSeDocument;
 
@@ -18,7 +17,6 @@ class NFSeGenerico extends NFSe {
     private $bPrintXml = false;
     private $isHomologacao = true;
     private $aConfig;
-    
     
     public function __construct(array $aConfig, $isHomologacao = true) {
 
@@ -399,11 +397,12 @@ class NFSeGenerico extends NFSe {
     public function gerarNfse(NFSeGenericoInfRps $oRps) {
         
         $document = new NFSeDocument();
-       
-        $GerarNfseEnvio = $document->appendChild(
-            $document->createElementNS($this->sNfseNS, "GerarNfseEnvio")
-        );
-        
+
+        $GerarNfseEnvioElement = $document->createElementNS($this->sNfseNS, "GerarNfseEnvio");
+        $GerarNfseEnvioElement->setAttributeNS(self::XMLNS_URI, "xmlns:xd", "http://www.w3.org/2000/09/xmldsig#");
+
+        $GerarNfseEnvio = $document->appendChild($GerarNfseEnvioElement);
+
         $Rps = $GerarNfseEnvio->appendChild($document->createElementNS($this->sNfseNS, "Rps"));
         $InfRps = $Rps->appendChild($document->createElementNS($this->sNfseNS, "InfDeclaracaoPrestacaoServico"));
         
@@ -412,6 +411,7 @@ class NFSeGenerico extends NFSe {
         $IdentificacaoRps = $InfDeclPrestServRps->appendChild($document->createElementNS($this->sNfseNS, "IdentificacaoRps"));
         $IdentificacaoRps->appendChild($document->createElementNS($this->sNfseNS, "Numero", $oRps->IdentificacaoRps->Numero));
         $IdentificacaoRps->appendChild($document->createElementNS($this->sNfseNS, "Tipo", $oRps->IdentificacaoRps->Tipo));
+        $IdentificacaoRps->appendChild($document->createElementNS($this->sNfseNS, "Serie", $oRps->IdentificacaoRps->Serie));
         
         $InfDeclPrestServRps->appendChild($document->createElementNS($this->sNfseNS, "DataEmissao", $oRps->DataEmissao));
         $InfDeclPrestServRps->appendChild($document->createElementNS($this->sNfseNS, "Status", $oRps->Status));
