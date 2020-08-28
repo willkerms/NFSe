@@ -7,9 +7,7 @@ namespace NFSe\generico;
  */
 class NFSeGenericoEndereco {
 
-	public $TipoLogradouro;
-
-	public $Logradouro;
+	public $Endereco;
 
 	public $Numero;
 
@@ -19,14 +17,11 @@ class NFSeGenericoEndereco {
 
 	public $CodigoMunicipio;
 
-	public $CodigoPaisEstrangeiro;
-
-	public $EstadoPaisEstrangeiro;
-
-	public $CidadePaisEstrangeiro;
-
 	public $Uf;
 
 	public $Cep;
 
+	public $CodigoPaisEstrangeiro;
+
+	public $EnderecoCompletoExterior;
 }

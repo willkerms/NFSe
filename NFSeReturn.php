@@ -9,7 +9,7 @@ class NFSeReturn {
 	 * Normalmente essas falhas ocorrem devido a falhas internas
 	 * nos servidores da SEFAZ
 	 *
-	 * Função retirada do projeto nfephp-org
+	 * FunÃ§Ã£o retirada do projeto nfephp-org
 	 * @link https://github.com/nfephp-org
 	 * @param NFePHP\Common\Dom\Dom $dom
 	 * @return string

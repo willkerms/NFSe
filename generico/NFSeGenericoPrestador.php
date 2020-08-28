@@ -7,10 +7,6 @@ namespace NFSe\generico;
  * @author Willker Moraes Silva
  *
  */
-class NFSeGenericoPrestador{
+class NFSeGenericoPrestador extends NFSeGenericoIdentificacao{
 	
-	public $Cnpj;
-	
-	public $InscricaoMunicipal;
-
 }

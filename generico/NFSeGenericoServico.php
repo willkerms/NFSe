@@ -24,6 +24,11 @@ class NFSeGenericoServico {
 	/**
 	 * @var string
 	 */
+	public $ResponsavelRetencao;
+
+	/**
+	 * @var string
+	 */
 	public $ItemListaServico;
 
 	/**
@@ -39,6 +44,11 @@ class NFSeGenericoServico {
 	/**
 	 * @var string
 	 */
+	public $CodigoNbs;
+
+	/**
+	 * @var string
+	 */
 	public $Discriminacao;
 
 	/**
@@ -47,16 +57,28 @@ class NFSeGenericoServico {
 	public $CodigoMunicipio;
 
 	/**
+	 * @var string
+	 */
+	public $CodigoPais;
+
+	/**
 	 * Exigibilidade do ISS da NFS-e
-	 *
-	 *  01 - TRIBUTA��O NO MUNIC�PIO
-	 *  02 - TRIBUTA��O FORA DO MUNIC�PIO
-	 *  03 - ISEN��O
-	 *  05 - IMUNE;
+	 * 1 - Exigivel; 
+	 * 2 - Nao incidencia; 
+	 * 3 - Isencao; 
+	 * 4 - Exportacao; 
+	 * 5 - Imunidade; 
+	 * 6 - Exigibilidade Suspensa por Decisao Judicial; 
+	 * 7 - Exigibilidade Suspensa por Processo Administrativo
 	 *
 	 * @var number
 	 */
-	public $ExigibilidadeISS = '01';
+	public $ExigibilidadeISS = 1;
+
+	/**
+	 * @var string
+	 */
+	public $IdentifNaoExigibilidade;
 
 	/**
 	 * @var string

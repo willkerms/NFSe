@@ -43,7 +43,7 @@ class NFSe {
 	 * este assinador somente utiliza comandos nativos do PHP para assinar
 	 * os arquivos XML
 	 *
-	 * FunÁ„o retirada do projeto nfephp-org
+	 * Fun√ß√£o retirada do projeto nfephp-org
 	 * @link https://github.com/nfephp-org
 	 *
 	 * @param string $docxml
@@ -90,7 +90,7 @@ class NFSe {
 			$root = $xmldoc->documentElement;
 		}
 		else {
-			$msg = "Erro ao carregar XML, provavel erro na passagem do par‚metro docXML!!";
+			$msg = "Erro ao carregar XML, provavel erro na passagem do parÔøΩmetro docXML!!";
 			throw new \Exception($msg);
 		}
 
@@ -184,31 +184,32 @@ class NFSe {
 	/**
 	 * loadPfx
 	 * Carrega um novo certificado no formato PFX
-	 * Isso dever· ocorrer a cada atualizaÁ„o do certificado digital, ou seja,
+	 * Isso dever√° ocorrer a cada atualiza√ß√£o do certificado digital, ou seja,
 	 * pelo menos uma vez por ano, uma vez que a validade do certificado
-	 * È anual.
-	 * Ser· verificado tambÈm se o certificado pertence realmente ao CNPJ
-	 * indicado na instanciaÁ„o da classe, se n„o for um erro ir· ocorrer e
-	 * o certificado n„o ser· convertido para o formato PEM.
-	 * Em caso de erros, ser· retornado false e o motivo ser· indicado no
-	 * par‚metro error da classe.
-	 * Os certificados ser„o armazenados como <CNPJ>-<tipo>.pem
+	 * √© anual.
+	 * Ser√° verificado tamb√©m se o certificado pertence realmente ao CNPJ
+	 * indicado na instancia√ß√£o da classe, se n√£o for um erro ir√° ocorrer e
+	 * o certificado n√£o ser√° convertido para o formato PEM.
+	 * Em caso de erros, ser√° retornado false e o motivo ser√° indicado no
+	 * par√¢metro error da classe.
+	 * Os certificados ser√£o armazenados como <CNPJ>-<tipo>.pem
+	 * 
 	 * @param string $pfxContent arquivo PFX
 	 * @param string $password Senha de acesso ao certificado PFX
-	 * @param boolean $createFiles se true ir· criar os arquivos pem das chaves digitais, caso contrario n„o
+	 * @param boolean $createFiles se true ir√° criar os arquivos pem das chaves digitais, caso contrario n√£o
 	 * @param bool $ignoreValidity
 	 * @return bool
 	 */
 	public function loadPfx( $pfxContent = '', $password = '', $createFiles = true, $ignoreValidity = false, $pathFiles = '', $nameFiles = '') {
 			if ($password == '') {
 				throw new \Exception(
-					"A senha de acesso para o certificado pfx n„o pode ser vazia."
+					"A senha de acesso para o certificado pfx n√£o pode ser vazia."
 					);
 			}
 			//carrega os certificados e chaves para um array denominado $x509certdata
 			$x509certdata = array();
 			if (!openssl_pkcs12_read($pfxContent, $x509certdata, $password)) {
-				throw new \Exception("O certificado n„o pode ser lido!! Senha errada ou arquivo corrompido ou formato inv·lido!!");
+				throw new \Exception("O certificado n√£o pode ser lido!! Senha errada ou arquivo corrompido ou formato inv√°lido!!");
 			}
 			$this->pfxCert = $pfxContent;
 			if (!$ignoreValidity) {
@@ -238,7 +239,7 @@ class NFSe {
 	}
 
 	/**
-	 * Cria um diretÛrio
+	 * Cria um diret√≥rio
 	 *
 	 * @param string $path
 	 * @return boolean
@@ -275,16 +276,16 @@ class NFSe {
 	/**
 	 * Verifica a data de validade do certificado digital
 	 * e compara com a data de hoje.
-	 * Caso o certificado tenha expirado o mesmo ser· removido das
-	 * pastas e o mÈtodo ir· retornar false.
+	 * Caso o certificado tenha expirado o mesmo ser√° removido das
+	 * pastas e o m√©todo ir√° retornar false.
 	 * @param string $pubKey chave publica
 	 * @return boolean
 	 */
 	private function validCerts($pubKey)
 	{
 		if (! $data = openssl_x509_read($pubKey)) {
-			//o dado n„o È uma chave v·lida
-			throw new \Exception("A chave passada est· corrompida ou n„o È uma chave. Obtenha s chaves corretas!!");
+			//o dado n√£o √© uma chave v√°lida
+			throw new \Exception("A chave passada est√° corrompida ou n√£o √© uma chave. Obtenha s chaves corretas!!");
 		}
 
 		$certData = openssl_x509_parse($data);
@@ -299,14 +300,14 @@ class NFSe {
 		// compara a data de validade com a data atual
 		$this->expireTimestamp = $dValid;
 		if ($dHoje > $dValid)
-			throw  new \Exception("Data de validade vencida! [Valido atÈ $dia/$mes/$ano]");
+			throw  new \Exception("Data de validade vencida! [Valido at√© $dia/$mes/$ano]");
 
 		return true;
 	}
 
 	/**
 	 *
-	 * FunÁ„o retirada do projeto nfephp-org
+	 * Fun√ß√£o retirada do projeto nfephp-org
 	 * @link https://github.com/nfephp-org
 	 *
 	 * @param string $cert
@@ -328,7 +329,7 @@ class NFSe {
 
 	/**
 	 *
-	 * FunÁ„o retirada do projeto nfephp-org
+	 * Fun√ß√£o retirada do projeto nfephp-org
 	 * @link https://github.com/nfephp-org
 	 *
 	 * @param string $url
@@ -351,9 +352,9 @@ class NFSe {
 				curl_setopt($oCurl, CURLOPT_PROXYAUTH, CURLAUTH_BASIC);
 			} // fim if senha proxy
 		} // fim if aProxy
-		  // forÁa a resolus„o de nomes com IPV4 e n„o com IPV6, isso
+		  // for√ßa a resolus√£o de nomes com IPV4 e n√£o com IPV6, isso
 		  // pode acelerar tempor√°riamente as falhas ou demoras decorrentes de
-		  // ambiente mal preparados como os da SEFAZ GO, porÈm pode causar
+		  // ambiente mal preparados como os da SEFAZ GO, por√©m pode causar
 		  // problemas no futuro quando os endere√ßos IPV4 deixarem de ser usados
 		curl_setopt($oCurl, CURLOPT_IPRESOLVE, CURL_IPRESOLVE_V4);
 		curl_setopt($oCurl, CURLOPT_CONNECTTIMEOUT, 10);
@@ -398,16 +399,16 @@ class NFSe {
 		if (! is_null($parametros))
 			curl_setopt($oCurl, CURLOPT_HTTPHEADER, $parametros);
 
-			// inicia a conex„o
+			// inicia a conex√£o
 		$resposta = curl_exec($oCurl);
 
-		// obtem as informaÁıes da conex„o
+		// obtem as informa√ß√µes da conex√£o
 		$info = curl_getinfo($oCurl);
 		// carrega os dados para debug
 		// $this->zDebug($info, $data, $resposta);
 		// $this->errorCurl = curl_error($oCurl);
 		echo curl_error($oCurl);
-		// fecha a conex„o
+		// fecha a conex√£o
 		curl_close($oCurl);
 		// retorna resposta
 		return $resposta;

@@ -18,7 +18,7 @@ class NFSeGenericoIdentificacaoRps{
 	 *
 	 * @var string
 	 */
-	public $Tipo;
+	public $Tipo = 1;
 
 	public $Serie;
 	

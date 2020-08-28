@@ -20,14 +20,57 @@ class NFSeGenericoInfRps {
 	public $DataEmissao;
 
 	/**
+	 * 1 - Normal
+	 * 2 - Cancelada
+	 *
+	 * @var number
+	 */
+	public $Status = 1;
+
+	/**
+	 * @var NFSeGenericoIdentificacaoRps
+	 */
+	public $RpsSubstituido;
+
+	/**
+	 * @var string
+	 */
+	public $Competencia;
+
+	/**
+	 * @var NFSeGenericoServico
+	 */
+	public $Servico;
+
+	/**
+	 * @var NFSeGenericoPrestador
+	 */
+	public $Prestador;
+
+	/**
+	 * @var NFSeGenericoTomador
+	 */
+	public $Tomador;
+
+	/**
+	 * NFSeGenericoIntermediarioServico
+	 */
+	public $IntermediarioServico;
+
+	/**
+	 * @var NFSeGenericoConstrucaoCivil
+	 */
+	public $ConstrucaoCivil;
+
+	/**
 	 * 1 - Microempresa Municipal
 	 * 2 - Estimativa
 	 * 3 - Sociedade de Profissionais
 	 * 4 - Cooperativa
-	 * 5 - Microempres�rio Individual (MEI)
-	 * 6 - Microempres�rio e Empresa de Pequeno Porte (ME EPP)
+	 * 5 - Microempresário Individual (MEI)
+	 * 6 - Microempresário e Empresa de Pequeno Porte (ME EPP)
 	 *
-	 * Obs: Quando a empresa n�o se enquadra em nenhum dos regimes especial de tributa��o acima, a tag que corresponde a essa informa��o deve ser suprimida do XML.
+	 * Obs: Quando a empresa não se enquadra em nenhum dos regimes especial de tributação acima, a tag que corresponde a essa informação deve ser suprimida do XML.
 	 *
 	 * @var number
 	 */
@@ -50,24 +93,19 @@ class NFSeGenericoInfRps {
 	public $IncentivoFiscal = 2;
 
 	/**
-	 * 1 - Normal
-	 * 2 - Cancelada
-	 *
-	 * @var number
+	 * @var NFSeGenericoEvento
 	 */
-	public $Status = 1;
+	public $Evento;
 
-	public $RpsSubstituido;
-
-	public $Servico;
-
-	public $Prestador;
-
-	public $Tomador;
-
-	public $IntermediarioServico;
-
-	public $ConstrucaoCivil;
+	/**
+	 * @var string
+	 */
+	public $InformacoesComplementares;
+	
+	/**
+	 * @var array[NFSeGenericoDeducao]
+	 */
+	public $aDeducoes = array();
 
 	public function __construct() {
 
@@ -78,7 +116,7 @@ class NFSeGenericoInfRps {
 		$this->Tomador 					= new NFSeGenericoTomador();
 		$this->IntermediarioServico 	= new NFSeGenericoIntermediarioServico();
 		$this->ConstrucaoCivil 			= new NFSeGenericoConstrucaoCivil();
-
+		$this->Evento 					= new NFSeGenericoEvento();
 	}
 
 }
