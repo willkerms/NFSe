@@ -62,10 +62,10 @@ class NFSeGenerico extends NFSe {
 				'senha' => '',
 				'chavePrivada' => ''
 			),
-			
 			'pathSaveXMLs' => realpath(dirname(__FILE__) . '/../xml') . '/',
 			'templates' => array(
-				'path' => realpath(dirname(__FILE__) . '/../templates/abrasf-v2.4/') . '/',
+				'path' => realpath(dirname(__FILE__) . '/../templates/') . '/',
+				'folder' => 'abrasf-v2.4',
 				'rps' => 'Rps.xml',
 				'deducao' => 'Deducao.xml',
 				'gerarNfse' => 'GerarNfseEnvio.xml',
@@ -178,21 +178,23 @@ class NFSeGenerico extends NFSe {
 	 * @param string $id
 	 * 
 	 */
-	public function gerarNfse(NFSeGenericoInfRps $oRps, $id = null) {
+	public function gerarNfse(NFSeGenericoInfRps $oRps) {
 		
 		$fileName = $oRps->IdentificacaoRps->Numero . "-" . $oRps->IdentificacaoRps->Serie . ".xml";
 		$metodo = 'gerarNfse';
 
 		//RPS
-		$xml = $this->retXMLRps($oRps, $id);
+		$xml = $this->retXMLRps($oRps);
 		$xml = $this->signXML($xml, 
 			$this->aConfig['metodos'][$metodo]['tagSign'], 
 			$this->aConfig['metodos'][$metodo]['tagAppend'], 
-			$this->aConfig['metodos'][$metodo]['nameSpace']
+			$this->aConfig['metodos'][$metodo]['nameSpace'],
+			true
 		);
 
-		if($this->isHomologacao)
+		if($this->isHomologacao){
 			$this->saveXML($xml, $metodo . '-rps-' . $fileName);
+		}
 
 		//Gerar NFSe
 		$tpl = $this->getTemplate($metodo);
@@ -214,6 +216,7 @@ class NFSeGenerico extends NFSe {
 	 * 
 	 */
 	private function saveXML($xml, $name){
+
 		if(isset($this->aConfig['pathSaveXMLs']) && is_dir($this->aConfig['pathSaveXMLs']))
 			file_put_contents($this->aConfig['pathSaveXMLs'] . $name, $xml);
 	}
@@ -226,9 +229,8 @@ class NFSeGenerico extends NFSe {
 	 * @return string
 	 */
 	private function getTemplate($template){
-
-		if(is_file($this->aConfig['templates']['path'] . $this->aConfig['templates'][$template]))
-			return file_get_contents($this->aConfig['templates']['path'] . $this->aConfig['templates'][$template]);
+		if(is_file($this->aConfig['templates']['path'] . $this->aConfig['templates']['folder'] . '/' . $this->aConfig['templates'][$template]))
+			return file_get_contents($this->aConfig['templates']['path'] . $this->aConfig['templates']['folder'] . '/' . $this->aConfig['templates'][$template]);
 		
 		throw new \Exception("Template: " . $template . " não encontrado!");
 	}
@@ -381,7 +383,7 @@ class NFSeGenerico extends NFSe {
 	 * 
 	 * @return string
 	 */
-	private function retXMLRps(NFSeGenericoInfRps $oRps, $id = null){
+	private function retXMLRps(NFSeGenericoInfRps $oRps){
 
 		PQDUtil::recursive($oRps, function($data){
 			return htmlspecialchars($data);
@@ -430,7 +432,8 @@ class NFSeGenerico extends NFSe {
 
 		//RPS
 		$aReplace = array(
-			'{@idRps}' => $id,
+			'{@idRps}' => $oRps->idRps,
+			'{@idInfDeclaracaoPrestacaoServico}' => $oRps->idInfDeclaracaoPrestacaoServico,
 			'{@Numero}' => $oRps->IdentificacaoRps->Numero,
 			'{@Serie}' => $oRps->IdentificacaoRps->Serie,
 			'{@Tipo}' => $oRps->IdentificacaoRps->Tipo,
@@ -532,8 +535,8 @@ class NFSeGenerico extends NFSe {
 			array('begin' => '{@ifDescricaoEvento}', 'end' => '{@endifDescricaoEvento}', 'bool' => !is_null($oRps->Evento->DescricaoEvento) ),
 			array('begin' => '{@ifInformacoesComplementares}', 'end' => '{@endifInformacoesComplementares}', 'bool' => !is_null($oRps->InformacoesComplementares) ),
 			
-			array('begin' => '{@ifIdInfDeclaracaoPrestacaoServico}', 'end' => '{@endifIdInfDeclaracaoPrestacaoServico}', 'bool' => false ),
-			array('begin' => '{@ifIdRps}', 'end' => '{@endifIdRps}', 'bool' => !is_null($id) ),
+			array('begin' => '{@ifIdInfDeclaracaoPrestacaoServico}', 'end' => '{@endifIdInfDeclaracaoPrestacaoServico}', 'bool' =>  !is_null($oRps->idInfDeclaracaoPrestacaoServico)  ),
+			array('begin' => '{@ifIdRps}', 'end' => '{@endifIdRps}', 'bool' => !is_null($oRps->idRps) ),
 		);
 
 		return $this->retXML(PQDUtil::procTplText($tplRps, $aReplace, $aIfs));
@@ -546,7 +549,8 @@ class NFSeGenerico extends NFSe {
 	 */
 	private function retXMLSoap($xml, $action) {
 
-		$tpl = $tpl = $this->getTemplate('soap');;
+		$tpl = $this->getTemplate('soap');
+
 
 		$aReplaces = $this->retReplaceUsuarios('soap');
 

@@ -8,6 +8,11 @@ namespace NFSe\generico;
  *
  */
 class NFSeGenericoInfRps {
+	
+	public $idInfDeclaracaoPrestacaoServico;
+
+	public $idRps;
+
 
 	/**
 	 * @var NFSeGenericoIdentificacaoRps

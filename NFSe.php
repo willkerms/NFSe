@@ -56,7 +56,7 @@ class NFSe {
 	 *        	: namespace utilizado, normalmente "p1"
 	 * @return mixed false se houve erro ou string com o XML assinado
 	 */
-	public function signXML($docxml, $tagid = '', $appendTag = false, $ns = '') {
+	public function signXML($docxml, $tagid = '', $appendTag = false, $ns = '', $firstChild = false) {
 
 		if ($tagid == '') {
 			$msg = "Uma tag deve ser indicada para que seja assinada!!";
@@ -173,7 +173,7 @@ class NFSe {
 		$newNode = $xmldoc->createElement($ns . 'X509Certificate', $cert);
 		$X509Data->appendChild($newNode);
 		// grava na string o objeto DOM
-		$docxml = $xmldoc->saveXML();
+		$docxml = $xmldoc->saveXML($firstChild ? $xmldoc->firstChild : null);
 		// libera a memoria
 		openssl_free_key($pkeyid);
 		// retorna o documento assinado
