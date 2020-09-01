@@ -3,6 +3,7 @@ namespace NFSe\generico;
 
 use NFSe\NFSeReturn;
 use NFSe\NFSeDocument;
+use PQD\PQDUtil;
 
 class NFSeGenericoReturn extends NFSeReturn {
 
@@ -14,24 +15,13 @@ class NFSeGenericoReturn extends NFSeReturn {
 		
 		$return = array();
 
-		$xpath = new \DOMXPath($oDocument);
-		$nSMain = $oDocument->documentElement->lookupPrefix(NFSeGenerico::XMLNS_NFE);
-
-		if(empty($nSMain)) {
-			$ListaMensagemRetorno = $oDocument->documentElement->getElementsByTagName($listaMensagem);
-		} else {
-			$ListaMensagemRetorno = $xpath->query($nSMain . ':'  . $listaMensagem, $contextNode);
-		}
+		$ListaMensagemRetorno = $oDocument->documentElement->getElementsByTagName($listaMensagem);
 
 		if($ListaMensagemRetorno->length == 1) {
 
 			$ListaMensagemRetorno = $ListaMensagemRetorno->item(0);
 
-			if(empty($nSMain)) {
-				$aMensagens = $ListaMensagemRetorno->getElementsByTagName('MensagemRetorno');
-			} else {
-				$aMensagens = $xpath->query($nSMain . ':MensagemRetorno', $ListaMensagemRetorno);
-			}
+			$aMensagens = $ListaMensagemRetorno->getElementsByTagName('MensagemRetorno');
 
 			for ($i = 0; $i< $aMensagens->length; $i++){
 
@@ -187,8 +177,6 @@ class NFSeGenericoReturn extends NFSeReturn {
 	 * @return array[NFSeGenericoInfNFSe]
 	 */
 	private static function retListNFSe(NFSeDocument $oDocument) {
-		$xpath = new \DOMXPath($oDocument);
-		$nSMain = $oDocument->lookupPrefix(NFSeGenerico::XMLNS);
 
 		$ListaNfse = $oDocument->getElementsByTagName("ListaNfse");
 
@@ -229,7 +217,7 @@ class NFSeGenericoReturn extends NFSeReturn {
 	 *
 	 * @return NFSeDocument
 	 */
-	public static function getReturn($return, $action, $pathFile = null) {
+	public static function getReturn($return, $metodo, $aConfig) {
 
 		$oReturn = new NFSeDocument();
 
@@ -253,7 +241,7 @@ class NFSeGenericoReturn extends NFSeReturn {
 
 			}
 
-			switch ($action) {
+			switch ($metodo) {
 
 				case "cancelarNfse":
 					$oReturn = $dom->getElementsByTagName("CancelarNfseResposta")->item(0);
@@ -270,15 +258,14 @@ class NFSeGenericoReturn extends NFSeReturn {
 				
 				case "gerarNfse":
 
-					$oReturn = $dom->getElementsByTagName("GerarNfseRetorno")->item(0);
-					$oGerarNfseRetorno = new NFSeDocument();
-					$oGerarNfseRetorno->loadXML($oReturn->nodeValue);
-
-					if(!is_null($pathFile)) {
-						file_put_contents($pathFile, $oGerarNfseRetorno->saveXML());
+					if(PQDUtil::retDefault($aConfig['metodos']['gerarNfse'], 'returnType', 'child') == 'string'){
+						$oReturn = $dom->getElementsByTagName($aConfig['metodos']['gerarNfse']['tagReturn'])->item(0);
+	
+						$oGerarNfseRetorno = new NFSeDocument();
+						$oGerarNfseRetorno->loadXML(PQDUtil::retDefault($aConfig['metodos']['gerarNfse'], 'returnType', 'child') == 'string' ? $oReturn->nodeValue : $dom->saveXML($oReturn));	
 					}
 
-					return self::gerarNfseRetorno($oGerarNfseRetorno);
+					return self::gerarNfseRetorno($dom);
 
 				break;
 				

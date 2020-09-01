@@ -1,50 +1,50 @@
-<Deducao>
-	<TipoDeducao>{@TipoDeducao}</TipoDeducao>
-	<DescricaoDeducao>{@DescricaoDeducao}</DescricaoDeducao>
-	<IdentificacaoDocumentoDeducao>
+<nfse:Deducao>
+	<nfse:TipoDeducao>{@TipoDeducao}</nfse:TipoDeducao>
+	<nfse:DescricaoDeducao>{@DescricaoDeducao}</nfse:DescricaoDeducao>
+	<nfse:IdentificacaoDocumentoDeducao>
 		{@ifIdentificacaoNfse}
-		<IdentificacaoNfse>
-			<CodigoMunicipioGerador>{@CodigoMunicipioGerador}</CodigoMunicipioGerador>
-			<NumeroNfse>{@NumeroNfse}</NumeroNfse>
-			<CodigoVerificacao>{@CodigoVerificacao}</CodigoVerificacao>
-		</IdentificacaoNfse>
+		<nfse:IdentificacaoNfse>
+			<nfse:CodigoMunicipioGerador>{@CodigoMunicipioGerador}</nfse:CodigoMunicipioGerador>
+			<nfse:NumeroNfse>{@NumeroNfse}</nfse:NumeroNfse>
+			<nfse:CodigoVerificacao>{@CodigoVerificacao}</nfse:CodigoVerificacao>
+		</nfse:IdentificacaoNfse>
 		{@endifIdentificacaoNfse}
 		{@ifIdentificacaoNfe}
-		<IdentificacaoNfe>
-			<NumeroNfe>{@NumeroNfe}</NumeroNfe>
-			<UfNfe>{@UfNfe}</UfNfe>
-			<ChaveAcessoNfe>{@ChaveAcessoNfe}</ChaveAcessoNfe>
-		</IdentificacaoNfe>
+		<nfse:IdentificacaoNfe>
+			<nfse:NumeroNfe>{@NumeroNfe}</nfse:NumeroNfe>
+			<nfse:UfNfe>{@UfNfe}</nfse:UfNfe>
+			<nfse:ChaveAcessoNfe>{@ChaveAcessoNfe}</nfse:ChaveAcessoNfe>
+		</nfse:IdentificacaoNfe>
 		{@endifIdentificacaoNfe}
 		{@ifOutroDocumento}
-		<OutroDocumento>
-			<IdentificacaoDocumento>{@IdentificacaoDocumento}</IdentificacaoDocumento>
-		</OutroDocumento>
+		<nfse:OutroDocumento>
+			<nfse:IdentificacaoDocumento>{@IdentificacaoDocumento}</nfse:IdentificacaoDocumento>
+		</nfse:OutroDocumento>
 		{@endifOutroDocumento}
-	</IdentificacaoDocumentoDeducao>
-	<DadosFornecedor>
+	</nfse:IdentificacaoDocumentoDeducao>
+	<nfse:DadosFornecedor>
 		{@ifIdentificacaoFornecedor}
-		<IdentificacaoFornecedor>
-			<CpfCnpj>
+		<nfse:IdentificacaoFornecedor>
+			<nfse:CpfCnpj>
 				{@ifCpf}
-				<Cpf>{@Cpf}</Cpf>
+				<nfse:Cpf>{@Cpf}</nfse:Cpf>
 				{@endifCpf}
 				{@ifCnpj}
-				<Cnpj>{@Cnpj}</Cnpj>
+				<nfse:Cnpj>{@Cnpj}</nfse:Cnpj>
 				{@endifCnpj}
-			</CpfCnpj>
-		</IdentificacaoFornecedor>
+			</nfse:CpfCnpj>
+		</nfse:IdentificacaoFornecedor>
 		{@endifIdentificacaoFornecedor}
 		{@ifFornecedorExterior}
-		<FornecedorExterior>
+		<nfse:FornecedorExterior>
 			{@ifNifFornecedor}
-			<NifFornecedor>{@NifFornecedor}</NifFornecedor>
+			<nfse:NifFornecedor>{@NifFornecedor}</nfse:NifFornecedor>
 			{@endifNifFornecedor}
-			<CodigoPais>{@CodigoPais}</CodigoPais>
-		</FornecedorExterior>
+			<nfse:CodigoPais>{@CodigoPais}</nfse:CodigoPais>
+		</nfse:FornecedorExterior>
 		{@endifFornecedorExterior}
-	</DadosFornecedor>
-	<DataEmissao>{@DataEmissao}</DataEmissao>
-	<ValorDedutivel>{@ValorDedutivel}</ValorDedutivel>
-	<ValorUtilizadoDeducao>{@ValorUtilizadoDeducao}</ValorUtilizadoDeducao>
-</Deducao>
+	</nfse:DadosFornecedor>
+	<nfse:DataEmissao>{@DataEmissao}</nfse:DataEmissao>
+	<nfse:ValorDedutivel>{@ValorDedutivel}</nfse:ValorDedutivel>
+	<nfse:ValorUtilizadoDeducao>{@ValorUtilizadoDeducao}</nfse:ValorUtilizadoDeducao>
+</nfse:Deducao>

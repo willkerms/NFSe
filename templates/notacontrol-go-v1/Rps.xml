@@ -3,9 +3,9 @@
 	<InfDeclaracaoPrestacaoServico{@ifIdInfDeclaracaoPrestacaoServico} Id="{@idInfDeclaracaoPrestacaoServico}"{@endifIdInfDeclaracaoPrestacaoServico}>
 		<Rps{@ifIdRps} Id="{@idRps}"{@endifIdRps}>
 			<IdentificacaoRps>
-				<Numero>{@Numero}</Numero>
-				<Serie>{@Serie}</Serie>
-				<Tipo>{@Tipo}</Tipo>
+				<Numero>{@NumeroRps}</Numero>
+				<Serie>{@SerieRps}</Serie>
+				<Tipo>{@TipoRps}</Tipo>
 			</IdentificacaoRps>
 			<DataEmissao>{@DataEmissao}</DataEmissao>
 			<Status>{@Status}</Status>
@@ -98,7 +98,9 @@
 					{@endifCnpjTomadorServico}
 					
 				</CpfCnpj>
+				{@ifInscricaoMunicipalTomadorServico}
 				<InscricaoMunicipal>{@InscricaoMunicipalTomadorServico}</InscricaoMunicipal>
+				{@endifInscricaoMunicipalTomadorServico}
 			</IdentificacaoTomador>
 			
 			{@ifNifTomador}

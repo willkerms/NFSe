@@ -76,14 +76,11 @@ class NFSeGenericoInfNFSe{
 	 */
 	public $IntermediarioServico;
 
-	public function __construct()
-	{
+	public function __construct(){
 		$this->IdentificacaoRps = new NFSeGenericoIdentificacaoRps();
 		$this->IntermediarioServico = new NFSeGenericoIntermediarioServico();
 		$this->Servico = new NFSeGenericoServico();
 		$this->TomadorServico = new NFSeGenericoTomador();
 		$this->PrestadorServico = new NFSeGenericoPrestadorServico();
-
 	}
-
 }

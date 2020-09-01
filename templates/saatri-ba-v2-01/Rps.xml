@@ -3,9 +3,9 @@
 	<InfDeclaracaoPrestacaoServico{@ifIdInfDeclaracaoPrestacaoServico} Id="{@idInfDeclaracaoPrestacaoServico}"{@endifIdInfDeclaracaoPrestacaoServico}>
 		<Rps{@ifIdRps} Id="{@idRps}"{@endifIdRps}>
 			<IdentificacaoRps>
-				<Numero>{@Numero}</Numero>
-				<Serie>{@Serie}</Serie>
-				<Tipo>{@Tipo}</Tipo>
+				<Numero>{@NumeroRps}</Numero>
+				<Serie>{@SerieRps}</Serie>
+				<Tipo>{@TipoRps}</Tipo>
 			</IdentificacaoRps>
 			<DataEmissao>{@DataEmissao}</DataEmissao>
 			<Status>{@Status}</Status>
@@ -30,7 +30,6 @@
 				<ValorIr>{@ValorIr}</ValorIr>
 				<ValorCsll>{@ValorCsll}</ValorCsll>
 				<OutrasRetencoes>{@OutrasRetencoes}</OutrasRetencoes>
-				<ValTotTributos>{@ValTotTributos}</ValTotTributos>
 				<ValorIss>{@ValorIss}</ValorIss>
 				<Aliquota>{@Aliquota}</Aliquota>
 				<DescontoIncondicionado>{@DescontoIncondicionado}</DescontoIncondicionado>
@@ -86,7 +85,7 @@
 			</CpfCnpj>
 			<InscricaoMunicipal>{@InscricaoMunicipalPrestador}</InscricaoMunicipal>
 		</Prestador>
-		<TomadorServico>
+		<Tomador>
 			<IdentificacaoTomador>
 				<CpfCnpj>
 					{@ifCpfTomadorServico}
@@ -98,7 +97,9 @@
 					{@endifCnpjTomadorServico}
 					
 				</CpfCnpj>
+				{@ifInscricaoMunicipalTomadorServico}
 				<InscricaoMunicipal>{@InscricaoMunicipalTomadorServico}</InscricaoMunicipal>
+				{@endifInscricaoMunicipalTomadorServico}
 			</IdentificacaoTomador>
 			
 			{@ifNifTomador}
@@ -138,7 +139,7 @@
 				
 			</Contato>
 			{@endifContato}
-		</TomadorServico>
+		</Tomador>
 		
 		{@ifIntermediario}
 		<Intermediario>

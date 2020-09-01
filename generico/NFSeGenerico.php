@@ -79,9 +79,13 @@ class NFSeGenerico extends NFSe {
 					//'typeCommunication' => 'soap',
 					//'typeCommunication' => 'curl',
 					'action' => 'gerarNfse',
+					//'returnType' => 'string',
 					'nameSpace' => '',
 					'tagSign' => 'InfDeclaracaoPrestacaoServico', 
-					'tagAppend' => 'Rps'
+					'tagAppend' => 'Rps',
+					'tagMapReturn' => array(
+						'return' => 'GerarNfseResposta'
+					)
 				),
 				'consultarNFSePorRps' => array(
 					'action' => 'consultarNfseRps',
@@ -371,7 +375,7 @@ class NFSeGenerico extends NFSe {
 		$document->loadXML($xml, LIBXML_NOBLANKS);
 
 		$this->removeComments($document);
-		
+
 		return trim($document->saveXML($firstChild ? $document->firstChild : null, LIBXML_NOEMPTYTAG));
 	}
 
@@ -434,9 +438,9 @@ class NFSeGenerico extends NFSe {
 		$aReplace = array(
 			'{@idRps}' => $oRps->idRps,
 			'{@idInfDeclaracaoPrestacaoServico}' => $oRps->idInfDeclaracaoPrestacaoServico,
-			'{@Numero}' => $oRps->IdentificacaoRps->Numero,
-			'{@Serie}' => $oRps->IdentificacaoRps->Serie,
-			'{@Tipo}' => $oRps->IdentificacaoRps->Tipo,
+			'{@NumeroRps}' => $oRps->IdentificacaoRps->Numero,
+			'{@SerieRps}' => $oRps->IdentificacaoRps->Serie,
+			'{@TipoRps}' => $oRps->IdentificacaoRps->Tipo,
 			'{@DataEmissao}' => $oRps->DataEmissao,
 			'{@Status}' => $oRps->Status,
 			'{@NumeroRpsSubstituido}' => $oRps->RpsSubstituido->Numero,
@@ -517,6 +521,7 @@ class NFSeGenerico extends NFSe {
 			array('begin' => '{@ifCnpjPrestador}', 'end' => '{@endifCnpjPrestador}', 'bool' => strlen($oRps->Prestador->CpfCnpj) == 14),
 			array('begin' => '{@ifCpfTomadorServico}', 'end' => '{@endifCpfTomadorServico}', 'bool' => strlen($oRps->Tomador->IdentificacaoTomador->CpfCnpj) == 11),
 			array('begin' => '{@ifCnpjTomadorServico}', 'end' => '{@endifCnpjTomadorServico}', 'bool' => strlen($oRps->Tomador->IdentificacaoTomador->CpfCnpj) == 14),
+			array('begin' => '{@ifInscricaoMunicipalTomadorServico}', 'end' => '{@endifInscricaoMunicipalTomadorServico}', 'bool' => !empty($oRps->Tomador->IdentificacaoTomador->InscricaoMunicipal)),
 			array('begin' => '{@ifNifTomador}', 'end' => '{@endifNifTomador}', 'bool' => !is_null($oRps->Tomador->NifTomador)),
 			array('begin' => '{@ifEndereco}', 'end' => '{@endifEndereco}', 'bool' => is_null($oRps->Tomador->Endereco->CodigoPaisEstrangeiro) ),
 			array('begin' => '{@ifEnderecoExterior}', 'end' => '{@endifEnderecoExterior}', 'bool' => !is_null($oRps->Tomador->Endereco->CodigoPaisEstrangeiro) ),
