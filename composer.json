@@ -22,6 +22,8 @@
             "": ["./"]
         },
         "classmap": [
+            "./generico/",
+            "./sigep/",
             "./issweb/",
             "./ginfes/"
         ]

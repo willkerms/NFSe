@@ -24,10 +24,10 @@ class NFSeSigepInfRps{
 	 * 2 - Estimativa
 	 * 3 - Sociedade de Profissionais
 	 * 4 - Cooperativa
-	 * 5 - Microempres·rio Individual (MEI)
-	 * 6 - Microempres·rio e Empresa de Pequeno Porte (ME EPP)
+	 * 5 - Microempres√°rio Individual (MEI)
+	 * 6 - Microempres√°rio e Empresa de Pequeno Porte (ME EPP)
 	 *
-	 * Obs: Quando a empresa n„o se enquadra em nenhum dos regimes especial de tributaÁ„o acima, a tag que corresponde a essa informaÁ„o deve ser suprimida do XML.
+	 * Obs: Quando a empresa n√£o se enquadra em nenhum dos regimes especial de tributa√ß√£o acima, a tag que corresponde a essa informa√ß√£o deve ser suprimida do XML.
 	 *
 	 * @var number
 	 */
@@ -35,7 +35,7 @@ class NFSeSigepInfRps{
 
 	/**
 	 * 1 - Sim
-	 * 2 - N„o
+	 * 2 - N√£o
 	 *
 	 * @var number
 	 */
@@ -43,7 +43,7 @@ class NFSeSigepInfRps{
 
 	/**
 	 * 1 - Sim
-	 * 2 - N„o
+	 * 2 - N√£o
 	 *
 	 * @var number
 	 */

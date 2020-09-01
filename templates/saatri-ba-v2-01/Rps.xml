@@ -1,0 +1,204 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Rps>
+	<InfDeclaracaoPrestacaoServico{@ifIdInfDeclaracaoPrestacaoServico} Id="{@idInfDeclaracaoPrestacaoServico}"{@endifIdInfDeclaracaoPrestacaoServico}>
+		<Rps{@ifIdRps} Id="{@idRps}"{@endifIdRps}>
+			<IdentificacaoRps>
+				<Numero>{@NumeroRps}</Numero>
+				<Serie>{@SerieRps}</Serie>
+				<Tipo>{@TipoRps}</Tipo>
+			</IdentificacaoRps>
+			<DataEmissao>{@DataEmissao}</DataEmissao>
+			<Status>{@Status}</Status>
+			
+			{@ifRpsSubstituido}
+			<RpsSubstituido>
+				<Numero>{@NumeroRpsSubstituido}</Numero>
+				<Serie>{@SerieRpsSubstituido}</Serie>
+				<Tipo>{@TipoRpsSubstituido}</Tipo>
+			</RpsSubstituido>
+			{@endifRpsSubstituido}
+			
+		</Rps>
+		<Competencia>{@Competencia}</Competencia>
+		<Servico>
+			<Valores>
+				<ValorServicos>{@ValorServicos}</ValorServicos>
+				<ValorDeducoes>{@ValorDeducoes}</ValorDeducoes>
+				<ValorPis>{@ValorPis}</ValorPis>
+				<ValorCofins>{@ValorCofins}</ValorCofins>
+				<ValorInss>{@ValorInss}</ValorInss>
+				<ValorIr>{@ValorIr}</ValorIr>
+				<ValorCsll>{@ValorCsll}</ValorCsll>
+				<OutrasRetencoes>{@OutrasRetencoes}</OutrasRetencoes>
+				<ValorIss>{@ValorIss}</ValorIss>
+				<Aliquota>{@Aliquota}</Aliquota>
+				<DescontoIncondicionado>{@DescontoIncondicionado}</DescontoIncondicionado>
+				<DescontoCondicionado>{@DescontoCondicionado}</DescontoCondicionado>
+			</Valores>
+			<IssRetido>{@IssRetido}</IssRetido>
+			
+			{@ifResponsavelRetencao}
+			<ResponsavelRetencao>{@ResponsavelRetencao}</ResponsavelRetencao>
+			{@endifResponsavelRetencao}
+			
+			<ItemListaServico>{@ItemListaServico}</ItemListaServico>
+			<CodigoCnae>{@CodigoCnae}</CodigoCnae>
+			
+			{@ifCodigoTributacaoMunicipio}
+			<CodigoTributacaoMunicipio>{@CodigoTributacaoMunicipio}</CodigoTributacaoMunicipio>
+			{@endifCodigoTributacaoMunicipio}
+			
+			{@ifCodigoNbs}
+			<CodigoNbs>{@CodigoNbs}</CodigoNbs>
+			{@endifCodigoNbs}
+			
+			<Discriminacao>{@Discriminacao}</Discriminacao>
+			<CodigoMunicipio>{@CodigoMunicipioServico}</CodigoMunicipio>
+			
+			{@ifCodigoPaisServico}
+			<CodigoPais>{@CodigoPaisServico}</CodigoPais>
+			{@endifCodigoPaisServico}
+			
+			<ExigibilidadeISS>{@ExigibilidadeISS}</ExigibilidadeISS>
+			
+			{@ifIdentifNaoExigibilidade}
+			<IdentifNaoExigibilidade>{@IdentifNaoExigibilidade}</IdentifNaoExigibilidade>
+			{@endifIdentifNaoExigibilidade}
+			
+			{@ifMunicipioIncidencia}
+			<MunicipioIncidencia>{@MunicipioIncidencia}</MunicipioIncidencia>
+			{@endifMunicipioIncidencia}
+			
+			{@ifNumeroProcesso}
+			<NumeroProcesso>{@NumeroProcesso}</NumeroProcesso>
+			{@endifNumeroProcesso}
+		</Servico>
+		<Prestador>
+			<CpfCnpj>
+				{@ifCpfPrestador}
+				<Cpf>{@CpfPrestador}</Cpf>
+				{@endifCpfPrestador}
+				
+				{@ifCnpjPrestador}
+				<Cnpj>{@CnpjPrestador}</Cnpj>
+				{@endifCnpjPrestador}
+			</CpfCnpj>
+			<InscricaoMunicipal>{@InscricaoMunicipalPrestador}</InscricaoMunicipal>
+		</Prestador>
+		<Tomador>
+			<IdentificacaoTomador>
+				<CpfCnpj>
+					{@ifCpfTomadorServico}
+					<Cpf>{@CpfTomadorServico}</Cpf>
+					{@endifCpfTomadorServico}
+					
+					{@ifCnpjTomadorServico}
+					<Cnpj>{@CnpjTomadorServico}</Cnpj>
+					{@endifCnpjTomadorServico}
+					
+				</CpfCnpj>
+				{@ifInscricaoMunicipalTomadorServico}
+				<InscricaoMunicipal>{@InscricaoMunicipalTomadorServico}</InscricaoMunicipal>
+				{@endifInscricaoMunicipalTomadorServico}
+			</IdentificacaoTomador>
+			
+			{@ifNifTomador}
+			<NifTomador>{@NifTomador}</NifTomador>
+			{@endifNifTomador}
+			
+			<RazaoSocial>{@RazaoSocialTomadorServico}</RazaoSocial>
+			{@ifEndereco}
+			<Endereco>
+				<Endereco>{@Endereco}</Endereco>
+				<Numero>{@Numero}</Numero>
+				<Complemento>{@Complemento}</Complemento>
+				<Bairro>{@Bairro}</Bairro>
+				<CodigoMunicipio>{@CodigoMunicipioTomadorServico}</CodigoMunicipio>
+				<Uf>{@Uf}</Uf>
+				<Cep>{@Cep}</Cep>
+			</Endereco>
+			{@endifEndereco}
+			
+			{@ifEnderecoExterior}
+			<EnderecoExterior>
+				<CodigoPais>{@CodigoPaisEnderecoExterior}</CodigoPais>
+				<EnderecoCompletoExterior>{@EnderecoCompletoExterior}</EnderecoCompletoExterior>
+			</EnderecoExterior>
+			{@endifEnderecoExterior}
+			
+			{@ifContato}
+			<Contato>
+			
+				{@ifTelefone}
+				<Telefone>{@Telefone}</Telefone>
+				{@endifTelefone}
+				
+				{@ifEmail}
+				<Email>{@Email}</Email>
+				{@endifEmail}
+				
+			</Contato>
+			{@endifContato}
+		</Tomador>
+		
+		{@ifIntermediario}
+		<Intermediario>
+			<IdentificacaoIntermediario>
+				<CpfCnpj>
+				
+					{@ifCpfIntermediario}}
+					<Cpf>{@CpfIntermediario}</Cpf>
+					{@endifCpfIntermediario}}
+					
+					{@ifCnpjIntermediario}
+					<Cnpj>{@CnpjIntermediario}</Cnpj>
+					{@endifCnpjIntermediario}
+					
+				</CpfCnpj>
+				<InscricaoMunicipal>{@InscricaoMunicipalIntermediario}</InscricaoMunicipal>
+			</IdentificacaoIntermediario>
+			<RazaoSocial>{@RazaoSocialIntermediario}</RazaoSocial>
+			<CodigoMunicipio>{@CodigoMunicipioIntermediario}</CodigoMunicipio>
+		</Intermediario>
+		{@endifIntermediario}
+		
+		{@ifConstrucaoCivil}
+		<ConstrucaoCivil>
+		
+			{@ifCodigoObra}
+			<CodigoObra>{@CodigoObra}</CodigoObra>
+			{@endifCodigoObra}
+			
+			{@ifArt}
+			<Art>{@Art}</Art>
+			{@endifArt}
+			
+		</ConstrucaoCivil>
+		{@endifConstrucaoCivil}
+		
+		{@ifRegimeEspecialTributacao}
+		<RegimeEspecialTributacao>{@RegimeEspecialTributacao}</RegimeEspecialTributacao>
+		{@endifRegimeEspecialTributacao}
+		
+		<OptanteSimplesNacional>{@OptanteSimplesNacional}</OptanteSimplesNacional>
+		<IncentivoFiscal>{@IncentivoFiscal}</IncentivoFiscal>
+		
+		{@ifEvento}
+		<Evento>
+			{@ifIdentificacaoEvento}
+			<IdentificacaoEvento>{@IdentificacaoEvento}</IdentificacaoEvento>
+			{@endifIdentificacaoEvento}
+			{@ifDescricaoEvento}
+			<DescricaoEvento>{@DescricaoEvento}</DescricaoEvento>
+			{@endifDescricaoEvento}
+		</Evento>
+		{@endifEvento}
+		
+		{@ifInformacoesComplementares}
+		<InformacoesComplementares>{@InformacoesComplementares}</InformacoesComplementares>
+		{@endifInformacoesComplementares}
+		
+		{@Deducoes}
+	</InfDeclaracaoPrestacaoServico>
+	<!--Signature>string</Signature-->
+</Rps>

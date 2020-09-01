@@ -26,7 +26,7 @@ class NFSeISSWeb extends NFSe {
 	private $aConfig;
 
 	/**
-	 * O parâmetro de configuração deve ser um array com pelo menos as posições:
+	 * O parï¿½metro de configuraï¿½ï¿½o deve ser um array com pelo menos as posiï¿½ï¿½es:
 	 * $aConfig['cnpj'] => CNPJ prestador
 	 * $aConfig['inscMunicipal'] => Insc. Municipal do Prestador
 	 * $aConfig['pfx'] => Caminho para o arquivo pfx
@@ -35,9 +35,9 @@ class NFSeISSWeb extends NFSe {
 	 * $aConfig['pubKey'] => Caminho para a chave publica do prestador
 	 * $aConfig['certKey'] => Caminho para o arquivo que contem a chave publica e privada
 	 *
-	 * Configurações opcionais
+	 * Configuraï¿½ï¿½es opcionais
 	 * $aConfig['pathSaveLotesRps'] => Caminho para salvar os arquivos XML de lotes enviados
-	 * $aConfig['descontoIncondicionado'] => (boolean), caso true o campo desconto incondicionado será informado no XML, essa configuração depende se a prefeitura permite descontos incondicionados padrão false
+	 * $aConfig['descontoIncondicionado'] => (boolean), caso true o campo desconto incondicionado serï¿½ informado no XML, essa configuraï¿½ï¿½o depende se a prefeitura permite descontos incondicionados padrï¿½o false
 	 *
 	 * @see NFSe
 	 *
@@ -55,7 +55,7 @@ class NFSeISSWeb extends NFSe {
 	}
 
 	/**
-	 * Cancela uma Nota Fiscal Eletrônica
+	 * Cancela uma Nota Fiscal Eletrï¿½nica
 	 *
 	 * @param NFSeISSWebCancelarNfseEnvio $oCancelar
 	 * @return string
@@ -120,13 +120,13 @@ class NFSeISSWeb extends NFSe {
 	}
 
 	/**
-	 * Consulta de notas fiscais eletrônicas
+	 * Consulta de notas fiscais eletrï¿½nicas
 	 *
 	 * @param NFSeISSWebConsultarNFSe $oConsultarNFSe
 	 * @return array[NFSeISSWebInfNFSe]|array[NFSeISSWebMensagemRetorno]
 	 */
 	public function consultaNFSe(NFSeISSWebConsultarNFSe $oConsultarNFSe){
-		//FIXME: fazer consulta com padrão issweb
+		//FIXME: fazer consulta com padrï¿½o issweb
 		$document = new NFSeDocument();
 		$ConsultarNfseEnvio = $document->appendChild($document->createElement("co:ConsultarNfseEnvio"));
 		$ConsultarNfseEnvio->setAttribute("xmlns:co", self::XMLNS);
@@ -156,7 +156,7 @@ class NFSeISSWeb extends NFSe {
 			else
 				$CpfCnpj->appendChild($document->createElement("co:Cpf", $oConsultarNFSe->Tomador->getCpfCnpj()));
 
-			//Inscrição Municipal só deve ser informada para pessoa jurídica
+			//Inscriï¿½ï¿½o Municipal sï¿½ deve ser informada para pessoa jurï¿½dica
 			if($oConsultarNFSe->Tomador->getTpPessoa() == 1 && !empty($oConsultarNFSe->Tomador->InscricaoMunicipal))
 				$IdentificacaoTomador->appendChild($document->createElement("co:InscricaoMunicipal", $oConsultarNFSe->Tomador->InscricaoMunicipal));
 		}
@@ -189,7 +189,7 @@ class NFSeISSWeb extends NFSe {
 	}
 
 	/**
-	 * Consulta Nota fiscal eletônica por RPS
+	 * Consulta Nota fiscal eletï¿½nica por RPS
 	 *
 	 * @param NFSeISSWebIdentificacaoRps $oIdentificacaoRps
 	 * @return string
@@ -244,7 +244,7 @@ class NFSeISSWeb extends NFSe {
 	 */
 	public function consultarLoteRps($protocolo){
 
-		//FIXME: Fazer metodo com o padrão ISSWEB
+		//FIXME: Fazer metodo com o padrï¿½o ISSWEB
 		$document = new NFSeDocument();
 		$ConsultarLoteRpsEnvio = $document->appendChild($document->createElement("co:ConsultarLoteRpsEnvio"));
 		$ConsultarLoteRpsEnvio->setAttribute("xmlns:co", self::XMLNS);
@@ -269,7 +269,7 @@ class NFSeISSWeb extends NFSe {
 	}
 
 	/**
-	 * Retorna o XML de uma requisição SOAP
+	 * Retorna o XML de uma requisiï¿½ï¿½o SOAP
 	 *
 	 * @param string $xml
 	 * @param string $action
@@ -304,7 +304,7 @@ class NFSeISSWeb extends NFSe {
 	 */
 	public function enviarLoteRps(array $aListaRps, NFSeISSWebLoteRps $oLote){
 
-		//FIXME: Fazer envio de lote com o padrão ISSWEB
+		//FIXME: Fazer envio de lote com o padrï¿½o ISSWEB
 
 		$url = $this->isHomologacao ? $this->homologacao: $this->producao;
 
@@ -455,7 +455,7 @@ class NFSeISSWeb extends NFSe {
 		else
 			$CpfCnpj->appendChild($document->createElement("lt:Cpf", $oRps->Tomador->IdentificacaoTomador->getCpfCnpj()));
 
-		//Inscrição Municipal só deve ser informada para pessoa jurídica
+		//Inscriï¿½ï¿½o Municipal sï¿½ deve ser informada para pessoa jurï¿½dica
 		if($oRps->Tomador->IdentificacaoTomador->getTpPessoa() == 1 && !empty($oRps->Tomador->IdentificacaoTomador->InscricaoMunicipal))
 			$IdentificacaoTomador->appendChild($document->createElement("lt:InscricaoMunicipal", $oRps->Tomador->IdentificacaoTomador->InscricaoMunicipal));
 
@@ -521,7 +521,7 @@ class NFSeISSWeb extends NFSe {
 	}
 
 	/**
-	 * Seta Url do servidor de produção: http://canedo.bsit-br.com.br/integracao/services/nfseWS?wsdl
+	 * Seta Url do servidor de produï¿½ï¿½o: http://canedo.bsit-br.com.br/integracao/services/nfseWS?wsdl
 	 *
 	 * @param string $urlProducao
 	 */
