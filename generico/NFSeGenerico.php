@@ -8,15 +8,19 @@ use PQD\PQDUtil;
 
 class NFSeGenerico extends NFSe {
 
-    const XMLNS_URI = "http://www.w3.org/2000/xmlns/";
- 
-    private $isHomologacao = true;
-    private $aConfig;
-    
-    public function __construct(array $aConfig, $isHomologacao = true) {
+	private $isHomologacao = true;
 
-        if (isset($aConfig['pfx']) && isset($aConfig['pwdPFX']))
-            $this->createTempFiles($aConfig['pfx'], $aConfig['pwdPFX'], $aConfig['cnpj'], $aConfig);
+	private $aConfig;
+
+	/**
+	 * @var NFSeGenericoReturn
+	 */
+	private $oReturn;
+
+	public function __construct(array $aConfig, $isHomologacao = true) {
+
+		if (isset($aConfig['pfx']) && isset($aConfig['pwdPFX']))
+		$this->createTempFiles($aConfig['pfx'], $aConfig['pwdPFX'], $aConfig['cnpj'], $aConfig);
 
 		parent::__construct($aConfig['privKey'], $aConfig['pubKey'], $aConfig['certKey']);
 		
@@ -28,16 +32,18 @@ class NFSeGenerico extends NFSe {
 				'user' => 'user',
 				'pass' => 'pass'
 			),
+			*/
+			'cpfCnpj' => '',
+			'insMunicipal' => '',
 			'curl' => array(
 				'header' => array(
 					'Content-Type: text/xml'
 				), 
-				'port' => 80
-				//'port' => 443 //Quando porta 443 envia faz autenticação SSL na conexão
+				'port' => 443 //Quando porta 443 envia faz autenticação SSL na conexão
 			),
-			*/
-			'cpfCnpj' => '',
-			'insMunicipal' => '',
+			'soap' => array(
+				'version' => '1.1'
+			),
 			'autenticacao' => array(
 				'type' => 'none',
 				//'type' => 'xml',
@@ -48,16 +54,14 @@ class NFSeGenerico extends NFSe {
 				'tagChavePrivada' => 'chavePrivada'
 			),
 			'homologacao' => array(
-				'url' => '',
-
+				'wsdl' => '',
 				'usuario' => '',
 				'senha' => '',
-				'chavePrivada' => '',
+				'chavePrivada' => ''
 			),
 
 			'producao' => array(
-				'url' => '',
-
+				'wsdl' => '',
 				'usuario' => '',
 				'senha' => '',
 				'chavePrivada' => ''
@@ -69,11 +73,10 @@ class NFSeGenerico extends NFSe {
 				'rps' => 'Rps.xml',
 				'deducao' => 'Deducao.xml',
 				'gerarNfse' => 'GerarNfseEnvio.xml',
-				'consultarNfseRps' => 'ConsultarNfseRpsEnvio.xml',
+				'consultarNFSePorRps' => 'ConsultarNfseRpsEnvio.xml',
 				'cancelarNfse' => 'CancelarNfseEnvio.xml',
 				'soap' => 'Soap.xml'
 			),
-
 			'metodos' => array(
 				'gerarNfse' => array(
 					//'typeCommunication' => 'soap',
@@ -89,31 +92,82 @@ class NFSeGenerico extends NFSe {
 				),
 				'consultarNFSePorRps' => array(
 					'action' => 'consultarNfseRps',
-					'nameSpace' => ''
+					'tagMapReturn' => array(
+						'return' => 'ConsultarNfseRpsResposta'
+					)
 				),
 				'cancelarNfse' => array(
+					'allowCancel' => true,//Tem prefeituras que não permitem cancelamento pelo WebService, deste modo o sistema nem transmite somente retorna que foi cancelado
 					'action' => 'cancelarNfse',
 					'nameSpace' => '',
 					'tagSign' => 'InfPedidoCancelamento', 
-					'tagAppend' => 'Pedido'
+					'tagAppend' => 'Pedido',
+					'codCancelamento' => '1',//1 - Erro na emissao
+					'tagMapReturn' => array(
+						'return' => 'CancelarNfseResponse'
+					)
 				)
-			)
+			)/*,
+			'fields' => array(
+				'dataEmissao' => array(
+					'fn' => 'substr',
+					'args' => array(0, 10)
+				)
+			)*/
 		));
 
-		if($isHomologacao && empty($aConfig['homologacao']['url']))
+		//Compatibilidade com outras versões
+		$aConfig['cpfCnpj'] = isset($aConfig['cnpj']) && !empty($aConfig['cnpj']) && empty($aConfig['cpfCnpj']) ? $aConfig['cnpj'] : $aConfig['cpfCnpj'];
+		$aConfig['insMunicipal'] = isset($aConfig['inscMunicipal']) && !empty($aConfig['inscMunicipal']) && empty($aConfig['insMunicipal']) ? $aConfig['inscMunicipal'] : $aConfig['insMunicipal'];
+
+		if($isHomologacao && empty($aConfig['homologacao']['wsdl']))
 			throw new \Exception("URL do WebService de homologação não configurado!");
 
-		if(!$isHomologacao && empty($aConfig['producao']['url']))
+		if(!$isHomologacao && empty($aConfig['producao']['wsdl']))
 			throw new \Exception("URL do WebService de produção não configurado!");
-        
-        $this->aConfig = $aConfig;
-		$this->isHomologacao = $isHomologacao;
-    }
 
-    public function cancelarNfse(NFSeGenericoCancelarNfseEnvio $oCancelar) {
+		$this->aConfig = $aConfig;
+		$this->isHomologacao = $isHomologacao;
+	}
+
+	public function cancelarNfse(NFSeGenericoCancelarNfseEnvio $oCancelar) {
+
 		$fileName = $oCancelar->Numero . ".xml";
 		$metodo = 'cancelarNfse';
-		$cpfCnpj = is_null($oCancelar->CpfCnpj) ? : $this->aConfig['cpfCnpj'];
+		$cpfCnpj = is_null($oCancelar->CpfCnpj) ? $this->aConfig['cpfCnpj'] : $oCancelar->CpfCnpj;
+		$inscMunicipal = is_null($oCancelar->InscricaoMunicipal) ? $this->aConfig['insMunicipal'] : $oCancelar->InscricaoMunicipal;
+
+		$oCancelar->CodigoCancelamento = is_null($oCancelar->CodigoCancelamento) ? $this->aConfig['metodos'][$metodo]['codCancelamento'] : $oCancelar->CodigoCancelamento;
+
+		//Quando a prefeitura não permite cancelamento pelo WebService
+		if(!$this->aConfig['metodos'][$metodo]['allowCancel']){
+			return array(
+				'ListaMensagemRetorno' => array(), 
+				'RetCancelamento' => array( 
+					'NfseCancelamento' => array( 
+						array( 
+							'Confirmacao' => array(
+								'Pedido' => array(
+									'InfPedidoCancelamento' => array(
+										'IdentificacaoNfse' => array(
+											'Numero' => $oCancelar->Numero,
+											'CodigoVerificacao' => $oCancelar->CodigoVerificacao,
+											'CpfCnpj' => $oCancelar->CpfCnpj,
+											'InscricaoMunicipal' => $oCancelar->InscricaoMunicipal,
+											'CodigoMunicipio' => $oCancelar->CodigoMunicipio
+										),
+										'CodigoCancelamento' => $oCancelar->CodigoCancelamento,
+										'DescricaoCancelamento' => $oCancelar->DescricaoCancelamento
+									)
+								),
+								'DataHora' => str_replace(" ", "T", date('Y-m-d H:i:s'))
+							)
+						 ) 
+					) 
+				)
+			);
+		}
+
 		//Gerar NFSe
 		$tpl = $this->getTemplate($metodo);
 
@@ -122,13 +176,16 @@ class NFSeGenerico extends NFSe {
 		$aReplaces['replace']['{@CodigoVerificacao}'] = $oCancelar->CodigoVerificacao;
 		$aReplaces['replace']['{@CodigoMunicipio}'] = $oCancelar->CodigoMunicipio;
 		$aReplaces['replace']['{@CodigoCancelamento}'] = $oCancelar->CodigoCancelamento;
+		$aReplaces['replace']['{@DescricaoCancelamento}'] = $oCancelar->DescricaoCancelamento;
 
-		$aReplaces['replace']['{@CpfPrestador}'] = $cpfCnpj;
-		$aReplaces['replace']['{@CnpjPrestador}'] = $cpfCnpj;
-		$aReplaces['replace']['{@InscricaoMunicipal}'] = is_null($oCancelar->InscricaoMunicipal) ? : $this->aConfig['insMunicipal'];
+		$aReplaces['replace']['{@Cpf}'] = $cpfCnpj;
+		$aReplaces['replace']['{@Cnpj}'] = $cpfCnpj;
+		$aReplaces['replace']['{@InscricaoMunicipal}'] = $inscMunicipal;
 
-		$aReplaces['ifs'][] = array('begin' => '{@ifCpfPrestador}', 'end' => '{@endifCpfPrestador}', 'bool' => strlen($cpfCnpj) == 11);
-		$aReplaces['ifs'][] = array('begin' => '{@ifCnpjPrestador}', 'end' => '{@endifCnpjPrestador}', 'bool' => strlen($cpfCnpj) == 14);
+		$aReplaces['ifs'][] = array('begin' => '{@ifCpf}', 'end' => '{@endifCpf}', 'bool' => strlen($cpfCnpj) == 11);
+		$aReplaces['ifs'][] = array('begin' => '{@ifCnpj}', 'end' => '{@endifCnpj}', 'bool' => strlen($cpfCnpj) == 14);
+		$aReplaces['ifs'][] = array('begin' => '{@ifInscricaoMunicipal}', 'end' => '{@endifInscricaoMunicipal}', 'bool' => !empty($inscMunicipal));
+		$aReplaces['ifs'][] = array('begin' => '{@ifCodigoCancelamento}', 'end' => '{@endifCodigoCancelamento}', 'bool' => !is_null($oCancelar->CodigoCancelamento));
 
 		$xml = $this->retXML(PQDUtil::procTplText($tpl, $aReplaces['replace'], $aReplaces['ifs']));
 		$xml = $this->signXML($xml, 
@@ -139,8 +196,8 @@ class NFSeGenerico extends NFSe {
 
 		$this->saveXML($xml, $metodo . '-' . $fileName);
 
-		return NFSeGenericoReturn::getReturn($this->makeSOAPRequest($metodo, $xml, $fileName), $metodo, $this->aConfig);
-    }
+		return $this->procReturn($this->makeSOAPRequest($metodo, $xml, $fileName), $metodo);
+	}
 	
 	/**
 	 * Consulta uma NFSe por RPS
@@ -167,12 +224,13 @@ class NFSeGenerico extends NFSe {
 
 		$aReplaces['ifs'][] = array('begin' => '{@ifCpfPrestador}', 'end' => '{@endifCpfPrestador}', 'bool' => strlen($this->aConfig['cpfCnpj']) == 11);
 		$aReplaces['ifs'][] = array('begin' => '{@ifCnpjPrestador}', 'end' => '{@endifCnpjPrestador}', 'bool' => strlen($this->aConfig['cpfCnpj']) == 14);
+		$aReplaces['ifs'][] = array('begin' => '{@ifInscricaoMunicipal}', 'end' => '{@endifInscricaoMunicipal}', 'bool' => !empty($this->aConfig['insMunicipal']) );
 
 		$xml = $this->retXML(PQDUtil::procTplText($tpl, $aReplaces['replace'], $aReplaces['ifs']));
 
 		$this->saveXML($xml, $metodo . '-' . $fileName);
 
-		return NFSeGenericoReturn::getReturn($this->makeSOAPRequest($metodo, $xml, $fileName), $metodo, $this->aConfig);
+		return $this->procReturn($this->makeSOAPRequest($metodo, $xml, $fileName), $metodo);
 	}
 
 	/**
@@ -209,7 +267,7 @@ class NFSeGenerico extends NFSe {
 		$xml = $this->retXML(PQDUtil::procTplText($tpl, $aReplaces['replace'], $aReplaces['ifs']));
 		$this->saveXML($xml, $metodo . '-' . $fileName);
 
-		return NFSeGenericoReturn::getReturn($this->makeSOAPRequest($metodo, $xml, $fileName), $metodo, $this->aConfig);
+		return $this->procReturn($this->makeSOAPRequest($metodo, $xml, $fileName), $metodo);
 	}
 
 	/**
@@ -246,14 +304,14 @@ class NFSeGenerico extends NFSe {
 	 */
 	private function makeSOAPRequest($metodo, $xml, $fileName){
 
-		$url = $this->isHomologacao ? $this->aConfig['homologacao']['url'] : $this->aConfig['producao']['url'];
 		$action = $this->aConfig['metodos'][$metodo]['action'];
 
 		$xml = $this->retXMLSoap($xml, $action);
 		if($this->isHomologacao)
 			$this->saveXML($xml, $metodo . '-soap-' . $fileName);
 		
-		$soapReturn = $this->sendRequest($url, $xml, $metodo);
+		$soapReturn = $this->sendRequest($metodo, $xml);
+		//$soapReturn = file_get_contents('D:\Dropbox (Matriz Tecnologia)\www\lotus\uploads\fat\nfse\20-08\2\gerarNfse-soap-return-1-00001.xml');
 		if($this->isHomologacao)
 			$this->saveXML($soapReturn, $metodo . '-soap-return-' . $fileName);
 		
@@ -263,29 +321,45 @@ class NFSeGenerico extends NFSe {
 	/**
 	 * Envia uma requisição de acordo com o metodo e tipo de comunicação no metodo
 	 * 
-	 * @param string $url
-	 * @param string $xml
 	 * @param string $metodo
+	 * @param string $xml
 	 * 
 	 * @return string
 	 */
-	private function sendRequest($url, $xml, $metodo){
+	private function sendRequest($metodo, $xml){
+
 		$action = $this->aConfig['metodos'][$metodo]['action'];
 
+		$wsdl = $this->isHomologacao ? $this->aConfig['homologacao']['wsdl'] : $this->aConfig['producao']['wsdl'];
+		$url = $this->isHomologacao ? PQDUtil::retDefault($this->aConfig['homologacao'], 'url', $wsdl) : PQDUtil::retDefault($this->aConfig['producao'], 'url', $wsdl);
+
 		$typeCommunication = PQDUtil::retDefault($this->aConfig['metodos'][$metodo], 'typeCommunication', 'soap');
+
 		switch($typeCommunication){
 			case 'curl':
+
 				$curl = PQDUtil::retDefault($this->aConfig, 'curl', array());
+
+				$headers = array();
+				foreach(PQDUtil::retDefault($curl, 'header', array() ) as $header)
+					$headers[] = $header; 
+				foreach(PQDUtil::retDefault($this->aConfig['metodos'][$metodo], 'header', array() ) as $header)
+					$headers[] = $header; 
+
 				return $this->curl(
 					$url, 
 					$xml, 
-					PQDUtil::retDefault($curl, 'header', null), 
-					PQDUtil::retDefault($curl, 'port', 80), 
+					count($headers) == 0 ? null : $headers, 
+					PQDUtil::retDefault($curl, 'port', 443), 
 					PQDUtil::retDefault($this->aConfig, 'proxy', null)
 				);
+
 			break;
 			case 'soap':
-				return $this->soap($url, $url, $action, $xml);
+
+				$soap = PQDUtil::retDefault($this->aConfig, 'soap', array());
+
+				return $this->soap($wsdl, $url, $action, $xml, PQDUtil::retDefault($soap, 'version', '1.1'));
 			break;
 		}
 	}
@@ -379,6 +453,19 @@ class NFSeGenerico extends NFSe {
 		return trim($document->saveXML($firstChild ? $document->firstChild : null, LIBXML_NOEMPTYTAG));
 	}
 
+	private function applyFnField($field, $value){
+		$fns = PQDUtil::retDefault($this->aConfig, 'fields', array());
+
+		$fn = PQDUtil::retDefault($fns, $field);
+
+		if(is_null($fn))
+			return $value;
+		else{
+			array_unshift($fn['args'], $value);
+			return call_user_func_array($fn['fn'],  $fn['args']);
+		}
+	}
+
 	/**
 	 * Retorna o XML do RPS de acordo com o template 'rps'
 	 * 
@@ -441,12 +528,12 @@ class NFSeGenerico extends NFSe {
 			'{@NumeroRps}' => $oRps->IdentificacaoRps->Numero,
 			'{@SerieRps}' => $oRps->IdentificacaoRps->Serie,
 			'{@TipoRps}' => $oRps->IdentificacaoRps->Tipo,
-			'{@DataEmissao}' => $oRps->DataEmissao,
+			'{@DataEmissao}' => $this->applyFnField('dataEmissao', $oRps->DataEmissao),
 			'{@Status}' => $oRps->Status,
 			'{@NumeroRpsSubstituido}' => $oRps->RpsSubstituido->Numero,
 			'{@SerieRpsSubstituido}' => $oRps->RpsSubstituido->Serie,
 			'{@TipoRpsSubstituido}' => $oRps->RpsSubstituido->Tipo,
-			'{@Competencia}' => $oRps->Competencia,
+			'{@Competencia}' => $this->applyFnField('competencia', $oRps->Competencia),
 			'{@ValorServicos}' => $oRps->Servico->Valores->ValorServicos,
 			'{@ValorDeducoes}' => $oRps->Servico->Valores->ValorDeducoes,
 			'{@ValorPis}' => $oRps->Servico->Valores->ValorPis,
@@ -563,5 +650,25 @@ class NFSeGenerico extends NFSe {
 		$aReplaces['replace']['{@action}'] = $action;
 
 		return $this->retXML(PQDUtil::procTplText($tpl, $aReplaces['replace'], $aReplaces['ifs']), false);
-    }    
+	}
+	
+	private function procReturn($return, $metodo){
+
+		if(is_null($this->oReturn))
+			$this->oReturn = new NFSeGenericoReturn($this);
+
+		return $this->oReturn->getReturn($return, $metodo);
+	}
+	
+	public function getIsHomologacao(){
+		return $this->isHomologacao;
+	}
+
+	public function getConfig($key = null, $default = null){
+
+		if(!is_null($key))
+			return PQDUtil::retDefault($this->aConfig, $key, $default);
+
+		return $this->aConfig;
+	}
 }

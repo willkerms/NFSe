@@ -15,6 +15,9 @@
 			<Cnpj>{@CnpjPrestador}</Cnpj>
 			{@endifCnpjPrestador}
 		</CpfCnpj>
+		
+		{@ifInscricaoMunicipal}
 		<InscricaoMunicipal>{@InscricaoMunicipal}</InscricaoMunicipal>
+		{@endifInscricaoMunicipal}
 	</Prestador>
 </ConsultarNfseRpsEnvio>

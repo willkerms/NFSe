@@ -7,11 +7,17 @@ use PQD\PQDUtil;
 
 class NFSeGenericoReturn extends NFSeReturn {
 
+	private $oGenerico;
+
+	public function __construct(NFSeGenerico $oGenerico){
+		$this->oGenerico = $oGenerico;
+	}
+
 	/**
 	 * @param NFSeDocument $oDocument
 	 * @return array[NFSeGenericoMensagemRetorno]
 	 */
-	private static function retListaMensagem(NFSeDocument $oDocument, $contextNode = null, $listaMensagem = 'ListaMensagemRetorno') {
+	private function retListaMensagem(NFSeDocument $oDocument, $contextNode = null, $listaMensagem = 'ListaMensagemRetorno') {
 		
 		$return = array();
 
@@ -40,7 +46,7 @@ class NFSeGenericoReturn extends NFSeReturn {
 
 	}
 
-	private static function retMsgForaEsperado() {
+	private function retMsgForaEsperado() {
 
 		$oMensagem = new NFSeGenericoMensagemRetorno();
 		$oMensagem->Mensagem = "Retorno fora do formato esperado!";//mensagem de erro
@@ -50,7 +56,9 @@ class NFSeGenericoReturn extends NFSeReturn {
 
 	}
 
-	private static function retInfNFSe($oCompNfse, $oDocument) {
+	private function retInfNFSe($oCompNfse, $oDocument) {
+
+		$aConfig = $this->oGenerico->getConfig($this->oGenerico->getIsHomologacao() ? 'homologacao': 'producao', array());
 
 		$Nfse = $oCompNfse->getElementsByTagName('Nfse')->item(0);
 
@@ -86,7 +94,14 @@ class NFSeGenericoReturn extends NFSeReturn {
 		$oNFSeGenericoInfNFSe->StatusNfse = $oDocument->getValue($InfNfse, "StatusNfse");
 		$oNFSeGenericoInfNFSe->NfseSubstituida = $oDocument->getValue($InfNfse, "NfseSubstituida");
 		$oNFSeGenericoInfNFSe->OutrasInformacoes = $oDocument->getValue($InfNfse, "OutrasInformacoes");
+
 		$url = $oDocument->getValue($InfNfse, "UrlNfse");
+		$url = is_null($url) ? PQDUtil::retDefault($aConfig, 'urlNfse', '') : $url;
+		$url = PQDUtil::procTplText($url, array(
+			'{@numeroNFSe}' => $oDocument->getValue($InfNfse, "Numero"),
+			'{@codigoVerificacao}' => $oDocument->getValue($InfNfse, "CodigoVerificacao")
+		));
+
 		$oNFSeGenericoInfNFSe->Url = ( substr($url, 0, 7) != 'http://' && substr($url, 0, 8) != 'https://' ? 'http://' : '') . $url;
 		$oNFSeGenericoInfNFSe->ValorCredito = $oDocument->getValue($InfNfse, "ValorCredito");
 
@@ -122,9 +137,9 @@ class NFSeGenericoReturn extends NFSeReturn {
 		$oNFSeGenericoInfNFSe->Servico->ExigibilidadeISS = $oDocument->getValue($Servico, "ExigibilidadeISS");
 
 		if($Prestador->getElementsByTagName("Cnpj")->length == 1) {
-			$oNFSeGenericoInfNFSe->PrestadorServico->Identificacao->setCpfCnpj($oDocument->getValue($Prestador, "Cnpj"));
+			$oNFSeGenericoInfNFSe->PrestadorServico->Identificacao->CpfCnpj = $oDocument->getValue($Prestador, "Cnpj");
 		} else {
-			$oNFSeGenericoInfNFSe->PrestadorServico->Identificacao->setCpfCnpj($oDocument->getValue($Prestador, "Cpf"), 0);
+			$oNFSeGenericoInfNFSe->PrestadorServico->Identificacao->CpfCnpj = $oDocument->getValue($Prestador, "Cpf");
 		}
 
 		$oNFSeGenericoInfNFSe->PrestadorServico->Identificacao->InscricaoMunicipal = $oDocument->getValue($Prestador, "InscricaoMunicipal");
@@ -142,9 +157,9 @@ class NFSeGenericoReturn extends NFSeReturn {
 		$oNFSeGenericoInfNFSe->PrestadorServico->Endereco->Cep = $oDocument->getValue($EnderecoPrestadorServico, "Cep");
 
 		if($IdentificacaoTomador->getElementsByTagName("Cnpj")->length == 1) {
-			$oNFSeGenericoInfNFSe->PrestadorServico->Identificacao->setCpfCnpj($oDocument->getValue($IdentificacaoTomador, "Cnpj"));
+			$oNFSeGenericoInfNFSe->PrestadorServico->Identificacao->CpfCnpj = $oDocument->getValue($IdentificacaoTomador, "Cnpj");
 		} else {
-			$oNFSeGenericoInfNFSe->PrestadorServico->Identificacao->setCpfCnpj($oDocument->getValue($IdentificacaoTomador, "Cpf"), 0);
+			$oNFSeGenericoInfNFSe->PrestadorServico->Identificacao->CpfCnpj = $oDocument->getValue($IdentificacaoTomador, "Cpf");
 		}
 
 		$oNFSeGenericoInfNFSe->TomadorServico->IdentificacaoTomador->InscricaoMunicipal = $oDocument->getValue($IdentificacaoTomador, "InscricaoMunicipal");
@@ -176,7 +191,7 @@ class NFSeGenericoReturn extends NFSeReturn {
 	 * @param NFSeDocument $oDocument
 	 * @return array[NFSeGenericoInfNFSe]
 	 */
-	private static function retListNFSe(NFSeDocument $oDocument) {
+	private function retListNFSe(NFSeDocument $oDocument) {
 
 		$ListaNfse = $oDocument->getElementsByTagName("ListaNfse");
 
@@ -185,7 +200,7 @@ class NFSeGenericoReturn extends NFSeReturn {
 
 		$ListaNfse = $ListaNfse->item(0);
 
-		$return = array('CompNfse' => array(), 'ListaMensagemAlertaRetorno' => self::retListaMensagem($oDocument, $ListaNfse, 'ListaMensagemAlertaRetorno'));
+		$return = array('CompNfse' => array(), 'ListaMensagemAlertaRetorno' => $this->retListaMensagem($oDocument, $ListaNfse, 'ListaMensagemAlertaRetorno'));
 		$aCompNfse = $ListaNfse->getElementsByTagName('CompNfse');
 		
 		for ($i = 0; $i < $aCompNfse->length; $i++) {
@@ -201,12 +216,29 @@ class NFSeGenericoReturn extends NFSeReturn {
 			 */
 			$CompNfse = $aCompNfse->item($i);
 
-			$return['CompNfse'][] = self::retInfNFSe($CompNfse, $oDocument);
+			$return['CompNfse'][] = $this->retInfNFSe($CompNfse, $oDocument);
 
 		}
 
 		return $return;
 
+	}
+
+	private function retDocReturn(NFSeDocument $dom, $metodo){
+
+		$aConfig = $this->oGenerico->getConfig('metodos', array());
+		$xml = "";
+		$oReturn = $dom->getElementsByTagName($aConfig[$metodo]['tagMap']['return'])->item(0);
+
+		if(PQDUtil::retDefault($aConfig[$metodo], 'returnType', 'child') == 'string')
+			$xml = htmlspecialchars_decode( $oReturn->nodeValue );
+		else
+			$xml = $dom->saveXML($oReturn);
+
+		$oReturnDocument  = new NFSeDocument();
+		$oReturnDocument->loadXML($xml);
+
+		return $oReturnDocument;
 	}
 
 	/**
@@ -217,7 +249,7 @@ class NFSeGenericoReturn extends NFSeReturn {
 	 *
 	 * @return NFSeDocument
 	 */
-	public static function getReturn($return, $metodo, $aConfig) {
+	public function getReturn($return, $metodo) {
 
 		$oReturn = new NFSeDocument();
 
@@ -241,32 +273,22 @@ class NFSeGenericoReturn extends NFSeReturn {
 
 			}
 
+			$oDocument = $this->retDocReturn($dom, $metodo);
 			switch ($metodo) {
 
 				case "cancelarNfse":
-					$oReturn = $dom->getElementsByTagName("CancelarNfseResposta")->item(0);
-					$CancelarNfseResposta = new NFSeDocument();
-					$CancelarNfseResposta->loadXML($oReturn->nodeValue);
-
-					if(!is_null($pathFile)) {
-						file_put_contents($pathFile, $CancelarNfseResposta->saveXML());
-					}
-
-					return self::cancelarNfseResposta($CancelarNfseResposta);
-
+					return $this->cancelarNfseResposta($oDocument);
 				break;
 				
 				case "gerarNfse":
+					return $this->gerarNfseRetorno($oDocument);
+				break;
 
-					if(PQDUtil::retDefault($aConfig['metodos']['gerarNfse'], 'returnType', 'child') == 'string'){
-						$oReturn = $dom->getElementsByTagName($aConfig['metodos']['gerarNfse']['tagReturn'])->item(0);
-	
-						$oGerarNfseRetorno = new NFSeDocument();
-						$oGerarNfseRetorno->loadXML(PQDUtil::retDefault($aConfig['metodos']['gerarNfse'], 'returnType', 'child') == 'string' ? $oReturn->nodeValue : $dom->saveXML($oReturn));	
-					}
-
-					return self::gerarNfseRetorno($dom);
-
+				case "consultarNFSePorRps":
+					return array(
+						'ListaMensagemRetorno' => $this->retListaMensagem($oDocument),
+						'CompNfse' => $this->retInfNFSe($oDocument, $oDocument)
+					);
 				break;
 				
 				case "consultarNfseServicoPrestado":
@@ -280,13 +302,13 @@ class NFSeGenericoReturn extends NFSeReturn {
 						file_put_contents($pathFile, $oConsultarNfseRpsResposta->saveXML());
 
 					$return = array(
-						'ListaMensagemRetorno' => self::retListaMensagem($oConsultarNfseRpsResposta)
+						'ListaMensagemRetorno' => $this->retListaMensagem($oConsultarNfseRpsResposta)
 					);
 
 					$CompNfse = $oConsultarNfseRpsResposta->getElementsByTagName('CompNfse');
 
 					if ($CompNfse->length == 1)
-						$return['CompNfse'] = self::retInfNFSe($CompNfse->item(0), $oConsultarNfseRpsResposta);
+						$return['CompNfse'] = $this->retInfNFSe($CompNfse->item(0), $oConsultarNfseRpsResposta);
 
 					return $return;
 
@@ -302,7 +324,7 @@ class NFSeGenericoReturn extends NFSeReturn {
 						file_put_contents($pathFile, $oLoteRpsResposta->saveXML());
 					}
 
-					return self::gerarLoteRpsResposta($oLoteRpsResposta);
+					return $this->gerarLoteRpsResposta($oLoteRpsResposta);
 
 				break;
 
@@ -316,7 +338,7 @@ class NFSeGenericoReturn extends NFSeReturn {
 						file_put_contents($pathFile, $oLoteRpsResposta->saveXML());
 					}
 
-					return self::gerarLoteRpsResposta($oLoteRpsResposta);
+					return $this->gerarLoteRpsResposta($oLoteRpsResposta);
 
 				break;
 
@@ -351,7 +373,7 @@ class NFSeGenericoReturn extends NFSeReturn {
 	 *
 	 * @return array
 	 */
-	private static function retCancelamento(NFSeDocument $oCancelarNfseResposta){
+	private function retCancelamento(NFSeDocument $oCancelarNfseResposta){
 
 		$return = array(
 			'NfseCancelamento' => array()
@@ -385,11 +407,10 @@ class NFSeGenericoReturn extends NFSeReturn {
 
 				$CpfCnpj = $IdentificacaoNfse->getElementsByTagName('CpfCnpj')->item(0);
 
-				if($CpfCnpj->getElementsByTagName("Cnpj")->length == 1) {
-					$oIdentificacaoNfse->setCpfCnpj($oCancelarNfseResposta->getValue($CpfCnpj, "Cnpj"));
-				} else {
-					$oIdentificacaoNfse->setCpfCnpj($oCancelarNfseResposta->getValue($CpfCnpj, "Cpf"), 0);
-				}
+				if($CpfCnpj->getElementsByTagName("Cnpj")->length == 1)
+					$oIdentificacaoNfse->CpfCnpj = $oCancelarNfseResposta->getValue($CpfCnpj, "Cnpj");
+				else
+					$oIdentificacaoNfse->CpfCnpj = $oCancelarNfseResposta->getValue($CpfCnpj, "Cpf");
 
 				$oIdentificacaoNfse->InscricaoMunicipal = $oCancelarNfseResposta->getValue($IdentificacaoNfse, "InscricaoMunicipal");
 				$oIdentificacaoNfse->CodigoVerificacao = $oCancelarNfseResposta->getValue($IdentificacaoNfse, "CodigoVerificacao");
@@ -424,18 +445,18 @@ class NFSeGenericoReturn extends NFSeReturn {
 	 *
 	 * @return array
 	 */
-	private static function cancelarNfseResposta(NFSeDocument $oCancelarNfseResposta) {
+	private function cancelarNfseResposta(NFSeDocument $oCancelarNfseResposta) {
 		
 		if ($oCancelarNfseResposta->getElementsByTagName('CancelarNfseResposta')->length == 1) {
 			
 			return array(
-				'ListaMensagemRetorno' => self::retListaMensagem($oCancelarNfseResposta),
-				'RetCancelamento' => self::retCancelamento($oCancelarNfseResposta)
+				'ListaMensagemRetorno' => $this->retListaMensagem($oCancelarNfseResposta),
+				'RetCancelamento' => $this->retCancelamento($oCancelarNfseResposta)
 			);
 
 		} else {
 
-			return array('ListaMensagemRetorno' => self::retMsgForaEsperado());
+			return array('ListaMensagemRetorno' => $this->retMsgForaEsperado());
 
 		}
 
@@ -446,24 +467,24 @@ class NFSeGenericoReturn extends NFSeReturn {
 	 * @param NFSeDocument $oGerarNfseRetorno
 	 * @return array
 	 */
-	private static function gerarNfseRetorno(NFSeDocument $oGerarNfseRetorno) {
+	private function gerarNfseRetorno(NFSeDocument $oGerarNfseRetorno) {
 
 		if ($oGerarNfseRetorno->getElementsByTagName('GerarNfseResposta')->length == 1) {
 
 			return array(
-				'ListaMensagemRetorno' => self::retListaMensagem($oGerarNfseRetorno),
-				'ListaNfse' => self::retListNFSe($oGerarNfseRetorno)
+				'ListaMensagemRetorno' => $this->retListaMensagem($oGerarNfseRetorno),
+				'ListaNfse' => $this->retListNFSe($oGerarNfseRetorno)
 			);
 
 		} else {
 
-			return array('ListaMensagemRetorno' => self::retMsgForaEsperado());
+			return array('ListaMensagemRetorno' => $this->retMsgForaEsperado());
 
 		}
 
 	}
 
-	private static function gerarLoteRpsResposta(NFSeDocument $oDocument) {
+	private function gerarLoteRpsResposta(NFSeDocument $oDocument) {
 
 		if ($oDocument->getElementsByTagName('EnviarLoteRpsSincronoResposta')->length == 1) {
 
@@ -473,14 +494,14 @@ class NFSeGenericoReturn extends NFSeReturn {
 				'NumeroLote' => $oDocument->getValue($oEnviarLoteRpsSincronoResposta, "NumeroLote"),
 				'DataRecebimento' => $oDocument->getValue($oEnviarLoteRpsSincronoResposta, "DataRecebimento"),
 				'Protocolo' => $oDocument->getValue($oEnviarLoteRpsSincronoResposta, "Protocolo"),
-				'ListaNfse' => self::retListNFSe($oDocument),
-				'ListaMensagemRetorno' => self::retListaMensagem($oDocument),
-				'ListaMensagemRetornoLote' => self::retListaMensagem($oDocument, null, 'ListaMensagemRetornoLote')
+				'ListaNfse' => $this->retListNFSe($oDocument),
+				'ListaMensagemRetorno' => $this->retListaMensagem($oDocument),
+				'ListaMensagemRetornoLote' => $this->retListaMensagem($oDocument, null, 'ListaMensagemRetornoLote')
 			);
 
 		} else {
 
-			return array('ListaMensagemRetorno' => self::retMsgForaEsperado());
+			return array('ListaMensagemRetorno' => $this->retMsgForaEsperado());
 
 		}
 
