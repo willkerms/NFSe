@@ -1,14 +1,9 @@
-<soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:ws="http://ws.issweb.fiorilli.com.br/" xmlns:nfse="http://www.abrasf.org.br/nfse.xsd" xmlns:xd="http://www.w3.org/2000/09/xmldsig#">
-	<soapenv:Body>
-		<ws:{@action}>
-			{@xml}			
-			{@ifUsername}
-			<username>{@username}</username>
-			{@endifUsername}
-			
-			{@ifPassword}
-			<password>{@password}</password>
-			{@endifPassword}
-		</ws:{@action}>
-	</soapenv:Body>
+<soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:ws="http://ws.megasoftarrecadanet.com.br">
+   <soapenv:Header/>
+   <soapenv:Body>
+      <ws:{@action}Request>
+         <nfseCabecMsg><![CDATA[<cabecalho versao="1.00" xmlns="http://megasoftarrecadanet.com.br/xsd/nfse_v01.xsd"><versaoDados>1.00</versaoDados></cabecalho>]]></nfseCabecMsg>
+         <nfseDadosMsg><![CDATA[{@xml}]]></nfseDadosMsg>
+      </ws:{@action}Request>
+   </soapenv:Body>
 </soapenv:Envelope>

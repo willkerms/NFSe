@@ -60,6 +60,9 @@ class NFSeGenericoReturn extends NFSeReturn {
 
 		$aConfig = $this->oGenerico->getConfig($this->oGenerico->getIsHomologacao() ? 'homologacao': 'producao', array());
 
+		if( $oCompNfse->getElementsByTagName('Nfse')->length == 0 )
+			return null;
+
 		$Nfse = $oCompNfse->getElementsByTagName('Nfse')->item(0);
 
 		$InfNfse 					= $Nfse->getElementsByTagName('InfNfse')->item(0);
@@ -99,7 +102,8 @@ class NFSeGenericoReturn extends NFSeReturn {
 		$url = is_null($url) ? PQDUtil::retDefault($aConfig, 'urlNfse', '') : $url;
 		$url = PQDUtil::procTplText($url, array(
 			'{@numeroNFSe}' => $oDocument->getValue($InfNfse, "Numero"),
-			'{@codigoVerificacao}' => $oDocument->getValue($InfNfse, "CodigoVerificacao")
+			'{@codigoVerificacao}' => $oDocument->getValue($InfNfse, "CodigoVerificacao"),
+			'{@sha1CodigoVerificacao}' => sha1($oDocument->getValue($InfNfse, "CodigoVerificacao"))
 		));
 
 		$oNFSeGenericoInfNFSe->Url = ( substr($url, 0, 7) != 'http://' && substr($url, 0, 8) != 'https://' ? 'http://' : '') . $url;
@@ -254,6 +258,10 @@ class NFSeGenericoReturn extends NFSeReturn {
 		$oReturn = new NFSeDocument();
 
 		if(!empty($return)) {
+
+			$encoding = mb_detect_encoding($return, array('UTF-8', 'ISO-8859-1', 'WINDOWS-1252'), false);
+			if($encoding == 'ISO-8859-1' || $encoding == 'WINDOWS-1252')
+				$return = iconv($encoding, 'UTF-8', $return);
 
 			$dom = new NFSeDocument();
 			$dom->loadXML($return);

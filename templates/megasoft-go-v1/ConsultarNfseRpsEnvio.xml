@@ -1,9 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
-<ConsultarNfseRpsEnvio xmlns="http://www.abrasf.org.br/nfse.xsd" xsi:schemaLocation="http://www.abrasf.org.br/nfse.xsd schema.xsd" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+<ConsultarNfseRpsEnvio xmlns="http://megasoftarrecadanet.com.br/xsd/nfse_v01.xsd">
 	<IdentificacaoRps>
 		<Numero>{@Numero}</Numero>
-		<Serie>{@Serie}</Serie>
-		<Tipo>{@Tipo}</Tipo>
 	</IdentificacaoRps>
 	<Prestador>
 		<CpfCnpj>
