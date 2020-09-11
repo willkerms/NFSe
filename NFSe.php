@@ -56,7 +56,7 @@ class NFSe {
 	 *        	: namespace utilizado, normalmente "p1"
 	 * @return mixed false se houve erro ou string com o XML assinado
 	 */
-	public function signXML($docxml, $tagid = '', $appendTag = false, $ns = '', $firstChild = false) {
+	public function signXML($docxml, $tagid = '', $appendTag = false, $ns = '', $firstChild = false, $createNS = true) {
 
 		if ($tagid == '') {
 			$msg = "Uma tag deve ser indicada para que seja assinada!!";
@@ -86,11 +86,11 @@ class NFSe {
 		$xmldoc->formatOutput = false;
 		// muito importante deixar ativadas as opçoes para limpar os espacos em branco
 		// e as tags vazias
-		if ($xmldoc->loadXML($docxml, LIBXML_NOBLANKS | LIBXML_NOEMPTYTAG)) {
+		if ($xmldoc->loadXML($docxml, LIBXML_NOBLANKS | LIBXML_NOEMPTYTAG | LIBXML_NOERROR)) {
 			$root = $xmldoc->documentElement;
 		}
 		else {
-			$msg = "Erro ao carregar XML, provavel erro na passagem do par�metro docXML!!";
+			$msg = "Erro ao carregar XML, provavel erro na passagem do parâmetro docXML!!";
 			throw new \Exception($msg);
 		}
 
@@ -105,7 +105,7 @@ class NFSe {
 		// converte o valor para base64 para serem colocados no xml
 		$digValue = base64_encode($hashValue);
 		// monta a tag da assinatura digital
-		$Signature = $xmldoc->createElementNS("http://www.w3.org/2000/09/xmldsig#", 'Signature');
+		$Signature = $createNS ? $xmldoc->createElementNS("http://www.w3.org/2000/09/xmldsig#", 'Signature') : $xmldoc->createElement($ns . 'Signature');
 		if (! $appendTag) {
 			$root->appendChild($Signature);
 		}

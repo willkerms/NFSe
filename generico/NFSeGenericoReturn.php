@@ -240,7 +240,7 @@ class NFSeGenericoReturn extends NFSeReturn {
 			$xml = $dom->saveXML($oReturn);
 
 		$oReturnDocument  = new NFSeDocument();
-		$oReturnDocument->loadXML($xml);
+		$oReturnDocument->loadXML($xml, LIBXML_NOERROR);
 
 		return $oReturnDocument;
 	}
@@ -477,19 +477,21 @@ class NFSeGenericoReturn extends NFSeReturn {
 	 */
 	private function gerarNfseRetorno(NFSeDocument $oGerarNfseRetorno) {
 
+		$return = array();
 		if ($oGerarNfseRetorno->getElementsByTagName('GerarNfseResposta')->length == 1) {
 
-			return array(
+			$return = array(
 				'ListaMensagemRetorno' => $this->retListaMensagem($oGerarNfseRetorno),
 				'ListaNfse' => $this->retListNFSe($oGerarNfseRetorno)
 			);
 
 		} else {
 
-			return array('ListaMensagemRetorno' => $this->retMsgForaEsperado());
+			$return = array('ListaMensagemRetorno' => array($this->retMsgForaEsperado()));
 
 		}
 
+		return $return;
 	}
 
 	private function gerarLoteRpsResposta(NFSeDocument $oDocument) {

@@ -86,14 +86,14 @@ class NFSeGenerico extends NFSe {
 					'nameSpace' => '',
 					'tagSign' => 'InfDeclaracaoPrestacaoServico', 
 					'tagAppend' => 'Rps',
-					'tagMapReturn' => array(
-						'return' => 'GerarNfseResposta'
+					'tagMap' => array(
+						'return' => 'gerarNfseResponse'
 					)
 				),
 				'consultarNFSePorRps' => array(
 					'action' => 'consultarNfseRps',
-					'tagMapReturn' => array(
-						'return' => 'ConsultarNfseRpsResposta'
+					'tagMap' => array(
+						'return' => 'consultarNfseRpsResponse'
 					)
 				),
 				'cancelarNfse' => array(
@@ -103,8 +103,8 @@ class NFSeGenerico extends NFSe {
 					'tagSign' => 'InfPedidoCancelamento', 
 					'tagAppend' => 'Pedido',
 					'codCancelamento' => '1',//1 - Erro na emissao
-					'tagMapReturn' => array(
-						'return' => 'CancelarNfseResponse'
+					'tagMap' => array(
+						'return' => 'cancelarNfseResponse'
 					)
 				)
 			)/*,
@@ -309,7 +309,6 @@ class NFSeGenerico extends NFSe {
 		$xml = $this->retXMLSoap($xml, $action);
 		if($this->isHomologacao)
 			$this->saveXML($xml, $metodo . '-soap-' . $fileName);
-		
 		$soapReturn = $this->sendRequest($metodo, $xml);
 		//$soapReturn = file_get_contents('D:\Dropbox (Matriz Tecnologia)\www\lotus\uploads\fat\nfse\20-08\2\gerarNfse-soap-return-1-00001.xml');
 		if($this->isHomologacao)
@@ -446,7 +445,7 @@ class NFSeGenerico extends NFSe {
 	private function retXML($xml, $firstChild = true){
 
 		$document = new NFSeDocument();
-		$document->loadXML($xml, LIBXML_NOBLANKS);
+		$document->loadXML($xml, LIBXML_NOBLANKS | LIBXML_NOERROR  );
 
 		$this->removeComments($document);
 
@@ -610,6 +609,7 @@ class NFSeGenerico extends NFSe {
 			array('begin' => '{@ifCnpjTomadorServico}', 'end' => '{@endifCnpjTomadorServico}', 'bool' => strlen($oRps->Tomador->IdentificacaoTomador->CpfCnpj) == 14),
 			array('begin' => '{@ifInscricaoMunicipalTomadorServico}', 'end' => '{@endifInscricaoMunicipalTomadorServico}', 'bool' => !empty($oRps->Tomador->IdentificacaoTomador->InscricaoMunicipal)),
 			array('begin' => '{@ifNifTomador}', 'end' => '{@endifNifTomador}', 'bool' => !is_null($oRps->Tomador->NifTomador)),
+			array('begin' => '{@ifComplementoTomador}', 'end' => '{@endifComplementoTomador}', 'bool' => !empty($oRps->Tomador->Endereco->Complemento)),
 			array('begin' => '{@ifEndereco}', 'end' => '{@endifEndereco}', 'bool' => is_null($oRps->Tomador->Endereco->CodigoPaisEstrangeiro) ),
 			array('begin' => '{@ifEnderecoExterior}', 'end' => '{@endifEnderecoExterior}', 'bool' => !is_null($oRps->Tomador->Endereco->CodigoPaisEstrangeiro) ),
 			array('begin' => '{@ifContato}', 'end' => '{@endifContato}', 'bool' => !is_null($oRps->Tomador->Contato->Email) || !is_null($oRps->Tomador->Contato->Telefone) ),

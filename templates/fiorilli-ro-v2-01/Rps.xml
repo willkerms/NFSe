@@ -1,204 +1,197 @@
 <?xml version="1.0" encoding="utf-8"?>
-<nfse:Rps xmlns:nfse="http://www.abrasf.org.br/nfse.xsd">
-	<nfse:InfDeclaracaoPrestacaoServico{@ifIdInfDeclaracaoPrestacaoServico} Id="{@idInfDeclaracaoPrestacaoServico}"{@endifIdInfDeclaracaoPrestacaoServico}>
-		<nfse:Rps{@ifIdRps} Id="{@idRps}"{@endifIdRps}>
-			<nfse:IdentificacaoRps>
-				<nfse:Numero>{@NumeroRps}</nfse:Numero>
-				<nfse:Serie>{@SerieRps}</nfse:Serie>
-				<nfse:Tipo>{@TipoRps}</nfse:Tipo>
-			</nfse:IdentificacaoRps>
-			<nfse:DataEmissao>{@DataEmissao}</nfse:DataEmissao>
-			<nfse:Status>{@Status}</nfse:Status>
+<Rps>
+	<InfDeclaracaoPrestacaoServico{@ifIdInfDeclaracaoPrestacaoServico} Id="{@idInfDeclaracaoPrestacaoServico}"{@endifIdInfDeclaracaoPrestacaoServico}>
+		<Rps{@ifIdRps} Id="{@idRps}"{@endifIdRps}>
+			<IdentificacaoRps>
+				<Numero>{@NumeroRps}</Numero>
+				<Serie>{@SerieRps}</Serie>
+				<Tipo>{@TipoRps}</Tipo>
+			</IdentificacaoRps>
+			<DataEmissao>{@DataEmissao}</DataEmissao>
+			<Status>{@Status}</Status>
 			
 			{@ifRpsSubstituido}
-			<nfse:RpsSubstituido>
-				<nfse:Numero>{@NumeroRpsSubstituido}</nfse:Numero>
-				<nfse:Serie>{@SerieRpsSubstituido}</nfse:Serie>
-				<nfse:Tipo>{@TipoRpsSubstituido}</nfse:Tipo>
-			</nfse:RpsSubstituido>
+			<RpsSubstituido>
+				<Numero>{@NumeroRpsSubstituido}</Numero>
+				<Serie>{@SerieRpsSubstituido}</Serie>
+				<Tipo>{@TipoRpsSubstituido}</Tipo>
+			</RpsSubstituido>
 			{@endifRpsSubstituido}
 			
-		</nfse:Rps>
-		<nfse:Competencia>{@Competencia}</nfse:Competencia>
-		<nfse:Servico>
-			<nfse:Valores>
-				<nfse:ValorServicos>{@ValorServicos}</nfse:ValorServicos>
-				<nfse:ValorDeducoes>{@ValorDeducoes}</nfse:ValorDeducoes>
-				<nfse:ValorPis>{@ValorPis}</nfse:ValorPis>
-				<nfse:ValorCofins>{@ValorCofins}</nfse:ValorCofins>
-				<nfse:ValorInss>{@ValorInss}</nfse:ValorInss>
-				<nfse:ValorIr>{@ValorIr}</nfse:ValorIr>
-				<nfse:ValorCsll>{@ValorCsll}</nfse:ValorCsll>
-				<nfse:OutrasRetencoes>{@OutrasRetencoes}</nfse:OutrasRetencoes>
-				<nfse:ValorIss>{@ValorIss}</nfse:ValorIss>
-				<nfse:Aliquota>{@Aliquota}</nfse:Aliquota>
-				<nfse:DescontoIncondicionado>{@DescontoIncondicionado}</nfse:DescontoIncondicionado>
-				<nfse:DescontoCondicionado>{@DescontoCondicionado}</nfse:DescontoCondicionado>
-			</nfse:Valores>
-			<nfse:IssRetido>{@IssRetido}</nfse:IssRetido>
+		</Rps>
+		<Competencia>{@Competencia}</Competencia>
+		<Servico>
+			<Valores>
+				<ValorServicos>{@ValorServicos}</ValorServicos>
+				<ValorDeducoes>{@ValorDeducoes}</ValorDeducoes>
+				<ValorPis>{@ValorPis}</ValorPis>
+				<ValorCofins>{@ValorCofins}</ValorCofins>
+				<ValorInss>{@ValorInss}</ValorInss>
+				<ValorIr>{@ValorIr}</ValorIr>
+				<ValorCsll>{@ValorCsll}</ValorCsll>
+				<OutrasRetencoes>{@OutrasRetencoes}</OutrasRetencoes>
+				<ValorIss>{@ValorIss}</ValorIss>
+				<Aliquota>{@Aliquota}</Aliquota>
+				<DescontoIncondicionado>{@DescontoIncondicionado}</DescontoIncondicionado>
+				<DescontoCondicionado>{@DescontoCondicionado}</DescontoCondicionado>
+			</Valores>
+			<IssRetido>{@IssRetido}</IssRetido>
 			
 			{@ifResponsavelRetencao}
-			<nfse:ResponsavelRetencao>{@ResponsavelRetencao}</nfse:ResponsavelRetencao>
+			<ResponsavelRetencao>{@ResponsavelRetencao}</ResponsavelRetencao>
 			{@endifResponsavelRetencao}
 			
-			<nfse:ItemListaServico>{@ItemListaServico}</nfse:ItemListaServico>
-			<nfse:CodigoCnae>{@CodigoCnae}</nfse:CodigoCnae>
+			<ItemListaServico>{@ItemListaServico}</ItemListaServico>
+			<CodigoCnae>{@CodigoCnae}</CodigoCnae>
 			
 			{@ifCodigoTributacaoMunicipio}
-			<nfse:CodigoTributacaoMunicipio>{@CodigoTributacaoMunicipio}</nfse:CodigoTributacaoMunicipio>
+			<CodigoTributacaoMunicipio>{@CodigoTributacaoMunicipio}</CodigoTributacaoMunicipio>
 			{@endifCodigoTributacaoMunicipio}
 			
 			{@ifCodigoNbs}
-			<nfse:CodigoNbs>{@CodigoNbs}</nfse:CodigoNbs>
+			<CodigoNbs>{@CodigoNbs}</CodigoNbs>
 			{@endifCodigoNbs}
 			
-			<nfse:Discriminacao>{@Discriminacao}</nfse:Discriminacao>
-			<nfse:CodigoMunicipio>{@CodigoMunicipioServico}</nfse:CodigoMunicipio>
+			<Discriminacao>{@Discriminacao}</Discriminacao>
+			<CodigoMunicipio>{@CodigoMunicipioServico}</CodigoMunicipio>
 			
 			{@ifCodigoPaisServico}
-			<nfse:CodigoPais>{@CodigoPaisServico}</nfse:CodigoPais>
+			<CodigoPais>{@CodigoPaisServico}</CodigoPais>
 			{@endifCodigoPaisServico}
 			
-			<nfse:ExigibilidadeISS>{@ExigibilidadeISS}</nfse:ExigibilidadeISS>
-			
-			{@ifIdentifNaoExigibilidade}
-			<nfse:IdentifNaoExigibilidade>{@IdentifNaoExigibilidade}</nfse:IdentifNaoExigibilidade>
-			{@endifIdentifNaoExigibilidade}
-			
+			<ExigibilidadeISS>{@ExigibilidadeISS}</ExigibilidadeISS>
+						
 			{@ifMunicipioIncidencia}
-			<nfse:MunicipioIncidencia>{@MunicipioIncidencia}</nfse:MunicipioIncidencia>
+			<MunicipioIncidencia>{@MunicipioIncidencia}</MunicipioIncidencia>
 			{@endifMunicipioIncidencia}
 			
 			{@ifNumeroProcesso}
-			<nfse:NumeroProcesso>{@NumeroProcesso}</nfse:NumeroProcesso>
+			<NumeroProcesso>{@NumeroProcesso}</NumeroProcesso>
 			{@endifNumeroProcesso}
-		</nfse:Servico>
-		<nfse:Prestador>
-			<nfse:CpfCnpj>
+		</Servico>
+		<Prestador>
+			<CpfCnpj>
 				{@ifCpfPrestador}
-				<nfse:Cpf>{@CpfPrestador}</nfse:Cpf>
+				<Cpf>{@CpfPrestador}</Cpf>
 				{@endifCpfPrestador}
 				
 				{@ifCnpjPrestador}
-				<nfse:Cnpj>{@CnpjPrestador}</nfse:Cnpj>
+				<Cnpj>{@CnpjPrestador}</Cnpj>
 				{@endifCnpjPrestador}
-			</nfse:CpfCnpj>
-			<nfse:InscricaoMunicipal>{@InscricaoMunicipalPrestador}</nfse:InscricaoMunicipal>
-		</nfse:Prestador>
-		<nfse:Tomador>
-			<nfse:IdentificacaoTomador>
-				<nfse:CpfCnpj>
+			</CpfCnpj>
+			<InscricaoMunicipal>{@InscricaoMunicipalPrestador}</InscricaoMunicipal>
+		</Prestador>
+		<Tomador>
+			<IdentificacaoTomador>
+				<CpfCnpj>
 					{@ifCpfTomadorServico}
-					<nfse:Cpf>{@CpfTomadorServico}</nfse:Cpf>
+					<Cpf>{@CpfTomadorServico}</Cpf>
 					{@endifCpfTomadorServico}
 					
 					{@ifCnpjTomadorServico}
-					<nfse:Cnpj>{@CnpjTomadorServico}</nfse:Cnpj>
+					<Cnpj>{@CnpjTomadorServico}</Cnpj>
 					{@endifCnpjTomadorServico}
 					
-				</nfse:CpfCnpj>
+				</CpfCnpj>
 				{@ifInscricaoMunicipalTomadorServico}
-				<nfse:InscricaoMunicipal>{@InscricaoMunicipalTomadorServico}</nfse:InscricaoMunicipal>
+				<InscricaoMunicipal>{@InscricaoMunicipalTomadorServico}</InscricaoMunicipal>
 				{@endifInscricaoMunicipalTomadorServico}
-			</nfse:IdentificacaoTomador>
+			</IdentificacaoTomador>
 			
 			{@ifNifTomador}
-			<nfse:NifTomador>{@NifTomador}</nfse:NifTomador>
+			<NifTomador>{@NifTomador}</NifTomador>
 			{@endifNifTomador}
 			
-			<nfse:RazaoSocial>{@RazaoSocialTomadorServico}</nfse:RazaoSocial>
+			<RazaoSocial>{@RazaoSocialTomadorServico}</RazaoSocial>
 			{@ifEndereco}
-			<nfse:Endereco>
-				<nfse:Endereco>{@Endereco}</nfse:Endereco>
-				<nfse:Numero>{@Numero}</nfse:Numero>
-				<nfse:Complemento>{@Complemento}</nfse:Complemento>
-				<nfse:Bairro>{@Bairro}</nfse:Bairro>
-				<nfse:CodigoMunicipio>{@CodigoMunicipioTomadorServico}</nfse:CodigoMunicipio>
-				<nfse:Uf>{@Uf}</nfse:Uf>
-				<nfse:Cep>{@Cep}</nfse:Cep>
-			</nfse:Endereco>
+			<Endereco>
+				<Endereco>{@Endereco}</Endereco>
+				<Numero>{@Numero}</Numero>
+				{@ifComplementoTomador}
+				<Complemento>{@Complemento}</Complemento>
+				{@endifComplementoTomador}
+				<Bairro>{@Bairro}</Bairro>
+				<CodigoMunicipio>{@CodigoMunicipioTomadorServico}</CodigoMunicipio>
+				<Uf>{@Uf}</Uf>
+				{@ifEnderecoExterior}
+				<CodigoPais>{@CodigoPaisEnderecoExterior}</CodigoPais>
+				{@endifEnderecoExterior}
+				<Cep>{@Cep}</Cep>
+			</Endereco>
 			{@endifEndereco}
-			
-			{@ifEnderecoExterior}
-			<nfse:EnderecoExterior>
-				<nfse:CodigoPais>{@CodigoPaisEnderecoExterior}</nfse:CodigoPais>
-				<nfse:EnderecoCompletoExterior>{@EnderecoCompletoExterior}</nfse:EnderecoCompletoExterior>
-			</nfse:EnderecoExterior>
-			{@endifEnderecoExterior}
-			
+						
 			{@ifContato}
-			<nfse:Contato>
+			<Contato>
 			
 				{@ifTelefone}
-				<nfse:Telefone>{@Telefone}</nfse:Telefone>
+				<Telefone>{@Telefone}</Telefone>
 				{@endifTelefone}
 				
 				{@ifEmail}
-				<nfse:Email>{@Email}</nfse:Email>
+				<Email>{@Email}</Email>
 				{@endifEmail}
 				
-			</nfse:Contato>
+			</Contato>
 			{@endifContato}
-		</nfse:Tomador>
+		</Tomador>
 		
 		{@ifIntermediario}
-		<nfse:Intermediario>
-			<nfse:IdentificacaoIntermediario>
-				<nfse:CpfCnpj>
+		<Intermediario>
+			<IdentificacaoIntermediario>
+				<CpfCnpj>
 				
 					{@ifCpfIntermediario}}
-					<nfse:Cpf>{@CpfIntermediario}</nfse:Cpf>
+					<Cpf>{@CpfIntermediario}</Cpf>
 					{@endifCpfIntermediario}}
 					
 					{@ifCnpjIntermediario}
-					<nfse:Cnpj>{@CnpjIntermediario}</nfse:Cnpj>
+					<Cnpj>{@CnpjIntermediario}</Cnpj>
 					{@endifCnpjIntermediario}
 					
-				</nfse:CpfCnpj>
-				<nfse:InscricaoMunicipal>{@InscricaoMunicipalIntermediario}</nfse:InscricaoMunicipal>
-			</nfse:IdentificacaoIntermediario>
-			<nfse:RazaoSocial>{@RazaoSocialIntermediario}</nfse:RazaoSocial>
-			<nfse:CodigoMunicipio>{@CodigoMunicipioIntermediario}</nfse:CodigoMunicipio>
-		</nfse:Intermediario>
+				</CpfCnpj>
+				<InscricaoMunicipal>{@InscricaoMunicipalIntermediario}</InscricaoMunicipal>
+			</IdentificacaoIntermediario>
+			<RazaoSocial>{@RazaoSocialIntermediario}</RazaoSocial>
+		</Intermediario>
 		{@endifIntermediario}
 		
 		{@ifConstrucaoCivil}
-		<nfse:ConstrucaoCivil>
+		<ConstrucaoCivil>
 		
 			{@ifCodigoObra}
-			<nfse:CodigoObra>{@CodigoObra}</nfse:CodigoObra>
+			<CodigoObra>{@CodigoObra}</CodigoObra>
 			{@endifCodigoObra}
 			
 			{@ifArt}
-			<nfse:Art>{@Art}</nfse:Art>
+			<Art>{@Art}</Art>
 			{@endifArt}
 			
-		</nfse:ConstrucaoCivil>
+		</ConstrucaoCivil>
 		{@endifConstrucaoCivil}
 		
 		{@ifRegimeEspecialTributacao}
-		<nfse:RegimeEspecialTributacao>{@RegimeEspecialTributacao}</nfse:RegimeEspecialTributacao>
+		<RegimeEspecialTributacao>{@RegimeEspecialTributacao}</RegimeEspecialTributacao>
 		{@endifRegimeEspecialTributacao}
 		
-		<nfse:OptanteSimplesNacional>{@OptanteSimplesNacional}</nfse:OptanteSimplesNacional>
-		<nfse:IncentivoFiscal>{@IncentivoFiscal}</nfse:IncentivoFiscal>
+		<OptanteSimplesNacional>{@OptanteSimplesNacional}</OptanteSimplesNacional>
+		<IncentivoFiscal>{@IncentivoFiscal}</IncentivoFiscal>
 		
 		{@ifEvento}
-		<nfse:Evento>
+		<Evento>
 			{@ifIdentificacaoEvento}
-			<nfse:IdentificacaoEvento>{@IdentificacaoEvento}</nfse:IdentificacaoEvento>
+			<IdentificacaoEvento>{@IdentificacaoEvento}</IdentificacaoEvento>
 			{@endifIdentificacaoEvento}
 			{@ifDescricaoEvento}
-			<nfse:DescricaoEvento>{@DescricaoEvento}</nfse:DescricaoEvento>
+			<DescricaoEvento>{@DescricaoEvento}</DescricaoEvento>
 			{@endifDescricaoEvento}
-		</nfse:Evento>
+		</Evento>
 		{@endifEvento}
 		
 		{@ifInformacoesComplementares}
-		<nfse:InformacoesComplementares>{@InformacoesComplementares}</nfse:InformacoesComplementares>
+		<InformacoesComplementares>{@InformacoesComplementares}</InformacoesComplementares>
 		{@endifInformacoesComplementares}
 		
 		{@Deducoes}
-	</nfse:InfDeclaracaoPrestacaoServico>
-	<!--xd:Signature>string</nfse:Signature-->
-</nfse:Rps>
+	</InfDeclaracaoPrestacaoServico>
+	<!--Signature>string</Signature-->
+</Rps>
