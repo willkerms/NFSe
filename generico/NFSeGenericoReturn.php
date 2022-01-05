@@ -56,7 +56,7 @@ class NFSeGenericoReturn extends NFSeReturn {
 
 	}
 
-	private function retInfNFSe($oCompNfse, $oDocument) {
+	private function retInfNFSe(\DOMElement $oCompNfse, NFSeDocument $oDocument) {
 
 		$aConfig = $this->oGenerico->getConfig($this->oGenerico->getIsHomologacao() ? 'homologacao': 'producao', array());
 
@@ -103,7 +103,8 @@ class NFSeGenericoReturn extends NFSeReturn {
 		$url = PQDUtil::procTplText($url, array(
 			'{@numeroNFSe}' => $oDocument->getValue($InfNfse, "Numero"),
 			'{@codigoVerificacao}' => $oDocument->getValue($InfNfse, "CodigoVerificacao"),
-			'{@sha1CodigoVerificacao}' => sha1($oDocument->getValue($InfNfse, "CodigoVerificacao"))
+			'{@sha1CodigoVerificacao}' => sha1($oDocument->getValue($InfNfse, "CodigoVerificacao")),
+			'{@idInfNfse}' => $InfNfse->getAttribute('Id')
 		));
 
 		$oNFSeGenericoInfNFSe->Url = ( substr($url, 0, 7) != 'http://' && substr($url, 0, 8) != 'https://' ? 'http://' : '') . $url;

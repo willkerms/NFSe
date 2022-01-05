@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <CancelarNfseEnvio xmlns="http://www.abrasf.org.br/nfse.xsd">
 	<Pedido>
-		<InfPedidoCancelamento Id="{@idInfPedidoCancelamento}">
+		<InfPedidoCancelamento Id="Cancelamento_{@idInfPedidoCancelamento}">
 			<IdentificacaoNfse>
 				<Numero>{@Numero}</Numero>
 				<CpfCnpj>

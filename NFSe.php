@@ -56,7 +56,7 @@ class NFSe {
 	 *        	: namespace utilizado, normalmente "p1"
 	 * @return mixed false se houve erro ou string com o XML assinado
 	 */
-	public function signXML($docxml, $tagid = '', $appendTag = false, $ns = '', $firstChild = false, $createNS = true) {
+	public function signXML($docxml, $tagid = '', $appendTag = false, $ns = '', $firstChild = false, $createNS = true, $aSerach = array("\r\n", "\n", "\r", "\t"), $aReplace = "") {
 
 		if ($tagid == '') {
 			$msg = "Uma tag deve ser indicada para que seja assinada!!";
@@ -71,15 +71,9 @@ class NFSe {
 		$priv_key = fread($fp, 8192);
 		fclose($fp);
 		$pkeyid = openssl_get_privatekey($priv_key);
+
 		// limpeza do xml com a retirada dos CR, LF e TAB
-		$order = array(
-			"\r\n",
-			"\n",
-			"\r",
-			"\t"
-		);
-		$replace = '';
-		$docxml = str_replace($order, $replace, $docxml);
+		$docxml = str_replace($aSerach, $aReplace, $docxml);
 		// carrega o documento no DOM
 		$xmldoc = new NFSeDocument();
 		$xmldoc->preservWhiteSpace = false; // elimina espaços em branco
@@ -174,8 +168,12 @@ class NFSe {
 		$X509Data->appendChild($newNode);
 		// grava na string o objeto DOM
 		$docxml = $xmldoc->saveXML($firstChild ? $xmldoc->firstChild : null);
-		// libera a memoria
-		openssl_free_key($pkeyid);
+
+		if(version_compare(PHP_VERSION, '8.0') < 0){
+			// libera a memoria
+			openssl_free_key($pkeyid);
+		}
+
 		// retorna o documento assinado
 		return $docxml;
 	}

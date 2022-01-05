@@ -2,6 +2,9 @@
 namespace NFSe\generico;
 
 class NFSeGenericoCancelarNfseEnvio extends NFSeGenericoIdentificacaoNfse{
+
+	public $idInfPedidoCancelamento;
+
 	/**
 	 *
 	* 1 - Erro na emissao;

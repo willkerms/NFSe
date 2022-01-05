@@ -88,7 +88,9 @@ class NFSeGenerico extends NFSe {
 					'tagAppend' => 'Rps',
 					'tagMap' => array(
 						'return' => 'gerarNfseResponse'
-					)
+					),
+					'search' => array("\r\n", "\n", "\r", "\t"),
+					'replace' => ""
 				),
 				'consultarNFSePorRps' => array(
 					'action' => 'consultarNfseRps',
@@ -172,6 +174,8 @@ class NFSeGenerico extends NFSe {
 		$tpl = $this->getTemplate($metodo);
 
 		$aReplaces = $this->retReplaceUsuarios('xml');
+		
+		$aReplaces['replace']['{@idInfPedidoCancelamento}'] = $oCancelar->idInfPedidoCancelamento;
 		$aReplaces['replace']['{@Numero}'] = $oCancelar->Numero;
 		$aReplaces['replace']['{@CodigoVerificacao}'] = $oCancelar->CodigoVerificacao;
 		$aReplaces['replace']['{@CodigoMunicipio}'] = $oCancelar->CodigoMunicipio;
@@ -191,7 +195,8 @@ class NFSeGenerico extends NFSe {
 		$xml = $this->signXML($xml, 
 			$this->aConfig['metodos'][$metodo]['tagSign'], 
 			$this->aConfig['metodos'][$metodo]['tagAppend'], 
-			$this->aConfig['metodos'][$metodo]['nameSpace']
+			$this->aConfig['metodos'][$metodo]['nameSpace'],
+			true
 		);
 
 		$this->saveXML($xml, $metodo . '-' . $fileName);
@@ -247,16 +252,25 @@ class NFSeGenerico extends NFSe {
 
 		//RPS
 		$xml = $this->retXMLRps($oRps);
-		$xml = $this->signXML($xml, 
+		
+		$search = PQDUtil::retDefault($this->aConfig['metodos'][$metodo], 'search', null);
+		$search = is_null($search) ? array("\r\n", "\n", "\r", "\t") : array_map('stripcslashes', $search);
+
+		$replace = PQDUtil::retDefault($this->aConfig['metodos'][$metodo], 'replace', null);
+		$replace = is_null($replace) ? "" : ( is_array($replace) ? array_map('stripcslashes', $replace) : $replace );
+		$xml = $this->signXML(
+			$xml, 
 			$this->aConfig['metodos'][$metodo]['tagSign'], 
 			$this->aConfig['metodos'][$metodo]['tagAppend'], 
 			$this->aConfig['metodos'][$metodo]['nameSpace'],
-			true
+			true,
+			true,
+			$search,
+			$replace
 		);
 
-		if($this->isHomologacao){
+		if($this->isHomologacao)
 			$this->saveXML($xml, $metodo . '-rps-' . $fileName);
-		}
 
 		//Gerar NFSe
 		$tpl = $this->getTemplate($metodo);
@@ -307,10 +321,12 @@ class NFSeGenerico extends NFSe {
 		$action = $this->aConfig['metodos'][$metodo]['action'];
 
 		$xml = $this->retXMLSoap($xml, $action);
+
 		if($this->isHomologacao)
 			$this->saveXML($xml, $metodo . '-soap-' . $fileName);
+		
 		$soapReturn = $this->sendRequest($metodo, $xml);
-		//$soapReturn = file_get_contents('D:\Dropbox (Matriz Tecnologia)\www\lotus\uploads\fat\nfse\20-08\2\gerarNfse-soap-return-1-00001.xml');
+
 		if($this->isHomologacao)
 			$this->saveXML($soapReturn, $metodo . '-soap-return-' . $fileName);
 		
@@ -460,8 +476,9 @@ class NFSeGenerico extends NFSe {
 		if(is_null($fn))
 			return $value;
 		else{
-			array_unshift($fn['args'], $value);
-			return call_user_func_array($fn['fn'],  $fn['args']);
+			$args = PQDUtil::retDefault($fn, 'args', array());
+			array_unshift($args, $value);
+			return call_user_func_array($fn['fn'],  $args);
 		}
 	}
 
@@ -526,11 +543,13 @@ class NFSeGenerico extends NFSe {
 			'{@idInfDeclaracaoPrestacaoServico}' => $oRps->idInfDeclaracaoPrestacaoServico,
 			'{@NumeroRps}' => $oRps->IdentificacaoRps->Numero,
 			'{@SerieRps}' => $oRps->IdentificacaoRps->Serie,
+			'{@SerieRpsAsInt}' => (int)$oRps->IdentificacaoRps->Serie,
 			'{@TipoRps}' => $oRps->IdentificacaoRps->Tipo,
 			'{@DataEmissao}' => $this->applyFnField('dataEmissao', $oRps->DataEmissao),
 			'{@Status}' => $oRps->Status,
 			'{@NumeroRpsSubstituido}' => $oRps->RpsSubstituido->Numero,
 			'{@SerieRpsSubstituido}' => $oRps->RpsSubstituido->Serie,
+			'{@SerieRpsSubstituidoAsInt}' => (int)$oRps->RpsSubstituido->Serie,
 			'{@TipoRpsSubstituido}' => $oRps->RpsSubstituido->Tipo,
 			'{@Competencia}' => $this->applyFnField('competencia', $oRps->Competencia),
 			'{@ValorServicos}' => $oRps->Servico->Valores->ValorServicos,
@@ -548,7 +567,7 @@ class NFSeGenerico extends NFSe {
 			'{@DescontoCondicionado}' => $oRps->Servico->Valores->DescontoCondicionado,
 			'{@IssRetido}' => $oRps->Servico->IssRetido,
 			'{@ResponsavelRetencao}' => $oRps->Servico->ResponsavelRetencao,
-			'{@ItemListaServico}' => $oRps->Servico->ItemListaServico,
+			'{@ItemListaServico}' => $this->applyFnField('itemListaServico', $oRps->Servico->ItemListaServico),
 			'{@CodigoCnae}' => $oRps->Servico->CodigoCnae,
 			'{@CodigoTributacaoMunicipio}' => $oRps->Servico->CodigoTributacaoMunicipio,
 			'{@CodigoNbs}' => $oRps->Servico->CodigoNbs,
@@ -642,7 +661,6 @@ class NFSeGenerico extends NFSe {
 	private function retXMLSoap($xml, $action) {
 
 		$tpl = $this->getTemplate('soap');
-
 
 		$aReplaces = $this->retReplaceUsuarios('soap');
 

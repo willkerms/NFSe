@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
-<Rps>
-	<InfDeclaracaoPrestacaoServico{@ifIdInfDeclaracaoPrestacaoServico} Id="{@idInfDeclaracaoPrestacaoServico}"{@endifIdInfDeclaracaoPrestacaoServico}>
-		<Rps{@ifIdRps} Id="{@idRps}"{@endifIdRps}>
+<Rps xmlns="http://www.abrasf.org.br/nfse.xsd">
+	<InfDeclaracaoPrestacaoServico{@ifIdInfDeclaracaoPrestacaoServico} Id="rps000{@idInfDeclaracaoPrestacaoServico}"{@endifIdInfDeclaracaoPrestacaoServico}>
+		<Rps>
 			<IdentificacaoRps>
 				<Numero>{@NumeroRps}</Numero>
-				<Serie>{@SerieRps}</Serie>
+				<Serie>{@SerieRpsAsInt}</Serie>
 				<Tipo>{@TipoRps}</Tipo>
 			</IdentificacaoRps>
 			<DataEmissao>{@DataEmissao}</DataEmissao>
@@ -13,7 +13,7 @@
 			{@ifRpsSubstituido}
 			<RpsSubstituido>
 				<Numero>{@NumeroRpsSubstituido}</Numero>
-				<Serie>{@SerieRpsSubstituido}</Serie>
+				<Serie>{@SerieRpsSubstituidoAsInt}</Serie>
 				<Tipo>{@TipoRpsSubstituido}</Tipo>
 			</RpsSubstituido>
 			{@endifRpsSubstituido}
@@ -38,6 +38,10 @@
 			<IssRetido>{@IssRetido}</IssRetido>
 			
 			{@ifResponsavelRetencao}
+			<!--
+			1 – Tomador
+			2 – Intermediário
+			-->
 			<ResponsavelRetencao>{@ResponsavelRetencao}</ResponsavelRetencao>
 			{@endifResponsavelRetencao}
 			
