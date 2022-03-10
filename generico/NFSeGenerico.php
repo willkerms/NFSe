@@ -44,6 +44,8 @@ class NFSeGenerico extends NFSe {
 			'soap' => array(
 				'version' => '1.1'
 			),
+			'escapeAsHTML' => false,
+			'retirarAcentos' => false,//Somente funciona a remoção dos acentos se também escapar o HTML, ou seja para retirar os acentos escapeAsHTML tem que ser true
 			'autenticacao' => array(
 				'type' => 'none',
 				//'type' => 'xml',
@@ -136,6 +138,9 @@ class NFSeGenerico extends NFSe {
 
 		$fileName = $oCancelar->Numero . ".xml";
 		$metodo = 'cancelarNfse';
+
+		$oCancelar = $this->escapeTextObj($oCancelar);
+
 		$cpfCnpj = is_null($oCancelar->CpfCnpj) ? $this->aConfig['cpfCnpj'] : $oCancelar->CpfCnpj;
 		$inscMunicipal = is_null($oCancelar->InscricaoMunicipal) ? $this->aConfig['insMunicipal'] : $oCancelar->InscricaoMunicipal;
 
@@ -238,6 +243,24 @@ class NFSeGenerico extends NFSe {
 		return $this->procReturn($this->makeSOAPRequest($metodo, $xml, $fileName), $metodo);
 	}
 
+	private function escapeTextObj($obj){
+
+		if( $this->aConfig['escapeAsHTML'] )
+			PQDUtil::escapeHTML( $obj );
+		else
+			PQDUtil::recursive($obj, function($data){
+				return htmlspecialchars($data);
+			});
+		
+		if( $this->aConfig['retirarAcentos'] ){
+			PQDUtil::recursive($obj, function($str){
+				return preg_replace("/&([aeiouc])(tilde|acute|grave|circ|cedil);/i", "$1", $str);
+			});	
+		}
+
+		return $obj;
+	}
+
 	/**
 	 * Gera uma NFSe a partir do end point 'gerarNfse' do servidor comunicado
 	 * 
@@ -249,7 +272,7 @@ class NFSeGenerico extends NFSe {
 		
 		$fileName = $oRps->IdentificacaoRps->Numero . "-" . $oRps->IdentificacaoRps->Serie . ".xml";
 		$metodo = 'gerarNfse';
-
+		
 		//RPS
 		$xml = $this->retXMLRps($oRps);
 		
@@ -492,9 +515,7 @@ class NFSeGenerico extends NFSe {
 	 */
 	private function retXMLRps(NFSeGenericoInfRps $oRps){
 
-		PQDUtil::recursive($oRps, function($data){
-			return htmlspecialchars($data);
-		});
+		$oRps = $this->escapeTextObj($oRps);
 
 		$tplRps = $this->getTemplate('rps');;
 		$tplDeducao = $this->getTemplate('deducao');
@@ -545,13 +566,13 @@ class NFSeGenerico extends NFSe {
 			'{@SerieRps}' => $oRps->IdentificacaoRps->Serie,
 			'{@SerieRpsAsInt}' => (int)$oRps->IdentificacaoRps->Serie,
 			'{@TipoRps}' => $oRps->IdentificacaoRps->Tipo,
-			'{@DataEmissao}' => $this->applyFnField('dataEmissao', $oRps->DataEmissao),
+			'{@DataEmissao}' => $oRps->DataEmissao,
 			'{@Status}' => $oRps->Status,
 			'{@NumeroRpsSubstituido}' => $oRps->RpsSubstituido->Numero,
 			'{@SerieRpsSubstituido}' => $oRps->RpsSubstituido->Serie,
 			'{@SerieRpsSubstituidoAsInt}' => (int)$oRps->RpsSubstituido->Serie,
 			'{@TipoRpsSubstituido}' => $oRps->RpsSubstituido->Tipo,
-			'{@Competencia}' => $this->applyFnField('competencia', $oRps->Competencia),
+			'{@Competencia}' => $oRps->Competencia,
 			'{@ValorServicos}' => $oRps->Servico->Valores->ValorServicos,
 			'{@ValorDeducoes}' => $oRps->Servico->Valores->ValorDeducoes,
 			'{@ValorPis}' => $oRps->Servico->Valores->ValorPis,
@@ -567,7 +588,7 @@ class NFSeGenerico extends NFSe {
 			'{@DescontoCondicionado}' => $oRps->Servico->Valores->DescontoCondicionado,
 			'{@IssRetido}' => $oRps->Servico->IssRetido,
 			'{@ResponsavelRetencao}' => $oRps->Servico->ResponsavelRetencao,
-			'{@ItemListaServico}' => $this->applyFnField('itemListaServico', $oRps->Servico->ItemListaServico),
+			'{@ItemListaServico}' => $oRps->Servico->ItemListaServico,
 			'{@CodigoCnae}' => $oRps->Servico->CodigoCnae,
 			'{@CodigoTributacaoMunicipio}' => $oRps->Servico->CodigoTributacaoMunicipio,
 			'{@CodigoNbs}' => $oRps->Servico->CodigoNbs,
@@ -612,6 +633,12 @@ class NFSeGenerico extends NFSe {
 			'{@InformacoesComplementares}' => $oRps->InformacoesComplementares,
 			'{@Deducoes}' => $deducoes
 		);
+
+		foreach($aReplace as $k => $v){
+			$field = str_replace(['{@', '}'], '', $k);
+			$field = strtolower(substr($field, 0, 1)) . substr($field, 1);
+			$aReplace[$k] = $this->applyFnField($field, $v);
+		}
 
 		$aIfs = array(
 			array('begin' => '{@ifRpsSubstituido}', 'end' => '{@endifRpsSubstituido}', 'bool' => !is_null($oRps->RpsSubstituido->Numero) ),
