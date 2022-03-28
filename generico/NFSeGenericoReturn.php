@@ -34,7 +34,7 @@ class NFSeGenericoReturn extends NFSeReturn {
 				$oMensagem = new NFSeGenericoMensagemRetorno();
 				$oMensagem->Codigo = $oDocument->getValue($aMensagens->item($i), 'Codigo');//codigo do erro
 				$oMensagem->Mensagem = $oDocument->getValue($aMensagens->item($i), 'Mensagem');//mensagem de erro
-				$oMensagem->Correcao = $oDocument->getValue($aMensagens->item($i), 'Codigo');//correcao
+				$oMensagem->Correcao = $oDocument->getValue($aMensagens->item($i), 'Correcao');//correcao
 
 				$return[] = $oMensagem;
 				

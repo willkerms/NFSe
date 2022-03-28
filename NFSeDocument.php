@@ -21,6 +21,9 @@ class NFSeDocument extends \DOMDocument {
 			return null;
 
 		//return !empty($node->getElementsByTagName($name)->item(0)->nodeValue) ? html_entity_decode($node->getElementsByTagName($name)->item(0)->nodeValue, ENT_QUOTES, $this->encoding) : null;
-		return !empty($node->getElementsByTagName($name)->item(0)->nodeValue) ? $node->getElementsByTagName($name)->item(0)->nodeValue : null;
+		//return !empty($node->getElementsByTagName($name)->item(0)->nodeValue) ? $node->getElementsByTagName($name)->item(0)->nodeValue : null;
+		
+		$aList = $node->getElementsByTagName($name);
+		return $aList->length > 0 && !empty($aList->item(0)->nodeValue) ? $aList->item(0)->nodeValue : null;
 	}
 }
