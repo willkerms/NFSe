@@ -350,8 +350,9 @@ class NFSeGenerico extends NFSe {
 		
 		$soapReturn = $this->sendRequest($metodo, $xml);
 
-		if($this->isHomologacao)
-			$this->saveXML($soapReturn, $metodo . '-soap-return-' . $fileName);
+		//if($this->isHomologacao)
+		//Alterado para sempre salvar o retorno, atualmente não está salvando
+		$this->saveXML($soapReturn, $metodo . '-soap-return-' . $fileName);
 		
 		return $soapReturn;
 	}
