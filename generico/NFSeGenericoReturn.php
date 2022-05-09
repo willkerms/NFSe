@@ -296,7 +296,7 @@ class NFSeGenericoReturn extends NFSeReturn {
 				case "consultarNFSePorRps":
 					return array(
 						'ListaMensagemRetorno' => $this->retListaMensagem($oDocument),
-						'CompNfse' => $this->retInfNFSe($oDocument, $oDocument)
+						'CompNfse' => $this->retInfNFSe($oDocument->firstChild, $oDocument)
 					);
 				break;
 				
