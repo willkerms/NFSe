@@ -1,0 +1,10 @@
+<soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:ws="http://nfse.goiania.go.gov.br/ws/">
+	<soapenv:Header/>
+	<soapenv:Body>
+		<ws:{@action}>
+			<ws:ArquivoXML>
+				<![CDATA[{@xml}]]>
+			</ws:ArquivoXML>
+		</ws:{@action}>
+	</soapenv:Body>
+</soapenv:Envelope>

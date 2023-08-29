@@ -18,6 +18,7 @@ class NFSeGenerico extends NFSe {
 	private $oReturn;
 
 	public function __construct(array $aConfig, $isHomologacao = true) {
+		$aConfig["isHomologacao"] = $isHomologacao;
 
 		if (isset($aConfig['pfx']) && isset($aConfig['pwdPFX']))
 		$this->createTempFiles($aConfig['pfx'], $aConfig['pwdPFX'], $aConfig['cnpj'], $aConfig);
@@ -73,9 +74,11 @@ class NFSeGenerico extends NFSe {
 				'path' => realpath(dirname(__FILE__) . '/../templates/') . '/',
 				'folder' => 'abrasf-v2.4',
 				'rps' => 'Rps.xml',
+				'enviarLoteRps' => 'EnviarLoteRps.xml',
 				'deducao' => 'Deducao.xml',
 				'gerarNfse' => 'GerarNfseEnvio.xml',
 				'consultarNFSePorRps' => 'ConsultarNfseRpsEnvio.xml',
+				'consultarLoteRps' => 'ConsultarLoteRpsEnvio.xml',
 				'cancelarNfse' => 'CancelarNfseEnvio.xml',
 				'soap' => 'Soap.xml'
 			),
@@ -94,10 +97,30 @@ class NFSeGenerico extends NFSe {
 					'search' => array("\r\n", "\n", "\r", "\t"),
 					'replace' => ""
 				),
+				'enviarLoteRps' => array(
+					'typeCommunication' => 'curl',
+					'action' => 'RecepcionarLoteRps',
+					'actionSoapHeader' => 'RecepcionarLoteRps',
+					'nameSpace' => '',
+					'returnType' => 'string',
+					'tagSign' => 'LoteRps', 
+					'tagAppend' => 'EnviarLoteRpsEnvio',
+					'tagMap' => array(
+						'return' => 'RecepcionarLoteRpsResult',
+						'respostaLote' => 'EnviarLoteRpsSincronoResposta'
+					),
+				),
 				'consultarNFSePorRps' => array(
 					'action' => 'consultarNfseRps',
 					'tagMap' => array(
 						'return' => 'consultarNfseRpsResponse'
+					)
+				),
+				'consultarLoteRps' => array(
+					'action' => 'ConsultarLoteRps',
+					'returnType' => 'string',
+					'tagMap' => array(
+						'return' => 'ConsultarLoteRpsResult'
 					)
 				),
 				'cancelarNfse' => array(
@@ -309,6 +332,100 @@ class NFSeGenerico extends NFSe {
 	}
 
 	/**
+	 * @param array[NFSeGenericoInfRps] $oRps
+	 * @param string $id
+	 * 
+	 */
+	public function enviarLoteRps($aRps, $numeroLote) {
+		
+		$metodo = 'enviarLoteRps';
+		$xml = "";
+		
+		foreach($aRps as $oRps){	
+			//RPS
+			$xml .= $this->retXMLRps($oRps);
+
+			$fileName = $oRps->IdentificacaoRps->Numero . "-" . $oRps->IdentificacaoRps->Serie . ".xml";
+		}
+
+		$aReplace = array(
+			'{@idRps}' => $oRps->idRps,
+			'{@CpfPrestador}' => $oRps->Prestador->CpfCnpj,
+			'{@CnpjPrestador}' => $oRps->Prestador->CpfCnpj,
+			'{@InscricaoMunicipalPrestador}' => $oRps->Prestador->InscricaoMunicipal,
+			'{@ListaRps}' => $xml,
+			'{@QuantidadeRps}' => count($aRps),
+			'{@NumeroLote}' => $numeroLote
+		);
+
+		foreach($aReplace as $k => $v){
+			$field = str_replace(['{@', '}'], '', $k);
+			$field = strtolower(substr($field, 0, 1)) . substr($field, 1);
+			$aReplace[$k] = $this->applyFnField($field, $v);
+		}
+
+		$aIfs = array(
+			array('begin' => '{@ifCpfPrestador}', 'end' => '{@endifCpfPrestador}', 'bool' => strlen($oRps->Prestador->CpfCnpj) == 11),
+			array('begin' => '{@ifCnpjPrestador}', 'end' => '{@endifCnpjPrestador}', 'bool' => strlen($oRps->Prestador->CpfCnpj) == 14),
+		);
+
+		$tplLista = $this->getTemplate('enviarLoteRps');
+		
+		$xml = $this->retXML(PQDUtil::procTplText($tplLista, $aReplace, $aIfs));
+		
+		$xml = trim($this->signXML(
+			$xml, 
+			$this->aConfig['metodos'][$metodo]['tagSign'], 
+			$this->aConfig['metodos'][$metodo]['tagAppend']
+		));
+		
+		if($this->isHomologacao)
+			$this->saveXML($xml, $metodo . '-enviarLoteRps-teste.xml');
+
+		return $this->procReturn($this->makeSOAPRequest($metodo, $xml, $fileName), $metodo);
+	}
+
+	
+	/**
+	 * @param NFSeGenericoConsultarLote $oRps
+	 * 
+	 */
+	public function consultarLoteRps(NFSeGenericoConsultarLote $oRps) {
+		
+		$metodo = 'consultarLoteRps';
+		$xml = "";
+
+		$fileName = $oRps->Protocolo . ".xml";
+
+		$aReplace = array(
+			'{@CpfPrestador}' => $oRps->Prestador->CpfCnpj,
+			'{@CnpjPrestador}' => $oRps->Prestador->CpfCnpj,
+			'{@InscricaoMunicipalPrestador}' => $oRps->Prestador->InscricaoMunicipal,
+			'{@Protocolo}' => $oRps->Protocolo
+		);
+
+		foreach($aReplace as $k => $v){
+			$field = str_replace(['{@', '}'], '', $k);
+			$field = strtolower(substr($field, 0, 1)) . substr($field, 1);
+			$aReplace[$k] = $this->applyFnField($field, $v);
+		}
+
+		$aIfs = array(
+			array('begin' => '{@ifCpfPrestador}', 'end' => '{@endifCpfPrestador}', 'bool' => strlen($oRps->Prestador->CpfCnpj) == 11),
+			array('begin' => '{@ifCnpjPrestador}', 'end' => '{@endifCnpjPrestador}', 'bool' => strlen($oRps->Prestador->CpfCnpj) == 14),
+		);
+
+		$tplConsulta = $this->getTemplate('consultarLoteRps');
+		
+		$xml = $this->retXML(PQDUtil::procTplText($tplConsulta, $aReplace, $aIfs));
+
+		if($this->isHomologacao)
+			$this->saveXML($xml, $metodo . '-consultarLoteRps.xml');
+
+		return $this->procReturn($this->makeSOAPRequest($metodo, $xml, $fileName), $metodo);
+	}
+
+	/**
 	 * Salva o XML em um arquivo, caso tenha sido configurado o caminho para ser salvo 'pathSaveXMLs'
 	 * 
 	 * @param string $xml
@@ -343,7 +460,7 @@ class NFSeGenerico extends NFSe {
 	private function makeSOAPRequest($metodo, $xml, $fileName){
 
 		$action = $this->aConfig['metodos'][$metodo]['action'];
-
+		
 		$xml = $this->retXMLSoap($xml, $action);
 
 		if($this->isHomologacao)
@@ -368,7 +485,8 @@ class NFSeGenerico extends NFSe {
 	 */
 	private function sendRequest($metodo, $xml){
 
-		$action = $this->aConfig['metodos'][$metodo]['action'];
+		$action = PQDUtil::retDefault($this->aConfig['metodos'][$metodo], 'actionSoapHeader', $this->aConfig['metodos'][$metodo]['action']);
+
 
 		$wsdl = $this->isHomologacao ? $this->aConfig['homologacao']['wsdl'] : $this->aConfig['producao']['wsdl'];
 		$url = $this->isHomologacao ? PQDUtil::retDefault($this->aConfig['homologacao'], 'url', $wsdl) : PQDUtil::retDefault($this->aConfig['producao'], 'url', $wsdl);
@@ -519,7 +637,7 @@ class NFSeGenerico extends NFSe {
 
 		$oRps = $this->escapeTextObj($oRps);
 
-		$tplRps = $this->getTemplate('rps');;
+		$tplRps = $this->getTemplate('rps');
 		$tplDeducao = $this->getTemplate('deducao');
 
 		$deducoes = '';
@@ -586,6 +704,9 @@ class NFSeGenerico extends NFSe {
 			'{@ValTotTributos}' => $oRps->Servico->Valores->ValTotTributos,
 			'{@ValorIss}' => $oRps->Servico->Valores->ValorIss,
 			'{@Aliquota}' => $oRps->Servico->Valores->Aliquota,
+			'{@ValorLiquidoNfse}' => $oRps->Servico->Valores->ValorLiquidoNfse,
+			'{@ValorIssRetido}' => $oRps->Servico->Valores->ValorIssRetido,
+			'{@BaseCalculo}' => $oRps->Servico->Valores->BaseCalculo,
 			'{@DescontoIncondicionado}' => $oRps->Servico->Valores->DescontoIncondicionado,
 			'{@DescontoCondicionado}' => $oRps->Servico->Valores->DescontoCondicionado,
 			'{@IssRetido}' => $oRps->Servico->IssRetido,
@@ -633,6 +754,8 @@ class NFSeGenerico extends NFSe {
 			'{@IdentificacaoEvento}' => $oRps->Evento->IdentificacaoEvento,
 			'{@DescricaoEvento}' => $oRps->Evento->DescricaoEvento,
 			'{@InformacoesComplementares}' => $oRps->InformacoesComplementares,
+			'{@NaturezaOperacao}' => $oRps->NaturezaOperacao,
+			'{@IncentivadorCultural}' => $oRps->IncentivadorCultural,
 			'{@Deducoes}' => $deducoes
 		);
 

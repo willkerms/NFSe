@@ -1,205 +1,139 @@
 <?xml version="1.0" encoding="utf-8"?>
-<Rps>
-	<InfDeclaracaoPrestacaoServico{@ifIdInfDeclaracaoPrestacaoServico} Id="{@idInfDeclaracaoPrestacaoServico}"{@endifIdInfDeclaracaoPrestacaoServico}>
-		<Rps{@ifIdRps} Id="{@idRps}"{@endifIdRps}>
-			<IdentificacaoRps>
-				<Numero>{@NumeroRps}</Numero>
-				<Serie>{@SerieRps}</Serie>
-				<Tipo>{@TipoRps}</Tipo>
-			</IdentificacaoRps>
-			<DataEmissao>{@DataEmissao}</DataEmissao>
-			<Status>{@Status}</Status>
-			
-			{@ifRpsSubstituido}
-			<RpsSubstituido>
-				<Numero>{@NumeroRpsSubstituido}</Numero>
-				<Serie>{@SerieRpsSubstituido}</Serie>
-				<Tipo>{@TipoRpsSubstituido}</Tipo>
-			</RpsSubstituido>
-			{@endifRpsSubstituido}
-			
-		</Rps>
-		<Competencia>{@Competencia}</Competencia>
-		<Servico>
-			<Valores>
-				<ValorServicos>{@ValorServicos}</ValorServicos>
-				<ValorDeducoes>{@ValorDeducoes}</ValorDeducoes>
-				<ValorPis>{@ValorPis}</ValorPis>
-				<ValorCofins>{@ValorCofins}</ValorCofins>
-				<ValorInss>{@ValorInss}</ValorInss>
-				<ValorIr>{@ValorIr}</ValorIr>
-				<ValorCsll>{@ValorCsll}</ValorCsll>
-				<OutrasRetencoes>{@OutrasRetencoes}</OutrasRetencoes>
-				<ValTotTributos>{@ValTotTributos}</ValTotTributos>
-				<ValorIss>{@ValorIss}</ValorIss>
-				<Aliquota>{@Aliquota}</Aliquota>
-				<DescontoIncondicionado>{@DescontoIncondicionado}</DescontoIncondicionado>
-				<DescontoCondicionado>{@DescontoCondicionado}</DescontoCondicionado>
-			</Valores>
-			<IssRetido>{@IssRetido}</IssRetido>
-			
-			{@ifResponsavelRetencao}
-			<ResponsavelRetencao>{@ResponsavelRetencao}</ResponsavelRetencao>
-			{@endifResponsavelRetencao}
-			
-			<ItemListaServico>{@ItemListaServico}</ItemListaServico>
-			<CodigoCnae>{@CodigoCnae}</CodigoCnae>
-			
+<tc:Rps>
+	<tc:InfRps>
+		<tc:IdentificacaoRps>
+			<tc:Numero>{@NumeroRps}</tc:Numero>
+			<tc:Serie>{@SerieRps}</tc:Serie>
+			<tc:Tipo>{@TipoRps}</tc:Tipo>
+		</tc:IdentificacaoRps>
+		<tc:DataEmissao>{@DataEmissao}</tc:DataEmissao>
+		<tc:NaturezaOperacao>{@NaturezaOperacao}</tc:NaturezaOperacao>
+		<tc:RegimeEspecialTributacao>{@RegimeEspecialTributacao}</tc:RegimeEspecialTributacao>
+		<tc:OptanteSimplesNacional>{@OptanteSimplesNacional}</tc:OptanteSimplesNacional>
+		<tc:IncentivadorCultural>{@IncentivadorCultural}</tc:IncentivadorCultural>
+		<tc:Status>{@Status}</tc:Status>
+		<!-- FAZER IF SUBSTITUICAO RPS tc:-->
+		{@ifRpsSubstituido}
+		<tc:RpsSubstituido>
+			<tc:Numero>{@NumeroRpsSubstituido}</tc:Numero>
+			<tc:Serie>{@SerieRpsSubstituido}</tc:Serie>
+			<tc:Tipo>{@TipoRpsSubstituido}</tc:Tipo>
+		</tc:RpsSubstituido>
+		{@endifRpsSubstituido}
+		<tc:Servico>
+			<tc:Valores>
+				<tc:ValorServicos>{@ValorServicos}</tc:ValorServicos>
+				<tc:ValorDeducoes>{@ValorDeducoes}</tc:ValorDeducoes>
+				<tc:ValorPis>{@ValorPis}</tc:ValorPis>
+				<tc:ValorCofins>{@ValorCofins}</tc:ValorCofins>
+				<tc:ValorInss>{@ValorInss}</tc:ValorInss>
+				<tc:ValorIr>{@ValorIr}</tc:ValorIr>
+				<tc:ValorCsll>{@ValorCsll}</tc:ValorCsll>
+				<tc:IssRetido>{@IssRetido}</tc:IssRetido>
+				<tc:ValorIss>{@ValorIss}</tc:ValorIss>
+				<tc:ValorIssRetido>{@ValorIssRetido}</tc:ValorIssRetido>
+				<tc:OutrasRetencoes>{@OutrasRetencoes}</tc:OutrasRetencoes>
+				<tc:BaseCalculo>{@BaseCalculo}</tc:BaseCalculo>
+				<tc:Aliquota>{@Aliquota}</tc:Aliquota>
+				<tc:ValorLiquidoNfse>{@ValorLiquidoNfse}</tc:ValorLiquidoNfse>
+				<tc:DescontoIncondicionado>{@DescontoIncondicionado}</tc:DescontoIncondicionado>
+				<tc:DescontoCondicionado>{@DescontoCondicionado}</tc:DescontoCondicionado>
+			</tc:Valores>
+			<tc:ItemListaServico>{@ItemListaServico}</tc:ItemListaServico>
+			<tc:CodigoCnae>{@CodigoCnae}</tc:CodigoCnae>
 			{@ifCodigoTributacaoMunicipio}
-			<CodigoTributacaoMunicipio>{@CodigoTributacaoMunicipio}</CodigoTributacaoMunicipio>
+			<tc:CodigoTributacaoMunicipio>{@CodigoTributacaoMunicipio}</tc:CodigoTributacaoMunicipio>
 			{@endifCodigoTributacaoMunicipio}
-			
-			{@ifCodigoNbs}
-			<CodigoNbs>{@CodigoNbs}</CodigoNbs>
-			{@endifCodigoNbs}
-			
-			<Discriminacao>{@Discriminacao}</Discriminacao>
-			<CodigoMunicipio>{@CodigoMunicipioServico}</CodigoMunicipio>
-			
-			{@ifCodigoPaisServico}
-			<CodigoPais>{@CodigoPaisServico}</CodigoPais>
-			{@endifCodigoPaisServico}
-			
-			<ExigibilidadeISS>{@ExigibilidadeISS}</ExigibilidadeISS>
-			
-			{@ifIdentifNaoExigibilidade}
-			<IdentifNaoExigibilidade>{@IdentifNaoExigibilidade}</IdentifNaoExigibilidade>
-			{@endifIdentifNaoExigibilidade}
-			
-			{@ifMunicipioIncidencia}
-			<MunicipioIncidencia>{@MunicipioIncidencia}</MunicipioIncidencia>
-			{@endifMunicipioIncidencia}
-			
-			{@ifNumeroProcesso}
-			<NumeroProcesso>{@NumeroProcesso}</NumeroProcesso>
-			{@endifNumeroProcesso}
-		</Servico>
-		<Prestador>
-			<CpfCnpj>
+			<tc:Discriminacao>{@Discriminacao}</tc:Discriminacao>
+			<!-- VERIFICAR TAG MunicipioPrestacaoServico tc:-->
+			<tc:MunicipioPrestacaoServico>{@CodigoMunicipioServico}</tc:MunicipioPrestacaoServico>
+		</tc:Servico>
+		<tc:Prestador>
+			<tc:CpfCnpj>
+				<!-- FAZER IF CPF/CNPJ tc:-->
 				{@ifCpfPrestador}
-				<Cpf>{@CpfPrestador}</Cpf>
+				<tc:Cpf>{@CpfPrestador}</tc:Cpf>
 				{@endifCpfPrestador}
 				
 				{@ifCnpjPrestador}
-				<Cnpj>{@CnpjPrestador}</Cnpj>
+				<tc:Cnpj>{@CnpjPrestador}</tc:Cnpj>
 				{@endifCnpjPrestador}
-			</CpfCnpj>
-			<InscricaoMunicipal>{@InscricaoMunicipalPrestador}</InscricaoMunicipal>
-		</Prestador>
-		<TomadorServico>
-			<IdentificacaoTomador>
-				<CpfCnpj>
+			</tc:CpfCnpj>
+			<tc:InscricaoMunicipal>{@InscricaoMunicipalPrestador}</tc:InscricaoMunicipal>
+		</tc:Prestador>
+		<tc:Tomador>
+			<tc:IdentificacaoTomador>
+				<tc:CpfCnpj>
+					<!-- FAZER IF CPF/CNPJ tc:-->
 					{@ifCpfTomadorServico}
-					<Cpf>{@CpfTomadorServico}</Cpf>
+					<tc:Cpf>{@CpfTomadorServico}</tc:Cpf>
 					{@endifCpfTomadorServico}
 					
 					{@ifCnpjTomadorServico}
-					<Cnpj>{@CnpjTomadorServico}</Cnpj>
+					<tc:Cnpj>{@CnpjTomadorServico}</tc:Cnpj>
 					{@endifCnpjTomadorServico}
-					
-				</CpfCnpj>
+				</tc:CpfCnpj>
 				{@ifInscricaoMunicipalTomadorServico}
-				<InscricaoMunicipal>{@InscricaoMunicipalTomadorServico}</InscricaoMunicipal>
+				<tc:InscricaoMunicipal>{@InscricaoMunicipalTomadorServico}</tc:InscricaoMunicipal>
 				{@endifInscricaoMunicipalTomadorServico}
-			</IdentificacaoTomador>
-			
-			{@ifNifTomador}
-			<NifTomador>{@NifTomador}</NifTomador>
-			{@endifNifTomador}
-			
-			<RazaoSocial>{@RazaoSocialTomadorServico}</RazaoSocial>
+			</tc:IdentificacaoTomador>
+			<tc:RazaoSocial>{@RazaoSocialTomadorServico}</tc:RazaoSocial>
 			{@ifEndereco}
-			<Endereco>
-				<Endereco>{@Endereco}</Endereco>
-				<Numero>{@Numero}</Numero>
-				<Complemento>{@Complemento}</Complemento>
-				<Bairro>{@Bairro}</Bairro>
-				<CodigoMunicipio>{@CodigoMunicipioTomadorServico}</CodigoMunicipio>
-				<Uf>{@Uf}</Uf>
-				<Cep>{@Cep}</Cep>
-			</Endereco>
+			<tc:Endereco>
+				<tc:Endereco>{@Endereco}</tc:Endereco>
+				<tc:Numero>{@Numero}</tc:Numero>
+				<tc:Complemento>{@Complemento}</tc:Complemento>
+				<tc:Bairro>{@Bairro}</tc:Bairro>
+				<!-- TAG CIDADE É OUTRO NOME NO GENERIC FAVOR VERIFICAR tc:-->
+				<tc:Cidade>{@CodigoMunicipioTomadorServico}</tc:Cidade>
+				<tc:Estado>{@Uf}</tc:Estado>
+				<tc:Cep>{@Cep}</tc:Cep>
+			</tc:Endereco>
 			{@endifEndereco}
-			
-			{@ifEnderecoExterior}
-			<EnderecoExterior>
-				<CodigoPais>{@CodigoPaisEnderecoExterior}</CodigoPais>
-				<EnderecoCompletoExterior>{@EnderecoCompletoExterior}</EnderecoCompletoExterior>
-			</EnderecoExterior>
-			{@endifEnderecoExterior}
-			
+
 			{@ifContato}
-			<Contato>
+			<tc:Contato>
 			
 				{@ifTelefone}
-				<Telefone>{@Telefone}</Telefone>
+				<tc:Telefone>{@Telefone}</tc:Telefone>
 				{@endifTelefone}
 				
 				{@ifEmail}
-				<Email>{@Email}</Email>
+				<tc:Email>{@Email}</tc:Email>
 				{@endifEmail}
 				
-			</Contato>
+			</tc:Contato>
 			{@endifContato}
-		</TomadorServico>
-		
+		</tc:Tomador>
+		<!-- FAZER IF NO INTERMEDIARIO E CONSTRUCAO CIVIL tc:-->
 		{@ifIntermediario}
-		<Intermediario>
-			<IdentificacaoIntermediario>
-				<CpfCnpj>
+		<tc:IntermediarioServico>
+			<tc:RazaoSocial>{@RazaoSocial}</tc:RazaoSocial>
+			<tc:CpfCnpj>
+				<!-- FAZER IF CPF/CNPJ tc:-->
+				{@ifCpfIntermediario}
+				<tc:Cpf>{@CpfIntermediario}</tc:Cpf>
+				{@endifCpfIntermediario}
 				
-					{@ifCpfIntermediario}}
-					<Cpf>{@CpfIntermediario}</Cpf>
-					{@endifCpfIntermediario}}
-					
-					{@ifCnpjIntermediario}
-					<Cnpj>{@CnpjIntermediario}</Cnpj>
-					{@endifCnpjIntermediario}
-					
-				</CpfCnpj>
-				<InscricaoMunicipal>{@InscricaoMunicipalIntermediario}</InscricaoMunicipal>
-			</IdentificacaoIntermediario>
-			<RazaoSocial>{@RazaoSocialIntermediario}</RazaoSocial>
-			<CodigoMunicipio>{@CodigoMunicipioIntermediario}</CodigoMunicipio>
-		</Intermediario>
+				{@ifCnpjIntermediario}
+				<tc:Cnpj>{@CnpjIntermediario}</tc:Cnpj>
+				{@endifCnpjIntermediario}
+			</tc:CpfCnpj>
+			<tc:InscricaoMunicipal>{@InscricaoMunicipal}</tc:InscricaoMunicipal>
+		</tc:IntermediarioServico>
 		{@endifIntermediario}
-		
+
 		{@ifConstrucaoCivil}
-		<ConstrucaoCivil>
-		
+		<tc:ConstrucaoCivil>
 			{@ifCodigoObra}
-			<CodigoObra>{@CodigoObra}</CodigoObra>
+			<tc:CodigoObra>{@CodigoObra}</tc:CodigoObra>
 			{@endifCodigoObra}
 			
 			{@ifArt}
-			<Art>{@Art}</Art>
+			<tc:Art>{@Art}</tc:Art>
 			{@endifArt}
-			
-		</ConstrucaoCivil>
+		</tc:ConstrucaoCivil>
 		{@endifConstrucaoCivil}
-		
-		{@ifRegimeEspecialTributacao}
-		<RegimeEspecialTributacao>{@RegimeEspecialTributacao}</RegimeEspecialTributacao>
-		{@endifRegimeEspecialTributacao}
-		
-		<OptanteSimplesNacional>{@OptanteSimplesNacional}</OptanteSimplesNacional>
-		<IncentivoFiscal>{@IncentivoFiscal}</IncentivoFiscal>
-		
-		{@ifEvento}
-		<Evento>
-			{@ifIdentificacaoEvento}
-			<IdentificacaoEvento>{@IdentificacaoEvento}</IdentificacaoEvento>
-			{@endifIdentificacaoEvento}
-			{@ifDescricaoEvento}
-			<DescricaoEvento>{@DescricaoEvento}</DescricaoEvento>
-			{@endifDescricaoEvento}
-		</Evento>
-		{@endifEvento}
-		
-		{@ifInformacoesComplementares}
-		<InformacoesComplementares>{@InformacoesComplementares}</InformacoesComplementares>
-		{@endifInformacoesComplementares}
-		
-		{@Deducoes}
-	</InfDeclaracaoPrestacaoServico>
-	<!--Signature>string</Signature-->
-</Rps>
+	</tc:InfRps>
+	<!--tc:Signature>string</Signaturetc:-->
+</tc:Rps>

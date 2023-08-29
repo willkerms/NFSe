@@ -22,4 +22,6 @@ class NFSeGenericoValores{
 	public $DescontoIncondicionado = 0.0;
 	public $DescontoCondicionado = 0.0;
 	public $ValorLiquidoNfse = 0.0;	
+	public $ValorIssRetido = 0.0;	
+	public $BaseCalculo = 0.0;	
 }

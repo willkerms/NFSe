@@ -25,6 +25,16 @@ class NFSeGenericoInfRps {
 	public $DataEmissao;
 
 	/**
+	 * @var string
+	 */
+	public $NaturezaOperacao;
+
+	/**
+	 * @var string
+	 */
+	public $IncentivadorCultural;
+
+	/**
 	 * 1 - Normal
 	 * 2 - Cancelada
 	 *

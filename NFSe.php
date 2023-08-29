@@ -260,7 +260,7 @@ class NFSe {
 
 		$this->pathTempFiles = dirname(__FILE__) . '/temp/';
 		$this->mkdir($this->pathTempFiles);
-		$this->loadPfx(file_get_contents($pfx), $pwd, true, false, $this->pathTempFiles, $nameFiles);
+		$this->loadPfx(file_get_contents($pfx), $pwd, true, isset($aReturn["isHomologacao"]) && $aReturn["isHomologacao"] === true, $this->pathTempFiles, $nameFiles);
 
 		$aReturn['privKey'] = $this->pathTempFiles . $nameFiles . '_priKEY.pem';
 		$aReturn['pubKey'] = $this->pathTempFiles . $nameFiles . '_pubKEY.pem';
@@ -429,7 +429,7 @@ class NFSe {
 	}
 
 	public function soap($wsdl, $url, $action, $data, $version = '1.1'){
-		$options = $version == "1.2" ? array('soap_version' => SOAP_1_2) : null;
+		$options = $version == "1.2" ? array('soap_version' => SOAP_1_2) : array('soap_version' => SOAP_1_1);
 		return $this->getSoap($wsdl, $options)->__doRequest($data, $url, $action, $version);
 	}
 

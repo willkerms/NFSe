@@ -292,6 +292,10 @@ class NFSeGenericoReturn extends NFSeReturn {
 				case "gerarNfse":
 					return $this->gerarNfseRetorno($oDocument);
 				break;
+				
+				case "enviarLoteRps":
+					return $this->enviarLoteRpsRetorno($oDocument);
+				break;
 
 				case "consultarNFSePorRps":
 					return array(
@@ -323,17 +327,11 @@ class NFSeGenericoReturn extends NFSeReturn {
 
 				break;
 				
-				case "ConsultarLoteRps":
+				case "consultarLoteRps":
 
-					$oReturn = $dom->getElementsByTagName("ConsultarLoteRpsResposta")->item(0);
-					$oLoteRpsResposta = new NFSeDocument();
-					$oLoteRpsResposta->loadXML($oReturn->nodeValue);
-
-					if(!is_null($pathFile)) {
-						file_put_contents($pathFile, $oLoteRpsResposta->saveXML());
-					}
-
-					return $this->gerarLoteRpsResposta($oLoteRpsResposta);
+					return array(
+						'ListaMensagemRetorno' => $this->retListaMensagem($oDocument),
+					);
 
 				break;
 
@@ -352,7 +350,7 @@ class NFSeGenericoReturn extends NFSeReturn {
 				break;
 
 				default:
-					throw new \Exception("Retorno nao definido! Action(" . $action . ") Retorno: " . PHP_EOL . $return);
+					throw new \Exception("Retorno nao definido! Action(" . $metodo . ") Retorno: " . PHP_EOL . $return);
 				break;
 				
 			}
@@ -495,11 +493,12 @@ class NFSeGenericoReturn extends NFSeReturn {
 		return $return;
 	}
 
-	private function gerarLoteRpsResposta(NFSeDocument $oDocument) {
+	private function enviarLoteRpsRetorno(NFSeDocument $oDocument) {
 
-		if ($oDocument->getElementsByTagName('EnviarLoteRpsSincronoResposta')->length == 1) {
+		$aConfig = $this->oGenerico->getConfig('metodos', array());
+		if ($oDocument->getElementsByTagName($aConfig['enviarLoteRps']['tagMap']['respostaLote'])->length == 1) {
 
-			$oEnviarLoteRpsSincronoResposta = $oDocument->getElementsByTagName('EnviarLoteRpsSincronoResposta')->item(0);
+			$oEnviarLoteRpsSincronoResposta = $oDocument->getElementsByTagName($aConfig['enviarLoteRps']['tagMap']['respostaLote'])->item(0);
 			
 			return array(
 				'NumeroLote' => $oDocument->getValue($oEnviarLoteRpsSincronoResposta, "NumeroLote"),

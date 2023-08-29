@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<EnviarLoteRpsEnvio xmlns="http://www.issnetonline.com.br/webserviceabrasf/vsd/servico_enviar_lote_rps_envio.xsd"
+	xmlns:ts="http://www.issnetonline.com.br/webserviceabrasf/vsd/tipos_simples.xsd"
+	xmlns:tc="http://www.issnetonline.com.br/webserviceabrasf/vsd/tipos_complexos.xsd">
+	<LoteRps id="lt{@idRps}">
+		<tc:NumeroLote>{@NumeroLote}</tc:NumeroLote>
+		<tc:CpfCnpj>
+			<!-- FAZER IF CPF/CNPJ tc:-->
+			{@ifCpfPrestador}
+			<tc:Cpf>{@CpfPrestador}</tc:Cpf>
+			{@endifCpfPrestador}
+			
+			{@ifCnpjPrestador}
+			<tc:Cnpj>{@CnpjPrestador}</tc:Cnpj>
+			{@endifCnpjPrestador}
+		</tc:CpfCnpj>
+		<tc:InscricaoMunicipal>{@InscricaoMunicipalPrestador}</tc:InscricaoMunicipal>
+		<tc:QuantidadeRps>{@QuantidadeRps}</tc:QuantidadeRps>
+		<tc:ListaRps>
+			{@ListaRps}
+		</tc:ListaRps>
+	</LoteRps>
+	<!--Signature></Signature-->
+</EnviarLoteRpsEnvio>

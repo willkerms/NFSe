@@ -1,18 +1,20 @@
 <?xml version="1.0" encoding="utf-8"?>
-<CancelarNfseEnvio xmlns="http://www.abrasf.org.br/nfse.xsd" xsi:schemaLocation="http://www.abrasf.org.br/nfse.xsd schema.xsd" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+<CancelarNfseEnvio xmlns="http://www.issnetonline.com.br/webserviceabrasf/vsd/servico_cancelar_nfse_envio..xsd"
+	xmlns:ts="http://www.issnetonline.com.br/webserviceabrasf/vsd/tipos_simples.xsd"
+	xmlns:tc="http://www.issnetonline.com.br/webserviceabrasf/vsd/tipos_complexos.xsd">
 	<Pedido>
-		<InfPedidoCancelamento Id="string">
-			<IdentificacaoNfse>
-				<Numero>{@Numero}</Numero>
-				<CpfCnpj>
-					<Cnpj>{@Cnpj}</Cnpj>
-					<Cpf>{@Cpf}</Cpf>
-				</CpfCnpj>
-				<InscricaoMunicipal>{@InscricaoMunicipal}</InscricaoMunicipal>
-				<CodigoMunicipio>{@CodigoMunicipio}</CodigoMunicipio>
-			</IdentificacaoNfse>
-			<CodigoCancelamento>{@CodigoCancelamento}</CodigoCancelamento>
-		</InfPedidoCancelamento>
+		<tc:InfPedidoCancelamento Id="stringtc:">
+			<tc:IdentificacaoNfse>
+				<tc:Numero>{@Numero}</tc:Numero>
+				<tc:CpfCnpj>
+					<tc:Cnpj>{@Cnpj}</tc:Cnpj>
+					<tc:Cpf>{@Cpf}</tc:Cpf>
+				</tc:CpfCnpj>
+				<tc:InscricaoMunicipal>{@InscricaoMunicipal}</tc:InscricaoMunicipal>
+				<tc:CodigoMunicipio>{@CodigoMunicipio}</tc:CodigoMunicipio>
+			</tc:IdentificacaoNfse>
+			<tc:CodigoCancelamento>{@CodigoCancelamento}</tc:CodigoCancelamento>
+		</tc:InfPedidoCancelamento>
 		<!--Signature>string</Signature-->
 	</Pedido>
 </CancelarNfseEnvio>
