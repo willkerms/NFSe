@@ -1,14 +1,14 @@
-<soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:ws="http://ws.issweb.fiorilli.com.br/" xmlns:nfse="http://www.abrasf.org.br/nfse.xsd" xmlns:xd="http://www.w3.org/2000/09/xmldsig#">
+<soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:nfse="http://nfse.abrasf.org.br">
+
 	<soapenv:Body>
-		<ws:{@action}>
-			{@xml}			
-			{@ifUsername}
-			<username>{@username}</username>
-			{@endifUsername}
-			
-			{@ifPassword}
-			<password>{@password}</password>
-			{@endifPassword}
-		</ws:{@action}>
+		<nfse:{@action}>
+		<nfseCabecMsg>
+			<cabecalho versao="2.04" xmlns="http://www.abrasf.org.br/nfse.xsd">
+				<versaoDados>2.04</versaoDados>
+			</cabecalho>
+		</nfseCabecMsg>
+		<nfseDadosMsg>{@xml}</nfseDadosMsg>
+		
+		</nfse:{@action}>
 	</soapenv:Body>
 </soapenv:Envelope>

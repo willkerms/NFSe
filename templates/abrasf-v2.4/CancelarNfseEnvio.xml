@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
-<CancelarNfseEnvio xmlns="http://www.abrasf.org.br/nfse.xsd" xsi:schemaLocation="http://www.abrasf.org.br/nfse.xsd schema.xsd" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+<CancelarNfseEnvio xmlns="http://www.abrasf.org.br/nfse.xsd">
 	<Pedido>
-		<InfPedidoCancelamento Id="string">
+		<InfPedidoCancelamento Id="cancelamento-{@Numero}">
 			<IdentificacaoNfse>
 				<Numero>{@Numero}</Numero>
 				<CpfCnpj>

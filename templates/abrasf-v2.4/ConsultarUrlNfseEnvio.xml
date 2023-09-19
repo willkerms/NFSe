@@ -1,0 +1,85 @@
+<ConsultarUrlNfseEnvio xmlns="http://www.abrasf.org.br/nfse.xsd">
+	<Pedido>
+		<Prestador>
+			<CpfCnpj>
+			
+				{@ifCnpjPrestador}
+				<Cnpj>{@CnpjPrestador}</Cnpj>
+				{@endifCnpjPrestador}
+				
+				{@ifCpfPrestador}
+				<Cpf>{@CpfPrestador}</Cpf>
+				{@endifCpfPrestador}
+			</CpfCnpj>
+			
+			{@ifInscricaoMunicipalPrestador}
+			<InscricaoMunicipal>{@InscricaoMunicipalPrestador}</InscricaoMunicipal>
+			{@endifInscricaoMunicipalPrestador}
+		</Prestador>
+		<!-- Obrigatória uma das quatro opções. Informar IdentificacaoRps OU NumeroNfse OU  PeriodoEmissao OU PeriodoCompetencia. Não enviar mais de 1.-->
+		
+		{@ifIdentificacaoRps}
+		<IdentificacaoRps>
+			<Numero>{@NumeroRps}</Numero>
+			<Serie>{@SerieRps}</Serie>
+			<Tipo>{@Tipo}</Tipo>
+		</IdentificacaoRps>
+		{@endifIdentificacaoRps}
+		
+		{@ifNumeroNfse}
+		<NumeroNfse>{@NumeroNfse}</NumeroNfse>
+		{@endifNumeroNfse}
+		
+		{@ifPeriodoEmissao}
+		<PeriodoEmissao>
+			<DataInicial>{@DataInicialEmissao}</DataInicial>
+			<DataFinal>{@DataFinalEmissao}</DataFinal>
+		</PeriodoEmissao>
+		{@endifPeriodoEmissao}
+		
+		{@ifPeriodoCompetencia}
+		<PeriodoCompetencia>
+			<DataInicial>{@DataInicialCompetencia}</DataInicial>
+			<DataFinal>{@DataFinalCompetencia}</DataFinal>
+		</PeriodoCompetencia>
+		{@endifPeriodoCompetencia}
+		
+		<!-- Opcional -->
+		{@ifTomador}
+		<Tomador>
+			<CpfCnpj>
+				<!-- CPF ou CNPJ. Não enviar ambas as tags. -->
+				{@ifCnpjTomador}
+				<Cnpj>{@CnpjTomador}</Cnpj>
+				{@endifCnpjTomador}
+				
+				{@ifCpfTomador}
+				<Cpf>{@CpfTomador}</Cpf>
+				{@endifCpfTomador}
+			</CpfCnpj>
+			<InscricaoMunicipal>{@InscricaoMunicipalTomador}</InscricaoMunicipal>
+		</Tomador>
+		{@endifTomador}
+
+		<!-- Opcional -->
+		{@ifIntermediario}
+		<Intermediario>
+			<CpfCnpj>
+				<!-- CPF ou CNPJ. Não enviar ambas as tags. -->
+				{@ifCnpjIntermediario}
+				<Cnpj>{@CnpjIntermediario}</Cnpj>
+				{@endifCnpjIntermediario}
+				
+				{@ifCpfIntermediario}
+				<Cpf>{@CpfIntermediario}</Cpf>
+				{@endifCpfIntermediario}
+			</CpfCnpj>
+			<InscricaoMunicipal>{@InscricaoMunicipalIntermediario}</InscricaoMunicipal>
+		</Intermediario>
+		{@endifIntermediario}
+		
+		<!-- Obrigatório -->
+		<Pagina>{@Pagina}</Pagina>
+	</Pedido>
+	<!--Signature-->
+</ConsultarUrlNfseEnvio>

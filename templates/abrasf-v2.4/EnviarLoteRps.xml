@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<EnviarLoteRpsEnvio xmlns="http://www.abrasf.org.br/nfse.xsd">
+	<LoteRps Id="lote-{@idLote}" versao="2.04">
+		<NumeroLote>{@NumeroLote}</NumeroLote>
+		<Prestador>
+			<CpfCnpj>
+				<!-- FAZER IF CPF/CNPJ -->
+				{@ifCpfPrestador}
+				<Cpf>{@CpfPrestador}</Cpf>
+				{@endifCpfPrestador}
+				
+				{@ifCnpjPrestador}
+				<Cnpj>{@CnpjPrestador}</Cnpj>
+				{@endifCnpjPrestador}
+			</CpfCnpj>
+			<InscricaoMunicipal>{@InscricaoMunicipalPrestador}</InscricaoMunicipal>
+		</Prestador>
+		<QuantidadeRps>{@QuantidadeRps}</QuantidadeRps>
+		<ListaRps>
+			{@ListaRps}
+		</ListaRps>
+	</LoteRps>
+	<!--Signature></Signature-->
+</EnviarLoteRpsEnvio>

@@ -91,6 +91,9 @@ class NFSe {
 		// extrair a tag com os dados a serem assinados
 		$node = $xmldoc->getElementsByTagName($tagid)->item(0);
 		$id = trim($node->getAttribute("Id"));
+
+		$id = $id == "" ? trim($node->getAttribute("id")) : $id;//Tem alguns webService que a tag id é minusculo
+
 		$idnome = preg_replace('/[^0-9]/', '', $id);
 		// extrai os dados da tag para uma string
 		$dados = $node->C14N(false, false, NULL, NULL);

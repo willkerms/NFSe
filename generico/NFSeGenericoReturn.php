@@ -82,13 +82,20 @@ class NFSeGenericoReturn extends NFSeReturn {
 		$Prestador = $InfDeclaracaoPrestacaoServico->getElementsByTagName("Prestador")->item(0);
 
 		//Tomador e opciional
-		$Tomador = $InfDeclaracaoPrestacaoServico->getElementsByTagName("Tomador")->item(0);
+		$IdentificacaoTomador = $Tomador = null;
 
-		$IdentificacaoTomador = $Tomador->getElementsByTagName("IdentificacaoTomador")->item(0);
+		if($InfDeclaracaoPrestacaoServico->getElementsByTagName("Tomador")->length == 1)
+			$Tomador = $InfDeclaracaoPrestacaoServico->getElementsByTagName("Tomador")->item(0);
+		else if($InfDeclaracaoPrestacaoServico->getElementsByTagName("TomadorServico")->length == 1)
+			$Tomador = $InfDeclaracaoPrestacaoServico->getElementsByTagName("TomadorServico")->item(0);
 
-		$EnderecoTomador = $Tomador->getElementsByTagName("Endereco")->item(0);
-
-		$ContatoTomador = $Tomador->getElementsByTagName("Contato")->item(0);
+		if( !is_null($Tomador) ){
+			$IdentificacaoTomador = $Tomador->getElementsByTagName("IdentificacaoTomador")->item(0);
+	
+			$EnderecoTomador = $Tomador->getElementsByTagName("Endereco")->item(0);
+	
+			$ContatoTomador = $Tomador->getElementsByTagName("Contato")->item(0);
+		}
 
 		$oNFSeGenericoInfNFSe = new NFSeGenericoInfNFSe();
 		$oNFSeGenericoInfNFSe->Numero = $oDocument->getValue($InfNfse, "Numero");
@@ -107,7 +114,7 @@ class NFSeGenericoReturn extends NFSeReturn {
 			'{@idInfNfse}' => $InfNfse->getAttribute('Id')
 		));
 
-		$oNFSeGenericoInfNFSe->Url = ( substr($url, 0, 7) != 'http://' && substr($url, 0, 8) != 'https://' ? 'http://' : '') . $url;
+		$oNFSeGenericoInfNFSe->Url = ( !empty($url) && substr($url, 0, 7) != 'http://' && substr($url, 0, 8) != 'https://' ? 'http://' : '') . $url;
 		$oNFSeGenericoInfNFSe->ValorCredito = $oDocument->getValue($InfNfse, "ValorCredito");
 
 		$oNFSeGenericoInfNFSe->IdentificacaoRps->Numero = $oDocument->getValue($IdentificacaoRps, "Numero");
@@ -161,13 +168,17 @@ class NFSeGenericoReturn extends NFSeReturn {
 		$oNFSeGenericoInfNFSe->PrestadorServico->Endereco->Uf = $oDocument->getValue($EnderecoPrestadorServico, "Uf");
 		$oNFSeGenericoInfNFSe->PrestadorServico->Endereco->Cep = $oDocument->getValue($EnderecoPrestadorServico, "Cep");
 
-		if($IdentificacaoTomador->getElementsByTagName("Cnpj")->length == 1) {
-			$oNFSeGenericoInfNFSe->PrestadorServico->Identificacao->CpfCnpj = $oDocument->getValue($IdentificacaoTomador, "Cnpj");
-		} else {
-			$oNFSeGenericoInfNFSe->PrestadorServico->Identificacao->CpfCnpj = $oDocument->getValue($IdentificacaoTomador, "Cpf");
-		}
 
-		$oNFSeGenericoInfNFSe->TomadorServico->IdentificacaoTomador->InscricaoMunicipal = $oDocument->getValue($IdentificacaoTomador, "InscricaoMunicipal");
+		if(!is_null($IdentificacaoTomador)){
+
+			if($IdentificacaoTomador->getElementsByTagName("Cnpj")->length == 1) {
+				$oNFSeGenericoInfNFSe->TomadorServico->IdentificacaoTomador->CpfCnpj = $oDocument->getValue($IdentificacaoTomador, "Cnpj");
+			} else {
+				$oNFSeGenericoInfNFSe->TomadorServico->IdentificacaoTomador->CpfCnpj = $oDocument->getValue($IdentificacaoTomador, "Cpf");
+			}
+	
+			$oNFSeGenericoInfNFSe->TomadorServico->IdentificacaoTomador->InscricaoMunicipal = $oDocument->getValue($IdentificacaoTomador, "InscricaoMunicipal");
+		}
 
 		$oNFSeGenericoInfNFSe->TomadorServico->RazaoSocial = $oDocument->getValue($Tomador, "RazaoSocial");
 
@@ -303,6 +314,38 @@ class NFSeGenericoReturn extends NFSeReturn {
 						'CompNfse' => $this->retInfNFSe($oDocument->firstChild, $oDocument)
 					);
 				break;
+
+				case "consultarUrlNfse":
+					$aListaLinks = [];
+
+					if($oDocument->getElementsByTagName('ListaLinks')->length == 1){
+						$oListaLinks = $oDocument->getElementsByTagName('ListaLinks')->item(0)->getElementsByTagName('Links');
+
+						for ($i = 0; $i< $oListaLinks->length; $i++){
+							$oLink = $oListaLinks->item($i);
+
+							$aLink = [];
+
+							$oIdentificacaoNfse = $oLink->getElementsByTagName('IdentificacaoNfse')->item(0);
+							$aLink['CodigoMunicipioGerador'] = $oDocument->getValue($oIdentificacaoNfse, 'CodigoMunicipio');
+							$aLink['NumeroNfse'] = $oDocument->getValue($oIdentificacaoNfse, 'Numero');
+							$aLink['CodigoVerificacao'] = $oDocument->getValue($oIdentificacaoNfse, 'CodigoVerificacao');
+
+							if(!is_null($oDocument->getValue($oLink, 'UrlVisualizacaoNfse')))
+								$aLink['Url'] = $oDocument->getValue($oLink, 'UrlVisualizacaoNfse');
+
+							if(!is_null($oDocument->getValue($oLink, 'UrlVerificaAutenticidade')))
+								$aLink['UrlAutenticidade'] = $oDocument->getValue($oLink, 'UrlVerificaAutenticidade');
+
+							$aListaLinks[] = $aLink;
+						}
+					}
+
+					return array(
+						'ListaMensagemRetorno' => $this->retListaMensagem($oDocument),
+						'ListaLinks' => $aListaLinks
+					);
+				break;
 				
 				case "consultarNfseServicoPrestado":
 
@@ -329,9 +372,7 @@ class NFSeGenericoReturn extends NFSeReturn {
 				
 				case "consultarLoteRps":
 
-					return array(
-						'ListaMensagemRetorno' => $this->retListaMensagem($oDocument),
-					);
+					return $this->consultarLoteRpsRetorno($oDocument);
 
 				break;
 
@@ -463,7 +504,7 @@ class NFSeGenericoReturn extends NFSeReturn {
 
 		} else {
 
-			return array('ListaMensagemRetorno' => $this->retMsgForaEsperado());
+			return array('ListaMensagemRetorno' => [$this->retMsgForaEsperado()] );
 
 		}
 
@@ -509,12 +550,28 @@ class NFSeGenericoReturn extends NFSeReturn {
 				'ListaMensagemRetornoLote' => $this->retListaMensagem($oDocument, null, 'ListaMensagemRetornoLote')
 			);
 
-		} else {
-
-			return array('ListaMensagemRetorno' => $this->retMsgForaEsperado());
-
-		}
-
+		} 
+		
+		return array('ListaMensagemRetorno' => [$this->retMsgForaEsperado()]);
 	}
 
+	private function consultarLoteRpsRetorno(NFSeDocument $oDocument) {
+
+		$aConfig = $this->oGenerico->getConfig('metodos', array());
+		
+		if ($oDocument->getElementsByTagName($aConfig['consultarLoteRps']['tagMap']['respostaConsultaLote'])->length == 1) {
+
+			$oConsultarLoteRpsResposta = $oDocument->getElementsByTagName($aConfig['consultarLoteRps']['tagMap']['respostaConsultaLote'])->item(0);
+			
+			return array(
+				'Situacao' => $oDocument->getValue($oConsultarLoteRpsResposta, "Situacao"),
+				'ListaNfse' => $this->retListNFSe($oDocument),
+				'ListaMensagemRetorno' => $this->retListaMensagem($oDocument),
+				'ListaMensagemRetornoLote' => $this->retListaMensagem($oDocument, null, 'ListaMensagemRetornoLote')
+			);
+
+		} 
+
+		return array('ListaMensagemRetorno' => [$this->retMsgForaEsperado()]);
+	}
 }

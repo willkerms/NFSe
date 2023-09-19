@@ -69,6 +69,7 @@ class NFSeGenerico extends NFSe {
 				'senha' => '',
 				'chavePrivada' => ''
 			),
+			'hasConsultaUrlNfse' => false,
 			'pathSaveXMLs' => realpath(dirname(__FILE__) . '/../xml') . '/',
 			'templates' => array(
 				'path' => realpath(dirname(__FILE__) . '/../templates/') . '/',
@@ -79,6 +80,7 @@ class NFSeGenerico extends NFSe {
 				'gerarNfse' => 'GerarNfseEnvio.xml',
 				'consultarNFSePorRps' => 'ConsultarNfseRpsEnvio.xml',
 				'consultarLoteRps' => 'ConsultarLoteRpsEnvio.xml',
+				'consultarUrlNfse' => 'ConsultarUrlNfseEnvio.xml',
 				'cancelarNfse' => 'CancelarNfseEnvio.xml',
 				'soap' => 'Soap.xml'
 			),
@@ -98,29 +100,43 @@ class NFSeGenerico extends NFSe {
 					'replace' => ""
 				),
 				'enviarLoteRps' => array(
-					'typeCommunication' => 'curl',
+					'typeCommunication' => 'soap',
 					'action' => 'RecepcionarLoteRps',
 					'actionSoapHeader' => 'RecepcionarLoteRps',
 					'nameSpace' => '',
-					'returnType' => 'string',
+					'signRps' => false,//true irá assinar os RPS, utilizando as tags informadas no metodo gerarNfse (tagSign, tagAppend, nameSpace)
 					'tagSign' => 'LoteRps', 
 					'tagAppend' => 'EnviarLoteRpsEnvio',
 					'tagMap' => array(
-						'return' => 'RecepcionarLoteRpsResult',
-						'respostaLote' => 'EnviarLoteRpsSincronoResposta'
+						'return' => 'RecepcionarLoteRpsResponse',
+						'respostaLote' => 'EnviarLoteRpsResposta'
 					),
 				),
 				'consultarNFSePorRps' => array(
 					'action' => 'consultarNfseRps',
+					'signConsulta' => false,
+					'nameSpace' => '',
+					'tagSign' => 'Pedido', 
+					'tagAppend' => 'ConsultarNfseRpsEnvio',
 					'tagMap' => array(
 						'return' => 'consultarNfseRpsResponse'
 					)
 				),
 				'consultarLoteRps' => array(
 					'action' => 'ConsultarLoteRps',
-					'returnType' => 'string',
 					'tagMap' => array(
-						'return' => 'ConsultarLoteRpsResult'
+						'return' => 'ConsultarLoteRpsResponse',
+						'respostaConsultaLote' => 'ConsultarLoteRpsResposta'
+					)
+				),
+				'consultarUrlNfse' => array(
+					'action' => 'ConsultarUrlNfse',
+					'signConsulta' => false,
+					'nameSpace' => '',
+					'tagSign' => 'Pedido', 
+					'tagAppend' => 'ConsultarUrlNfseEnvio',
+					'tagMap' => array(
+						'return' => 'ConsultarUrlNfseResposta'
 					)
 				),
 				'cancelarNfse' => array(
@@ -214,6 +230,12 @@ class NFSeGenerico extends NFSe {
 		$aReplaces['replace']['{@Cnpj}'] = $cpfCnpj;
 		$aReplaces['replace']['{@InscricaoMunicipal}'] = $inscMunicipal;
 
+		foreach($aReplaces['replace'] as $k => $v){
+			$field = str_replace(['{@', '}'], '', $k);
+			$field = strtolower(substr($field, 0, 1)) . substr($field, 1);
+			$aReplaces['replace'][$k] = $this->applyFnField($field, $v);
+		}
+
 		$aReplaces['ifs'][] = array('begin' => '{@ifCpf}', 'end' => '{@endifCpf}', 'bool' => strlen($cpfCnpj) == 11);
 		$aReplaces['ifs'][] = array('begin' => '{@ifCnpj}', 'end' => '{@endifCnpj}', 'bool' => strlen($cpfCnpj) == 14);
 		$aReplaces['ifs'][] = array('begin' => '{@ifInscricaoMunicipal}', 'end' => '{@endifInscricaoMunicipal}', 'bool' => !empty($inscMunicipal));
@@ -256,11 +278,27 @@ class NFSeGenerico extends NFSe {
 		$aReplaces['replace']['{@CnpjPrestador}'] = $this->aConfig['cpfCnpj'];
 		$aReplaces['replace']['{@InscricaoMunicipal}'] = $this->aConfig['insMunicipal'];
 
+		foreach($aReplaces['replace'] as $k => $v){
+			$field = str_replace(['{@', '}'], '', $k);
+			$field = strtolower(substr($field, 0, 1)) . substr($field, 1);
+			$aReplaces['replace'][$k] = $this->applyFnField($field, $v);
+		}
+
 		$aReplaces['ifs'][] = array('begin' => '{@ifCpfPrestador}', 'end' => '{@endifCpfPrestador}', 'bool' => strlen($this->aConfig['cpfCnpj']) == 11);
 		$aReplaces['ifs'][] = array('begin' => '{@ifCnpjPrestador}', 'end' => '{@endifCnpjPrestador}', 'bool' => strlen($this->aConfig['cpfCnpj']) == 14);
 		$aReplaces['ifs'][] = array('begin' => '{@ifInscricaoMunicipal}', 'end' => '{@endifInscricaoMunicipal}', 'bool' => !empty($this->aConfig['insMunicipal']) );
 
 		$xml = $this->retXML(PQDUtil::procTplText($tpl, $aReplaces['replace'], $aReplaces['ifs']));
+		
+		if( $this->aConfig['metodos'][$metodo]['signConsulta'] ){
+			$xml = $this->signXML(
+				$xml, 
+				$this->aConfig['metodos'][$metodo]['tagSign'], 
+				$this->aConfig['metodos'][$metodo]['tagAppend'], 
+				$this->aConfig['metodos'][$metodo]['nameSpace'],
+				true
+			);		
+		}
 
 		$this->saveXML($xml, $metodo . '-' . $fileName);
 
@@ -336,27 +374,54 @@ class NFSeGenerico extends NFSe {
 	 * @param string $id
 	 * 
 	 */
-	public function enviarLoteRps($aRps, $numeroLote) {
+	public function enviarLoteRps(array $aRps, NFSeGenericoLoteRps $oLote) {
+
+		$fileName = $oLote->NumeroLote . ".xml";
 		
 		$metodo = 'enviarLoteRps';
 		$xml = "";
-		
-		foreach($aRps as $oRps){	
-			//RPS
-			$xml .= $this->retXMLRps($oRps);
 
-			$fileName = $oRps->IdentificacaoRps->Numero . "-" . $oRps->IdentificacaoRps->Serie . ".xml";
+		//Buscando textos que devem ser substituidos antes da assinatura.
+		$search = PQDUtil::retDefault($this->aConfig['metodos'][$metodo], 'search', null);
+		$search = is_null($search) ? array("\r\n", "\n", "\r", "\t") : array_map('stripcslashes', $search);
+
+		$replace = PQDUtil::retDefault($this->aConfig['metodos'][$metodo], 'replace', null);
+		$replace = is_null($replace) ? "" : ( is_array($replace) ? array_map('stripcslashes', $replace) : $replace );
+
+		/**
+		 * @var NFSeGenericoInfRps $oRps
+		 */
+		foreach($aRps as $oRps){
+			$oRps->idInfDeclaracaoPrestacaoServico = $oRps->idRps = null;
+
+			$rps = $this->retXMLRps($oRps);
+
+			if($this->aConfig['metodos'][$metodo]['signRps']){
+				$rps = $this->signXML(
+					$rps, 
+					$this->aConfig['metodos']['gerarNfse']['tagSign'], 
+					$this->aConfig['metodos']['gerarNfse']['tagAppend'], 
+					$this->aConfig['metodos']['gerarNfse']['nameSpace'],
+					true,
+					true,
+					$search,
+					$replace
+				);		
+			}
+
+			$xml .= $rps;
 		}
 
-		$aReplace = array(
-			'{@idRps}' => $oRps->idRps,
-			'{@CpfPrestador}' => $oRps->Prestador->CpfCnpj,
-			'{@CnpjPrestador}' => $oRps->Prestador->CpfCnpj,
-			'{@InscricaoMunicipalPrestador}' => $oRps->Prestador->InscricaoMunicipal,
-			'{@ListaRps}' => $xml,
-			'{@QuantidadeRps}' => count($aRps),
-			'{@NumeroLote}' => $numeroLote
-		);
+		$aReplaces = $this->retReplaceUsuarios('xml');
+
+		$aReplace = $aReplaces['replace'];
+		$aReplace['{@idLote}'] = $oLote->NumeroLote;
+		$aReplace['{@CpfPrestador}'] = $this->aConfig['cpfCnpj'];
+		$aReplace['{@CnpjPrestador}'] = $this->aConfig['cpfCnpj'];
+		$aReplace['{@InscricaoMunicipalPrestador}'] = $this->aConfig['insMunicipal'];
+		$aReplace['{@ListaRps}'] = $xml;
+		$aReplace['{@QuantidadeRps}'] = count($aRps);
+		$aReplace['{@NumeroLote}'] = $oLote->NumeroLote;
 
 		foreach($aReplace as $k => $v){
 			$field = str_replace(['{@', '}'], '', $k);
@@ -364,23 +429,28 @@ class NFSeGenerico extends NFSe {
 			$aReplace[$k] = $this->applyFnField($field, $v);
 		}
 
-		$aIfs = array(
-			array('begin' => '{@ifCpfPrestador}', 'end' => '{@endifCpfPrestador}', 'bool' => strlen($oRps->Prestador->CpfCnpj) == 11),
-			array('begin' => '{@ifCnpjPrestador}', 'end' => '{@endifCnpjPrestador}', 'bool' => strlen($oRps->Prestador->CpfCnpj) == 14),
-		);
+		$aIfs = $aReplaces['ifs'];
+		$aIfs[] = array('begin' => '{@ifCpfPrestador}', 'end' => '{@endifCpfPrestador}', 'bool' => strlen($oRps->Prestador->CpfCnpj) == 11);
+		$aIfs[] = array('begin' => '{@ifCnpjPrestador}', 'end' => '{@endifCnpjPrestador}', 'bool' => strlen($oRps->Prestador->CpfCnpj) == 14);
 
 		$tplLista = $this->getTemplate('enviarLoteRps');
-		
+
 		$xml = $this->retXML(PQDUtil::procTplText($tplLista, $aReplace, $aIfs));
-		
-		$xml = trim($this->signXML(
+
+		//Assinando
+		$xml = $this->signXML(
 			$xml, 
 			$this->aConfig['metodos'][$metodo]['tagSign'], 
-			$this->aConfig['metodos'][$metodo]['tagAppend']
-		));
+			$this->aConfig['metodos'][$metodo]['tagAppend'], 
+			$this->aConfig['metodos'][$metodo]['nameSpace'],
+			true,
+			true,
+			$search,
+			$replace
+		);
 		
 		if($this->isHomologacao)
-			$this->saveXML($xml, $metodo . '-enviarLoteRps-teste.xml');
+			$this->saveXML($xml, $metodo . '-' . $fileName);
 
 		return $this->procReturn($this->makeSOAPRequest($metodo, $xml, $fileName), $metodo);
 	}
@@ -398,9 +468,9 @@ class NFSeGenerico extends NFSe {
 		$fileName = $oRps->Protocolo . ".xml";
 
 		$aReplace = array(
-			'{@CpfPrestador}' => $oRps->Prestador->CpfCnpj,
-			'{@CnpjPrestador}' => $oRps->Prestador->CpfCnpj,
-			'{@InscricaoMunicipalPrestador}' => $oRps->Prestador->InscricaoMunicipal,
+			'{@CpfPrestador}' => $this->aConfig['cpfCnpj'],
+			'{@CnpjPrestador}' => $this->aConfig['cpfCnpj'],
+			'{@InscricaoMunicipalPrestador}' => $this->aConfig['insMunicipal'],
 			'{@Protocolo}' => $oRps->Protocolo
 		);
 
@@ -411,13 +481,86 @@ class NFSeGenerico extends NFSe {
 		}
 
 		$aIfs = array(
-			array('begin' => '{@ifCpfPrestador}', 'end' => '{@endifCpfPrestador}', 'bool' => strlen($oRps->Prestador->CpfCnpj) == 11),
-			array('begin' => '{@ifCnpjPrestador}', 'end' => '{@endifCnpjPrestador}', 'bool' => strlen($oRps->Prestador->CpfCnpj) == 14),
+			array('begin' => '{@ifCpfPrestador}', 'end' => '{@endifCpfPrestador}', 'bool' => strlen($this->aConfig['cpfCnpj']) == 11),
+			array('begin' => '{@ifCnpjPrestador}', 'end' => '{@endifCnpjPrestador}', 'bool' => strlen($this->aConfig['cpfCnpj']) == 14),
 		);
 
 		$tplConsulta = $this->getTemplate('consultarLoteRps');
 		
 		$xml = $this->retXML(PQDUtil::procTplText($tplConsulta, $aReplace, $aIfs));
+
+		if($this->isHomologacao)
+			$this->saveXML($xml, $metodo . '-consultarLoteRps.xml');
+
+		return $this->procReturn($this->makeSOAPRequest($metodo, $xml, $fileName), $metodo);
+	}
+
+	/**
+	 * @param NFSeGenericoConsultarUrlNfse $oConsulta
+	 * 
+	 */
+	public function consultarUrlNfse(NFSeGenericoConsultarUrlNfse $oConsulta) {
+		
+		$metodo = 'consultarUrlNfse';
+		$xml = "";
+
+		$fileName = $oConsulta->NumeroNfse . ".xml";
+
+		$aReplace = array(
+			'{@CpfPrestador}' => $this->aConfig['cpfCnpj'],
+			'{@CnpjPrestador}' => $this->aConfig['cpfCnpj'],
+			'{@InscricaoMunicipalPrestador}' => $this->aConfig['insMunicipal'],
+			'{@NumeroRps}' => $oConsulta->IdentificacaoRps->Numero,
+			'{@SerieRps}' => $oConsulta->IdentificacaoRps->Serie,
+			'{@Tipo}' => $oConsulta->IdentificacaoRps->Tipo,
+			'{@NumeroNfse}' => $oConsulta->NumeroNfse,
+			'{@DataInicialEmissao}' => $oConsulta->DataInicialEmissao,
+			'{@DataFinalEmissao}' => $oConsulta->DataFinalEmissao,
+			'{@DataInicialCompetencia}' => $oConsulta->DataInicialCompetencia,
+			'{@DataFinalCompetencia}' => $oConsulta->DataFinalCompetencia,
+			'{@CnpjTomador}' => $oConsulta->Tomador->CpfCnpj,
+			'{@CpfTomador}' => $oConsulta->Tomador->CpfCnpj,
+			'{@InscricaoMunicipalTomador}' => $oConsulta->Tomador->InscricaoMunicipal,
+			'{@CnpjIntermediario}' => $oConsulta->Intermediario->CpfCnpj,
+			'{@CpfIntermediario}' => $oConsulta->Intermediario->CpfCnpj,
+			'{@InscricaoMunicipalIntermediario}' => $oConsulta->Intermediario->InscricaoMunicipal,
+			'{@Pagina}' => $oConsulta->Pagina
+		);
+
+		foreach($aReplace as $k => $v){
+			$field = str_replace(['{@', '}'], '', $k);
+			$field = strtolower(substr($field, 0, 1)) . substr($field, 1);
+			$aReplace[$k] = $this->applyFnField($field, $v);
+		}
+
+		$aIfs = array(
+			['begin' => '{@ifCnpjPrestador}', 'end' => '{@endifCnpjPrestador}', 'bool' => strlen($this->aConfig['cpfCnpj']) == 14],
+			['begin' => '{@ifCpfPrestador}', 'end' => '{@endifCpfPrestador}', 'bool' => strlen($this->aConfig['cpfCnpj']) == 11],
+			['begin' => '{@ifInscricaoMunicipalPrestador}', 'end' => '{@endifInscricaoMunicipalPrestador}', 'bool' => !empty($this->aConfig['insMunicipal'])],
+			['begin' => '{@ifIdentificacaoRps}', 'end' => '{@endifIdentificacaoRps}', 'bool' => !empty($oConsulta->IdentificacaoRps->Numero) ],
+			['begin' => '{@ifNumeroNfse}', 'end' => '{@endifNumeroNfse}', 'bool' => !empty($oConsulta->NumeroNfse)],
+			['begin' => '{@ifPeriodoEmissao}', 'end' => '{@endifPeriodoEmissao}', 'bool' => !empty($oConsulta->DataInicialEmissao)],
+			['begin' => '{@ifPeriodoCompetencia}', 'end' => '{@endifPeriodoCompetencia}', 'bool' => !empty($oConsulta->DataInicialEmissao)],
+			['begin' => '{@ifTomador}', 'end' => '{@endifTomador}', 'bool' => !empty($oConsulta->Tomador->CpfCnpj)],
+			['begin' => '{@ifCnpjTomador}', 'end' => '{@endifCnpjTomador}', 'bool' => strlen($oConsulta->Tomador->CpfCnpj) == 14],
+			['begin' => '{@ifCpfTomador}', 'end' => '{@endifCpfTomador}', 'bool' => strlen($oConsulta->Tomador->CpfCnpj) == 11],
+			['begin' => '{@ifIntermediario}', 'end' => '{@endifIntermediario}', 'bool' => !empty($oConsulta->Intermediario->CpfCnpj)],
+			['begin' => '{@ifCnpjIntermediario}', 'end' => '{@endifCnpjIntermediario}', 'bool' => strlen($oConsulta->Intermediario->CpfCnpj) == 14],
+			['begin' => '{@ifCpfIntermediario}', 'end' => '{@endifCpfIntermediario}', 'bool' => strlen($oConsulta->Intermediario->CpfCnpj) == 11]
+		);
+
+		$tplConsulta = $this->getTemplate($metodo);
+		
+		$xml = $this->retXML(PQDUtil::procTplText($tplConsulta, $aReplace, $aIfs));
+
+		if($this->aConfig['metodos'][$metodo]['signConsulta']){
+			$xml = $this->signXML($xml, 
+				$this->aConfig['metodos'][$metodo]['tagSign'], 
+				$this->aConfig['metodos'][$metodo]['tagAppend'], 
+				$this->aConfig['metodos'][$metodo]['nameSpace'],
+				true
+			);
+		}
 
 		if($this->isHomologacao)
 			$this->saveXML($xml, $metodo . '-consultarLoteRps.xml');
