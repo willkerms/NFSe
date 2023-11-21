@@ -910,6 +910,20 @@ class NFSeGenerico extends NFSe {
 
 		$aIfs = array(
 			array('begin' => '{@ifRpsSubstituido}', 'end' => '{@endifRpsSubstituido}', 'bool' => !is_null($oRps->RpsSubstituido->Numero) ),
+
+			['begin' => '{@ifValorDeducoes}', 'end' => '{@endifValorDeducoes}', 'bool' => $oRps->Servico->Valores->ValorDeducoes > 0],
+			['begin' => '{@ifValorPis}', 'end' => '{@endifValorPis}', 'bool' => $oRps->Servico->Valores->ValorPis > 0],
+			['begin' => '{@ifValorCofins}', 'end' => '{@endifValorCofins}', 'bool' => $oRps->Servico->Valores->ValorCofins > 0],
+			['begin' => '{@ifValorInss}', 'end' => '{@endifValorInss}', 'bool' => $oRps->Servico->Valores->ValorInss > 0],
+			['begin' => '{@ifValorIr}', 'end' => '{@endifValorIr}', 'bool' => $oRps->Servico->Valores->ValorIr > 0],
+			['begin' => '{@ifValorCsll}', 'end' => '{@endifValorCsll}', 'bool' => $oRps->Servico->Valores->ValorCsll > 0],
+			['begin' => '{@ifOutrasRetencoes}', 'end' => '{@endifOutrasRetencoes}', 'bool' => $oRps->Servico->Valores->OutrasRetencoes > 0],
+			['begin' => '{@ifValTotTributos}', 'end' => '{@endifValTotTributos}', 'bool' => $oRps->Servico->Valores->ValTotTributos > 0],
+			['begin' => '{@ifValorIss}', 'end' => '{@endifValorIss}', 'bool' => $oRps->Servico->Valores->ValorIss > 0],
+			['begin' => '{@ifAliquota}', 'end' => '{@endifAliquota}', 'bool' => $oRps->Servico->Valores->Aliquota > 0],
+			['begin' => '{@ifDescontoIncondicionado}', 'end' => '{@endifDescontoIncondicionado}', 'bool' => $oRps->Servico->Valores->DescontoIncondicionado > 0],
+			['begin' => '{@ifDescontoCondicionado}', 'end' => '{@endifDescontoCondicionado}', 'bool' => $oRps->Servico->Valores->DescontoCondicionado > 0],
+			
 			array('begin' => '{@ifResponsavelRetencao}', 'end' => '{@endifResponsavelRetencao}', 'bool' => !is_null($oRps->Servico->ResponsavelRetencao) ),
 			array('begin' => '{@ifCodigoTributacaoMunicipio}', 'end' => '{@endifCodigoTributacaoMunicipio}', 'bool' => !is_null($oRps->Servico->CodigoTributacaoMunicipio) ),
 			array('begin' => '{@ifCodigoNbs}', 'end' => '{@endifCodigoNbs}', 'bool' => !is_null($oRps->Servico->CodigoNbs) ),
