@@ -924,6 +924,8 @@ class NFSeGenerico extends NFSe {
 			['begin' => '{@ifDescontoIncondicionado}', 'end' => '{@endifDescontoIncondicionado}', 'bool' => $oRps->Servico->Valores->DescontoIncondicionado > 0],
 			['begin' => '{@ifDescontoCondicionado}', 'end' => '{@endifDescontoCondicionado}', 'bool' => $oRps->Servico->Valores->DescontoCondicionado > 0],
 			
+			['begin' => '{@ifCodigoCnae}', 'end' => '{@endifCodigoCnae}', 'bool' => !is_null($oRps->Servico->CodigoCnae) ],
+
 			array('begin' => '{@ifResponsavelRetencao}', 'end' => '{@endifResponsavelRetencao}', 'bool' => !is_null($oRps->Servico->ResponsavelRetencao) ),
 			array('begin' => '{@ifCodigoTributacaoMunicipio}', 'end' => '{@endifCodigoTributacaoMunicipio}', 'bool' => !is_null($oRps->Servico->CodigoTributacaoMunicipio) ),
 			array('begin' => '{@ifCodigoNbs}', 'end' => '{@endifCodigoNbs}', 'bool' => !is_null($oRps->Servico->CodigoNbs) ),

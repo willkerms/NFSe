@@ -23,17 +23,17 @@
 		<Servico>
 			<Valores>
 				<ValorServicos>{@ValorServicos}</ValorServicos>
-				<ValorDeducoes>{@ValorDeducoes}</ValorDeducoes>
-				<ValorPis>{@ValorPis}</ValorPis>
-				<ValorCofins>{@ValorCofins}</ValorCofins>
-				<ValorInss>{@ValorInss}</ValorInss>
-				<ValorIr>{@ValorIr}</ValorIr>
-				<ValorCsll>{@ValorCsll}</ValorCsll>
-				<OutrasRetencoes>{@OutrasRetencoes}</OutrasRetencoes>
-				<ValorIss>{@ValorIss}</ValorIss>
-				<Aliquota>{@Aliquota}</Aliquota>
-				<DescontoIncondicionado>{@DescontoIncondicionado}</DescontoIncondicionado>
-				<DescontoCondicionado>{@DescontoCondicionado}</DescontoCondicionado>
+				{@ifValorDeducoes}<ValorDeducoes>{@ValorDeducoes}</ValorDeducoes>{@endifValorDeducoes}
+				{@ifValorPis}<ValorPis>{@ValorPis}</ValorPis>{@endifValorPis}
+				{@ifValorCofins}<ValorCofins>{@ValorCofins}</ValorCofins>{@endifValorCofins}
+				{@ifValorInss}<ValorInss>{@ValorInss}</ValorInss>{@endifValorInss}
+				{@ifValorIr}<ValorIr>{@ValorIr}</ValorIr>{@endifValorIr}
+				{@ifValorCsll}<ValorCsll>{@ValorCsll}</ValorCsll>{@endifValorCsll}
+				{@ifOutrasRetencoes}<OutrasRetencoes>{@OutrasRetencoes}</OutrasRetencoes>{@endifOutrasRetencoes}
+				{@ifValorIss}<ValorIss>{@ValorIss}</ValorIss>{@endifValorIss}
+				{@ifAliquota}<Aliquota>{@Aliquota}</Aliquota>{@endifAliquota}
+				{@ifDescontoIncondicionado}<DescontoIncondicionado>{@DescontoIncondicionado}</DescontoIncondicionado>{@endifDescontoIncondicionado}
+				{@ifDescontoCondicionado}<DescontoCondicionado>{@DescontoCondicionado}</DescontoCondicionado>{@endifDescontoCondicionado}
 			</Valores>
 			<IssRetido>{@IssRetido}</IssRetido>
 			
@@ -46,7 +46,10 @@
 			{@endifResponsavelRetencao}
 			
 			<ItemListaServico>{@ItemListaServico}</ItemListaServico>
+			
+			{@ifCodigoCnae}
 			<CodigoCnae>{@CodigoCnae}</CodigoCnae>
+			{@endifCodigoCnae}
 			
 			{@ifCodigoTributacaoMunicipio}
 			<CodigoTributacaoMunicipio>{@CodigoTributacaoMunicipio}</CodigoTributacaoMunicipio>
