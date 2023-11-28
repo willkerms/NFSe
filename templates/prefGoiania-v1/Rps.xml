@@ -1,9 +1,27 @@
 <?xml version="1.0" encoding="utf-8"?>
+<!--
+	Os campos comentados são pq não devem ser enviados de acordo com a prefeitura:
+
+	elemento tcValoresDeclaracaoServico/ValorIss - NÃO DEVE SER ENVIADO
+	elemento tcValoresDeclaracaoServico/DescontoCondicionado - NÃO DEVE SER ENVIADO
+	elemento tcDadosServico/IssRetido (Layout alterado para minOccurs="0") - NÃO DEVE SER ENVIADO
+	elemento tcDadosServico/ResponsavelRetencao - NÃO DEVE SER ENVIADO
+	elemento tcDadosServico/ItemListaServico (Layout alterado para minOccurs="0") - NÃO DEVE SER ENVIADO
+	elemento tcDadosServico/CodigoCnae - NÃO DEVE SER ENVIADO
+	elemento tcDadosServico/CodigoTributacaoMunicipio - OBRIGATÓRIO
+	elemento tcDadosServico/ExigibilidadeISS (Layout alterado para minOccurs="0") - NÃO DEVE SER ENVIADO
+	elemento tcDadosServico/MunicipioIncidencia - NÃO DEVE SER ENVIADO
+	elemento tcInfDeclaracaoPrestacaoServico/Competencia (Layout alterado para minOccurs="0") - NÃO DEVE SER ENVIADO
+	elemento tcInfDeclaracaoPrestacaoServico/OptanteSimplesNacional  (Layout alterado para minOccurs="0") - NÃO DEVE SER ENVIADO
+	elemento tcInfDeclaracaoPrestacaoServico/IncentivoFiscal (Layout alterado para minOccurs="0") - NÃO DEVE SER ENVIADO
+
+	Vide: https://docs.google.com/document/d/1B6L11ZGv2iXMfxCtIJxgzLaDCyeF-tCJ82ELysnJaTs/edit?pli=1
+-->
 <Rps>
 	<InfDeclaracaoPrestacaoServico>
 		<Rps>
 			<IdentificacaoRps>
-				<Numero>{@numeroLote}</Numero>
+				<Numero>{@NumeroRps}</Numero>
 				<Serie>{@SerieRpsAsInt}</Serie>
 				<Tipo>{@TipoRps}</Tipo>
 			</IdentificacaoRps>
@@ -19,34 +37,49 @@
 			{@endifRpsSubstituido}
 			
 		</Rps>
+		<!--Competencia>{@Competencia}</Competencia-->
 		<Servico>
 			<Valores>
 				<ValorServicos>{@ValorServicos}</ValorServicos>
-				<ValorDeducoes>{@ValorDeducoes}</ValorDeducoes>
-				<ValorPis>{@ValorPis}</ValorPis>
-				<ValorCofins>{@ValorCofins}</ValorCofins>
-				<ValorInss>{@ValorInss}</ValorInss>
-				<ValorIr>{@ValorIr}</ValorIr>
-				<ValorCsll>{@ValorCsll}</ValorCsll>
-				<OutrasRetencoes>{@OutrasRetencoes}</OutrasRetencoes>
-				<ValorIss>{@ValorIss}</ValorIss>
-				<Aliquota>{@Aliquota}</Aliquota>
-				<DescontoIncondicionado>{@DescontoIncondicionado}</DescontoIncondicionado>
-				<DescontoCondicionado>{@DescontoCondicionado}</DescontoCondicionado>
+				{@ifValorDeducoes}<ValorDeducoes>{@ValorDeducoes}</ValorDeducoes>{@endifValorDeducoes}
+				{@ifValorPis}<ValorPis>{@ValorPis}</ValorPis>{@endifValorPis}
+				{@ifValorCofins}<ValorCofins>{@ValorCofins}</ValorCofins>{@endifValorCofins}
+				{@ifValorInss}<ValorInss>{@ValorInss}</ValorInss>{@endifValorInss}
+				{@ifValorIr}<ValorIr>{@ValorIr}</ValorIr>{@endifValorIr}
+				{@ifValorCsll}<ValorCsll>{@ValorCsll}</ValorCsll>{@endifValorCsll}
+				{@ifOutrasRetencoes}<OutrasRetencoes>{@OutrasRetencoes}</OutrasRetencoes>{@endifOutrasRetencoes}
+				{@ifValorIss}<ValorIss>{@ValorIss}</ValorIss>{@endifValorIss}
+				{@ifAliquota}<Aliquota>{@Aliquota}</Aliquota>{@endifAliquota}
+				{@ifDescontoIncondicionado}<DescontoIncondicionado>{@DescontoIncondicionado}</DescontoIncondicionado>{@endifDescontoIncondicionado}
+				{@ifDescontoCondicionado}<DescontoCondicionado>{@DescontoCondicionado}</DescontoCondicionado>{@endifDescontoCondicionado}
 			</Valores>
+
+			<!--IssRetido>{@IssRetido}</IssRetido-->
+			
+			{@ifResponsavelRetencao}
+			<ResponsavelRetencao>{@ResponsavelRetencao}</ResponsavelRetencao>
+			{@endifResponsavelRetencao}
+			
+			<!--ItemListaServico>{@ItemListaServico}</ItemListaServico-->
+
+			{@ifCodigoCnae}
+			<!--CodigoCnae>{@CodigoCnae}</CodigoCnae-->
+			{@endifCodigoCnae}
 			
 			<CodigoTributacaoMunicipio>{@CodigoTributacaoMunicipio}</CodigoTributacaoMunicipio>
-			
-			{@ifCodigoNbs}
-			<CodigoNbs>{@CodigoNbs}</CodigoNbs>
-			{@endifCodigoNbs}
-			
+						
 			<Discriminacao>{@Discriminacao}</Discriminacao>
 			<CodigoMunicipio>{@CodigoMunicipioServico}</CodigoMunicipio>
 			
 			{@ifCodigoPaisServico}
 			<CodigoPais>{@CodigoPaisServico}</CodigoPais>
 			{@endifCodigoPaisServico}
+
+			<!--ExigibilidadeISS>{@ExigibilidadeISS}</ExigibilidadeISS-->
+			
+			{@ifMunicipioIncidencia}
+			<!--MunicipioIncidencia>{@MunicipioIncidencia}</MunicipioIncidencia-->
+			{@endifMunicipioIncidencia}
 			
 			{@ifNumeroProcesso}
 			<NumeroProcesso>{@NumeroProcesso}</NumeroProcesso>
@@ -80,11 +113,7 @@
 				<InscricaoMunicipal>{@InscricaoMunicipalTomadorServico}</InscricaoMunicipal>
 				{@endifInscricaoMunicipalTomadorServico}
 			</IdentificacaoTomador>
-			
-			{@ifNifTomador}
-			<NifTomador>{@NifTomador}</NifTomador>
-			{@endifNifTomador}
-			
+						
 			<RazaoSocial>{@RazaoSocialTomadorServico}</RazaoSocial>
 			{@ifEndereco}
 			<Endereco>
@@ -156,22 +185,9 @@
 		<RegimeEspecialTributacao>{@RegimeEspecialTributacao}</RegimeEspecialTributacao>
 		{@endifRegimeEspecialTributacao}
 		
-		{@ifEvento}
-		<Evento>
-			{@ifIdentificacaoEvento}
-			<IdentificacaoEvento>{@IdentificacaoEvento}</IdentificacaoEvento>
-			{@endifIdentificacaoEvento}
-			{@ifDescricaoEvento}
-			<DescricaoEvento>{@DescricaoEvento}</DescricaoEvento>
-			{@endifDescricaoEvento}
-		</Evento>
-		{@endifEvento}
+		<!--OptanteSimplesNacional>{@OptanteSimplesNacional}</OptanteSimplesNacional-->
+		<!--IncentivoFiscal>{@IncentivoFiscal}</IncentivoFiscal-->
 		
-		{@ifInformacoesComplementares}
-		<InformacoesComplementares>{@InformacoesComplementares}</InformacoesComplementares>
-		{@endifInformacoesComplementares}
-		
-		{@Deducoes}
 	</InfDeclaracaoPrestacaoServico>
 	<!--Signature>string</Signature-->
 </Rps>

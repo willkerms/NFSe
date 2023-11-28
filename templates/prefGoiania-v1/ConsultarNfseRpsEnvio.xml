@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<ConsultarNfseRpsEnvio xmlns="http://www.abrasf.org.br/nfse.xsd">
+<ConsultarNfseRpsEnvio xmlns="http://nfse.goiania.go.gov.br/xsd/nfse_gyn_v02.xsd">
 	<IdentificacaoRps>
 		<Numero>{@Numero}</Numero>
 		<Serie>{@SerieRpsAsInt}</Serie>

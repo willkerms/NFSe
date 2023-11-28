@@ -124,7 +124,7 @@ class NFSe {
 		$Reference = $xmldoc->createElement($ns . 'Reference');
 		$SignedInfo->appendChild($Reference);
 		if (empty($id)) {
-			$Reference->setAttribute('URI', '');
+			//$Reference->setAttribute('URI', '');//Quando o ID é empty, quer dizer que a TAG de assinatura não possui o atributo, ou seja não possui o ID, portanto não tem como ser referenciada por ele
 		}
 		else {
 			$Reference->setAttribute('URI', '#' . $id);
