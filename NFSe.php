@@ -96,7 +96,7 @@ class NFSe {
 
 		$idnome = preg_replace('/[^0-9]/', '', $id);
 		// extrai os dados da tag para uma string
-		$dados = $node->C14N(false, false, NULL, NULL);
+		$dados = $node->C14N();
 		// calcular o hash dos dados
 		$hashValue = hash('sha1', $dados, true);
 		// converte o valor para base64 para serem colocados no xml
@@ -124,7 +124,7 @@ class NFSe {
 		$Reference = $xmldoc->createElement($ns . 'Reference');
 		$SignedInfo->appendChild($Reference);
 		if (empty($id)) {
-			//$Reference->setAttribute('URI', '');//Quando o ID é empty, quer dizer que a TAG de assinatura não possui o atributo, ou seja não possui o ID, portanto não tem como ser referenciada por ele
+			$Reference->setAttribute('URI', '');//Quando o ID é empty, quer dizer que a TAG de assinatura não possui o atributo, ou seja não possui o ID, portanto não tem como ser referenciada por ele
 		}
 		else {
 			$Reference->setAttribute('URI', '#' . $id);

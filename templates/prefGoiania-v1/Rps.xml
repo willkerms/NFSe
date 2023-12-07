@@ -22,7 +22,7 @@
 		<Rps>
 			<IdentificacaoRps>
 				<Numero>{@NumeroRps}</Numero>
-				<Serie>{@SerieRpsAsInt}</Serie>
+				<Serie>UNICA</Serie>
 				<Tipo>{@TipoRps}</Tipo>
 			</IdentificacaoRps>
 			<DataEmissao>{@DataEmissao}</DataEmissao>
@@ -48,16 +48,16 @@
 				{@ifValorIr}<ValorIr>{@ValorIr}</ValorIr>{@endifValorIr}
 				{@ifValorCsll}<ValorCsll>{@ValorCsll}</ValorCsll>{@endifValorCsll}
 				{@ifOutrasRetencoes}<OutrasRetencoes>{@OutrasRetencoes}</OutrasRetencoes>{@endifOutrasRetencoes}
-				{@ifValorIss}<ValorIss>{@ValorIss}</ValorIss>{@endifValorIss}
+				{@ifValorIss}<!--ValorIss>{@ValorIss}</ValorIss-->{@endifValorIss}
 				{@ifAliquota}<Aliquota>{@Aliquota}</Aliquota>{@endifAliquota}
 				{@ifDescontoIncondicionado}<DescontoIncondicionado>{@DescontoIncondicionado}</DescontoIncondicionado>{@endifDescontoIncondicionado}
-				{@ifDescontoCondicionado}<DescontoCondicionado>{@DescontoCondicionado}</DescontoCondicionado>{@endifDescontoCondicionado}
+				{@ifDescontoCondicionado}<!--DescontoCondicionado>{@DescontoCondicionado}</DescontoCondicionado-->{@endifDescontoCondicionado}
 			</Valores>
 
 			<!--IssRetido>{@IssRetido}</IssRetido-->
 			
 			{@ifResponsavelRetencao}
-			<ResponsavelRetencao>{@ResponsavelRetencao}</ResponsavelRetencao>
+			<!--ResponsavelRetencao>{@ResponsavelRetencao}</ResponsavelRetencao-->
 			{@endifResponsavelRetencao}
 			
 			<!--ItemListaServico>{@ItemListaServico}</ItemListaServico-->
@@ -152,9 +152,9 @@
 			<IdentificacaoIntermediario>
 				<CpfCnpj>
 				
-					{@ifCpfIntermediario}}
+					{@ifCpfIntermediario}
 					<Cpf>{@CpfIntermediario}</Cpf>
-					{@endifCpfIntermediario}}
+					{@endifCpfIntermediario}
 					
 					{@ifCnpjIntermediario}
 					<Cnpj>{@CnpjIntermediario}</Cnpj>
