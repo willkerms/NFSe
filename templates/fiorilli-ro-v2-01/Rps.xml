@@ -147,9 +147,9 @@
 			<IdentificacaoIntermediario>
 				<CpfCnpj>
 				
-					{@ifCpfIntermediario}}
+					{@ifCpfIntermediario}
 					<Cpf>{@CpfIntermediario}</Cpf>
-					{@endifCpfIntermediario}}
+					{@endifCpfIntermediario}
 					
 					{@ifCnpjIntermediario}
 					<Cnpj>{@CnpjIntermediario}</Cnpj>
