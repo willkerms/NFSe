@@ -271,6 +271,7 @@ class NFSeGenerico extends NFSe {
 		$aReplaces = $this->retReplaceUsuarios('xml');
 		$aReplaces['replace']['{@Numero}'] = $oIdentificacaoRps->Numero;
 		$aReplaces['replace']['{@Serie}'] = $oIdentificacaoRps->Serie;
+		$aReplaces['replace']['{@SerieRps}'] = $oIdentificacaoRps->Serie;
 		$aReplaces['replace']['{@SerieRpsAsInt}'] = (int)$oIdentificacaoRps->Serie;
 		$aReplaces['replace']['{@Tipo}'] = $oIdentificacaoRps->Tipo;
 

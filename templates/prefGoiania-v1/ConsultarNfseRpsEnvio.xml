@@ -2,7 +2,7 @@
 <ConsultarNfseRpsEnvio xmlns="http://nfse.goiania.go.gov.br/xsd/nfse_gyn_v02.xsd">
 	<IdentificacaoRps>
 		<Numero>{@Numero}</Numero>
-		<Serie>{@SerieRpsAsInt}</Serie>
+		<Serie>{@SerieRps}</Serie>
 		<Tipo>{@Tipo}</Tipo>
 	</IdentificacaoRps>
 	<Prestador>

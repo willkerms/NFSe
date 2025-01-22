@@ -70,10 +70,14 @@ class NFSeGenericoReturn extends NFSeReturn {
 		$EnderecoPrestadorServico 	= $Nfse->getElementsByTagName('EnderecoPrestadorServico')->item(0);
 		$DeclaracaoPrestacaoServico = $Nfse->getElementsByTagName('DeclaracaoPrestacaoServico')->item(0);
 
-		$InfDeclaracaoPrestacaoServico = $DeclaracaoPrestacaoServico->getElementsByTagName('InfDeclaracaoPrestacaoServico')->item(0);
+		$InfDeclaracaoPrestacaoServico = $DeclaracaoPrestacaoServico->getElementsByTagName('InfDeclaracaoPrestacaoServico');
+		$InfDeclaracaoPrestacaoServico = $InfDeclaracaoPrestacaoServico->length == 0 ? $Nfse->getElementsByTagName('DeclaracaoPrestacaoServico') : $InfDeclaracaoPrestacaoServico;
+		$InfDeclaracaoPrestacaoServico = $InfDeclaracaoPrestacaoServico->item(0);
 
 		//Rps e opciional
-		$Rps = $InfDeclaracaoPrestacaoServico->getElementsByTagName("Rps")->item(0);
+		$Rps = $InfDeclaracaoPrestacaoServico->getElementsByTagName("Rps");
+		$Rps = $Rps->length == 0 ? $Nfse->getElementsByTagName("DeclaracaoPrestacaoServico") : $Rps;
+		$Rps = $Rps->item(0);
 
 		$IdentificacaoRps = $Rps->getElementsByTagName("IdentificacaoRps")->item(0);
 
@@ -525,11 +529,14 @@ class NFSeGenericoReturn extends NFSeReturn {
 				'ListaNfse' => $this->retListNFSe($oGerarNfseRetorno)
 			);
 
-		} else {
+			$aConfig = $this->oGenerico->getConfig('templates', array());
 
+			//Prefeitura de Goiânia envia mensagem de sucesso com código L000-NORMAL quando deu certo 
+			if( $aConfig['folder'] == 'prefGoiania-v1' && count($return['ListaMensagemRetorno']) == 1 && $return['ListaMensagemRetorno'][0]->Codigo == 'L000' )
+				$return['ListaMensagemRetorno'] = [];
+		} 
+		else
 			$return = array('ListaMensagemRetorno' => array($this->retMsgForaEsperado()));
-
-		}
 
 		return $return;
 	}
