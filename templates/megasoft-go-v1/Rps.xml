@@ -1,4 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
+<GerarNfseEnvio xmlns="http://megasoftarrecadanet.com.br/xsd/nfse_v01.xsd">
 <Rps>
 	<InfDeclaracaoPrestacaoServico{@ifIdInfDeclaracaoPrestacaoServico} Id="{@idInfDeclaracaoPrestacaoServico}"{@endifIdInfDeclaracaoPrestacaoServico}>
 		<Rps>
@@ -10,21 +11,23 @@
 		<Servico>
 			<Valores>
 				<ValorServicos>{@ValorServicos}</ValorServicos>
-				<ValorDeducoes>{@ValorDeducoes}</ValorDeducoes>
-				<ValorPis>{@ValorPis}</ValorPis>
-				<ValorCofins>{@ValorCofins}</ValorCofins>
-				<ValorInss>{@ValorInss}</ValorInss>
-				<ValorIr>{@ValorIr}</ValorIr>
-				<ValorCsll>{@ValorCsll}</ValorCsll>
-				<Aliquota>{@Aliquota}</Aliquota>
-				<DescontoIncondicionado>{@DescontoIncondicionado}</DescontoIncondicionado>
+				{@ifValorDeducoes}<ValorDeducoes>{@ValorDeducoes}</ValorDeducoes>{@endifValorDeducoes}
+				{@ifValorPis}<ValorPis>{@ValorPis}</ValorPis>{@endifValorPis}
+				{@ifValorCofins}<ValorCofins>{@ValorCofins}</ValorCofins>{@endifValorCofins}
+				{@ifValorInss}<ValorInss>{@ValorInss}</ValorInss>{@endifValorInss}
+				{@ifValorIr}<ValorIr>{@ValorIr}</ValorIr>{@endifValorIr}
+				{@ifValorCsll}<ValorCsll>{@ValorCsll}</ValorCsll>{@endifValorCsll}
+				{@ifOutrasRetencoes}<OutrasRetencoes>{@OutrasRetencoes}</OutrasRetencoes>{@endifOutrasRetencoes}
+				{@ifAliquota}<Aliquota>{@Aliquota}</Aliquota>{@endifAliquota}
+				{@ifDescontoIncondicionado}<DescontoIncondicionado>{@DescontoIncondicionado}</DescontoIncondicionado>{@endifDescontoIncondicionado}
+				{@ifDescontoCondicionado}<DescontoCondicionado>{@DescontoCondicionado}</DescontoCondicionado>{@endifDescontoCondicionado}
 			</Valores>
 			<IssRetido>{@IssRetido}</IssRetido>
 			<CodigoMunicipio>{@CodigoMunicipioServico}</CodigoMunicipio>
 			{@ifCodigoTributacaoMunicipio}
 			<CodigoTributacaoMunicipio>{@CodigoTributacaoMunicipio}</CodigoTributacaoMunicipio>
 			{@endifCodigoTributacaoMunicipio}
-			<Discriminacao>{@Discriminacao}</Discriminacao>			
+			<Discriminacao>{@Discriminacao}</Discriminacao>
 		</Servico>
 		<Prestador>
 			<CpfCnpj>
@@ -51,6 +54,7 @@
 				<InscricaoMunicipal>{@InscricaoMunicipalTomadorServico}</InscricaoMunicipal>
 				{@endifInscricaoMunicipalTomadorServico}
 			</IdentificacaoTomador>
+
 			<RazaoSocial>{@RazaoSocialTomadorServico}</RazaoSocial>
 			{@ifEndereco}
 			<Endereco>
@@ -66,3 +70,4 @@
 	</InfDeclaracaoPrestacaoServico>
 	<!--Signature>string</Signature-->
 </Rps>
+</GerarNfseEnvio>
