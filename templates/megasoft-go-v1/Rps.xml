@@ -25,7 +25,9 @@
 			<IssRetido>{@IssRetido}</IssRetido>
 			<CodigoMunicipio>{@CodigoMunicipioServico}</CodigoMunicipio>
 			{@ifCodigoTributacaoMunicipio}
-			<CodigoTributacaoMunicipio>{@CodigoTributacaoMunicipio}</CodigoTributacaoMunicipio>
+			<!--CodigoTributacaoMunicipio>{@CodigoTributacaoMunicipio}</CodigoTributacaoMunicipio-->
+			<!--Na MegaSoft, o código de tributação do município é o item da lista de serviço!-->
+			<CodigoTributacaoMunicipio>{@ItemListaServico}</CodigoTributacaoMunicipio>
 			{@endifCodigoTributacaoMunicipio}
 			<Discriminacao>{@Discriminacao}</Discriminacao>
 		</Servico>
