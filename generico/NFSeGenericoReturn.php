@@ -112,6 +112,8 @@ class NFSeGenericoReturn extends NFSeReturn {
 		$url = $oDocument->getValue($InfNfse, "UrlNfse");
 		$url = is_null($url) ? PQDUtil::retDefault($aConfig, 'urlNfse', '') : $url;
 		$url = PQDUtil::procTplText($url, array(
+			'{@cpfCnpj}' => $this->oGenerico->getConfig('cpfCnpj', ''),
+			'{@inscMunicipal}' => $this->oGenerico->getConfig('insMunicipal', ''),
 			'{@numeroNFSe}' => $oDocument->getValue($InfNfse, "Numero"),
 			'{@codigoVerificacao}' => $oDocument->getValue($InfNfse, "CodigoVerificacao"),
 			'{@sha1CodigoVerificacao}' => sha1($oDocument->getValue($InfNfse, "CodigoVerificacao")),
