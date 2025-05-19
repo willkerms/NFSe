@@ -258,7 +258,7 @@ class NFSeGenericoReturn extends NFSeReturn {
 			$xml = $dom->saveXML($oReturn);
 
 		$oReturnDocument  = new NFSeDocument();
-		$oReturnDocument->loadXML($xml, LIBXML_NOERROR);
+		$oReturnDocument->loadXML(trim($xml), LIBXML_NOERROR | LIBXML_NOWARNING);
 
 		return $oReturnDocument;
 	}
@@ -282,7 +282,7 @@ class NFSeGenericoReturn extends NFSeReturn {
 				$return = iconv($encoding, 'UTF-8', $return);
 
 			$dom = new NFSeDocument();
-			$dom->loadXML($return);
+			$dom->loadXML(trim($return), LIBXML_NOERROR | LIBXML_NOWARNING);
 			$fault = self::checkForFault($dom);
 
 			if(!empty($fault)) {

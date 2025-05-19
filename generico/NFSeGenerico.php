@@ -748,7 +748,7 @@ class NFSeGenerico extends NFSe {
 	private function retXML($xml, $firstChild = true){
 
 		$document = new NFSeDocument();
-		$document->loadXML($xml, LIBXML_NOBLANKS | LIBXML_NOERROR  );
+		$document->loadXML($xml, LIBXML_NOBLANKS | LIBXML_NOERROR | LIBXML_NOWARNING  );
 
 		$this->removeComments($document);
 

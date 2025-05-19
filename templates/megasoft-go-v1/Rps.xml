@@ -30,6 +30,9 @@
 			<CodigoTributacaoMunicipio>{@ItemListaServico}</CodigoTributacaoMunicipio>
 			{@endifCodigoTributacaoMunicipio}
 			<Discriminacao>{@Discriminacao}</Discriminacao>
+			{@ifInformacoesComplementares}
+			<InfAdicional>{@InformacoesComplementares}</InfAdicional>
+			{@endifInformacoesComplementares}
 		</Servico>
 		<Prestador>
 			<CpfCnpj>
