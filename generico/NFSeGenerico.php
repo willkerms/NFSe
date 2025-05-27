@@ -96,6 +96,7 @@ class NFSeGenerico extends NFSe {
 					'tagMap' => array(
 						'return' => 'gerarNfseResponse'
 					),
+					//'replaceXmlSOAP' => ['action2' => 'GerarNfse'],//Para replaces no do XML SOAP, quando a prefeitura tem mais de um action
 					'search' => array("\r\n", "\n", "\r", "\t"),
 					'replace' => ""
 				),
@@ -116,6 +117,7 @@ class NFSeGenerico extends NFSe {
 					'action' => 'consultarNfseRps',
 					'signConsulta' => false,
 					'nameSpace' => '',
+					//'replaceXmlSOAP' => ['action2' => 'GerarNfse'],
 					'tagSign' => 'Pedido', 
 					'tagAppend' => 'ConsultarNfseRpsEnvio',
 					'tagMap' => array(
@@ -143,6 +145,7 @@ class NFSeGenerico extends NFSe {
 					'allowCancel' => true,//Tem prefeituras que não permitem cancelamento pelo WebService, deste modo o sistema nem transmite somente retorna que foi cancelado
 					'action' => 'cancelarNfse',
 					'nameSpace' => '',
+					//'replaceXmlSOAP' => ['action2' => 'GerarNfse'],
 					'tagSign' => 'InfPedidoCancelamento', 
 					'tagAppend' => 'Pedido',
 					'codCancelamento' => '1',//1 - Erro na emissao
@@ -605,7 +608,9 @@ class NFSeGenerico extends NFSe {
 
 		$action = $this->aConfig['metodos'][$metodo]['action'];
 		
-		$xml = $this->retXMLSoap($xml, $action);
+		$aReplaces = $this->aConfig['metodos'][$metodo]['replaceXmlSOAP'] ?? [];
+		
+		$xml = $this->retXMLSoap($xml, $action, $aReplaces);
 
 		if($this->isHomologacao)
 			$this->saveXML($xml, $metodo . '-soap-' . $fileName);
@@ -970,16 +975,19 @@ class NFSeGenerico extends NFSe {
 	 * 
 	 * @return string
 	 */
-	private function retXMLSoap($xml, $action) {
+	private function retXMLSoap($xml, $action, array $aReplaces = []) {
 
 		$tpl = $this->getTemplate('soap');
 
-		$aReplaces = $this->retReplaceUsuarios('soap');
+		$aRep = $this->retReplaceUsuarios('soap');
 
-		$aReplaces['replace']['{@xml}'] = $xml;
-		$aReplaces['replace']['{@action}'] = $action;
+		$aRep['replace']['{@xml}'] = $xml;
+		$aRep['replace']['{@action}'] = $action;
 
-		return $this->retXML(PQDUtil::procTplText($tpl, $aReplaces['replace'], $aReplaces['ifs']), false);
+		foreach($aReplaces as $k => $v)
+			$aRep['replace']['{@' . $k . '}'] = $v;
+
+		return $this->retXML(PQDUtil::procTplText($tpl, $aRep['replace'], $aRep['ifs']), false);
 	}
 	
 	private function procReturn($return, $metodo){
