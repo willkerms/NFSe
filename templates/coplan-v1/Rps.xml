@@ -31,8 +31,8 @@
 				{@ifValorCsll}<ValorCsll>{@ValorCsll}</ValorCsll>{@endifValorCsll}
 				{@ifOutrasRetencoes}<OutrasRetencoes>{@OutrasRetencoes}</OutrasRetencoes>{@endifOutrasRetencoes}
 				{@ifValTotTributos}<ValTotTributos>{@ValTotTributos}</ValTotTributos>{@endifValTotTributos}
-				<!-- {@ifValorIss}<ValorIss>{@ValorIss}</ValorIss>{@endifValorIss} -->
-				<!-- {@ifAliquota}<Aliquota>{@Aliquota}</Aliquota>{@endifAliquota} -->
+				{@ifValorIss}<ValorIss>{@ValorIss}</ValorIss>{@endifValorIss}
+				{@ifAliquota}<Aliquota>{@Aliquota}</Aliquota>{@endifAliquota}
 				{@ifDescontoIncondicionado}<DescontoIncondicionado>{@DescontoIncondicionado}</DescontoIncondicionado>{@endifDescontoIncondicionado}
 				{@ifDescontoCondicionado}<DescontoCondicionado>{@DescontoCondicionado}</DescontoCondicionado>{@endifDescontoCondicionado}
 			</Valores>
