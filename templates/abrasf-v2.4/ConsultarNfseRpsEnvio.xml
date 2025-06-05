@@ -3,7 +3,7 @@
 	<Pedido>
 		<IdentificacaoRps>
 			<Numero>{@Numero}</Numero>
-			<Serie>{@Serie}</Serie>
+			<Serie>{@SerieRps}</Serie>
 			<Tipo>{@Tipo}</Tipo>
 		</IdentificacaoRps>
 		<Prestador>
