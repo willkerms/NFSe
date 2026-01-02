@@ -1,0 +1,23 @@
+<?php
+namespace NFSe\generico;
+
+/**
+ *
+ * @since 2025-12-30
+ * @author Norton Almeida Pontes
+ *
+*/
+class NFSeGenericoInfoDedRed {
+
+	/**
+	 * Valor percentual padrão para dedução/redução do valor do serviço
+	 * ou
+	 * Valor monetário padrão para dedução/redução do valor do serviço
+	 * ou
+	 * Grupo de informações de documento utilizado para Dedução/Redução do valor do serviço
+	 * 
+	 * @var array[NFSeGenericoDocDedRed] | $pDR | $vDR |
+	*/
+	public $pDRVDRDocumentos;
+
+}
