@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<CancelarNfseEnvio xmlns="http://www.sped.fazenda.gov.br/nfse" xmlns:ns2="http://www.w3.org/2000/09/xmldsig#">
+	<pedRegEvento versao="1.01">
+		<tc:infPedReg Id="stringtc:">
+			<tc:tpAmb>{@tpAmb}</tc:tpAmb>
+			<tc:verAplic>{@verAplic}</tc:verAplic>
+			<tc:dhEvento>{@dhEvento}</tc:dhEvento>
+			<tc:CnpjCpf>{@CnpjCpf}</tc:CnpjCpf>
+			<tc:chNFSe>{@chNFSe}</tc:chNFSe>
+			<tc:nPedRegEvento>{@nPedRegEvento}</tc:nPedRegEvento>
+			{@codCancelamento}
+		<!--Signature>string</Signature-->
+	</pedRegEvento>
+</CancelarNfseEnvio>
