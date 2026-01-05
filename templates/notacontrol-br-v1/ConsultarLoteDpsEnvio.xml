@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<ConsultarLoteRpsEnvio xmlns="http://www.sped.fazenda.gov.br/nfse" xmlns:ns2="http://www.w3.org/2000/09/xmldsig#">
+<ConsultarLoteDpsEnvio xmlns="http://www.sped.fazenda.gov.br/nfse" xmlns:ns2="http://www.w3.org/2000/09/xmldsig#">
 	<Prestador>
 		{@ifCNPJPrestador}
 		<tc:CNPJ>{@CNPJPrestador}</tc:CNPJ>
@@ -12,4 +12,4 @@
 		<tc:IM>{@IMPrestador}</tc:IM>
 	</Prestador>
 	<Protocolo>{@Protocolo}</Protocolo>
-</ConsultarLoteRpsEnvio>
+</ConsultarLoteDpsEnvio>

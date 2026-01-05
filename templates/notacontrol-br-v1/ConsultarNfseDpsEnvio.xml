@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
-<ConsultarNfseRpsEnvio xmlns="http://www.abrasf.org.br/nfse.xsd" xsi:schemaLocation="http://www.abrasf.org.br/nfse.xsd schema.xsd" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+<ConsultarNfseDpsEnvio xmlns="http://www.abrasf.org.br/nfse.xsd" xsi:schemaLocation="http://www.abrasf.org.br/nfse.xsd schema.xsd" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
 	<IdentificacaoDps>
 		<NumDPS>{@NumDPS}</NumDPS>
 		<SerieDPS>{@SerieDPS}</SerieDPS>
-		</IdentificacaoDps>
+	</IdentificacaoDps>
 	<Prestador>
 		{@ifCNPJPrestador}
 		<CNPJ>{@CNPJPrestador}</CNPJ>
@@ -16,4 +16,4 @@
 		<IM>{@IMPrestador}</IM>
 	</Prestador>
 	<Protocolo>{@Protocolo}</Protocolo>
-</ConsultarNfseRpsEnvio>
+</ConsultarNfseDpsEnvio>
