@@ -23,7 +23,7 @@ class NFSeGenerico extends NFSe {
 		if (isset($aConfig['pfx']) && isset($aConfig['pwdPFX']))
 		$this->createTempFiles($aConfig['pfx'], $aConfig['pwdPFX'], $aConfig['cnpj'], $aConfig);
 
-		parent::__construct($aConfig['privKey'], $aConfig['pubKey'], $aConfig['certKey']);
+		parent::__construct($aConfig['privKey'] ?? null, $aConfig['pubKey'] ?? null, $aConfig['certKey'] ?? null);
 		
 		$aConfig = PQDUtil::setDefault($aConfig, array(
 			/*
