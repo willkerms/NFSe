@@ -32,10 +32,15 @@ class NFSeGenericoAtvEvento  {
 
 	/**
 	 * Identificação da Atividade de Evento (código identificador de evento determinado pela Administração Tributária Municipal)
-	 * ou
+	 * 
+	 * @var $idAtvEvt
+	*/
+	public $idAtvEvt;
+
+	/**
 	 * Grupo de informações relativas ao endereço da atividade, evento ou local do serviço prestado
 	 * 
-	 * @var NFSeGenericoEnderecoSimples | $idAtvEvt
+	 * @var NFSeGenericoEnderecoSimples
 	*/
-	public $idAtvEvtEnd;
+	public $end;
 }

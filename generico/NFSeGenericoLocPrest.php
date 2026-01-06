@@ -11,11 +11,16 @@ class NFSeGenericoLocPrest {
 
 	/**
 	 * Código do município onde o serviço foi prestado (tabela do IBGE)
-	 * ou
+	 * 
+	 * @var $cLocPrestacao
+	*/
+	public $cLocPrestacao;
+
+	/**
 	 * Código do país onde o serviço foi prestado (Tabela de Países ISO)
 	 * 
-	 * @var $cLocPrestacao | $cPaisPrestacao
+	 * @var $cPaisPrestacao
 	*/
-	public $cLocPrestacaoPaisPrestacao;
+	public $cPaisPrestacao;
 
 }

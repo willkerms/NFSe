@@ -7,7 +7,7 @@ namespace NFSe\generico;
  * @author Norton Almeida Pontes
  *
 */
-class NFSeGenericoDocOutNFSe  {
+class NFSeGenericoNFSeMun {
 
 	/**
 	 * Código Município emissor da nota eletrônica municipal (Tabela do IBGE)

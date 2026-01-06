@@ -11,13 +11,23 @@ class NFSeGenericoInfoDedRed {
 
 	/**
 	 * Valor percentual padrão para dedução/redução do valor do serviço
-	 * ou
+	 * 
+	 * @var $pDR
+	*/
+	public $pDR;
+
+	/**
 	 * Valor monetário padrão para dedução/redução do valor do serviço
-	 * ou
+	 * 
+	 * @var $vDR
+	*/
+	public $vDR;
+
+	/**
 	 * Grupo de informações de documento utilizado para Dedução/Redução do valor do serviço
 	 * 
-	 * @var array[NFSeGenericoDocDedRed] | $pDR | $vDR |
+	 * @var array[NFSeGenericoDocDedRed]
 	*/
-	public $pDRVDRDocumentos;
+	public $documentos;
 
 }

@@ -11,20 +11,45 @@ class NFSeGenericoDocDedRed  {
 
 	/**
 	 * Chave de Acesso da NFS-e (Padrão Nacional)
-	 * ou
+	 * 
+	 * @var $chNFSe
+	*/
+	public $chNFSe;
+
+	/**
 	 * Chave de Acesso da NFe
-	 * ou
+	 * 
+	 * @var $chNFe
+	*/
+	public $chNFe;
+
+	/**
 	 * Grupo de informações de Outras NFS-e (Padrão anterior de NFS-e)
-	 * ou
+	 * 
+	 * @var NFSeGenericoNFSeMun
+	*/
+	public $NFSeMun;
+
+	/**
 	 * Grupo de informações de NF ou NFS (Modelo não eletrônico)
-	 * ou
+	 * 
+	 * @var NFSeGenericoDocNFNFS
+	*/
+	public $NFNFS;
+
+	/**
 	 * Número de documento fiscal
-	 * ou
+	 * 
+	 * @var $nDocFisc
+	*/
+	public $nDocFisc;
+
+	/**
 	 * Número de documento não fiscal
 	 * 
-	 * @var NFSeGenericoDocOutNFSe | NFSeGenericoDocNFNFS | $chNFSe | $chNFe | $nDocFisc | $nDoc | 
+	 * @var $nDoc
 	*/
-	public $chNFSeChNFeNFSeMunNFNFSNdocFiscNdoc;
+	public $nDoc;
 
 	/**
 	 * 1 – Alimentação e bebidas/frigobar;

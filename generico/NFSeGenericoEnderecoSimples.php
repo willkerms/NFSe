@@ -11,12 +11,17 @@ class NFSeGenericoEnderecoSimples {
 
 	/**
 	 * Grupo de informações específicas de endereço nacional
-	 * ou
+	 * 
+	 * @var $CEP 
+	*/
+	public $CEP;
+
+	/**
 	 * Grupo de informações específicas de endereço no exterior
 	 * 
-	 * @var NFSeGenericoEndExtSimples | $CEP 
+	 * @var NFSeGenericoEndExtSimples
 	*/
-	public $CEPEndExt;
+	public $endExt;
 
 	/**
 	 * Tipo e nome do logradouro da localização do imóvel

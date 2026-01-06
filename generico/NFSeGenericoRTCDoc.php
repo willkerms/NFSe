@@ -11,14 +11,24 @@ class NFSeGenericoRTCDoc {
 
 	/**
 	 * Grupo de informações de documentos fiscais eletrônicos que se encontram no repositório nacional
-	 * ou
+	 * 
+	 * @var NFSeGenericoDocDFe
+	*/
+	public $dFeNacional;
+	
+	/**
 	 * Grupo de informações de documento fiscais, eletrônicos ou não, que não se encontram no repositório nacional
-	 * ou
+	 * 
+	 * @var NFSeGenericoDocFiscalOutro
+	*/
+	public $docFiscalOutroDocOutro;
+
+	/**
 	 * Grupo de informações de documento não fiscal.
 	 * 
-	 * @var NFSeGenericoDocDFe | NFSeGenericoDocFiscalOutro | NFSeGenericoDocOutro 
+	 * @var NFSeGenericoDocOutro 
 	*/
-	public $dFeNacionalDocFiscalOutroDocOutro;
+	public $docOutro;
 
 	/**
 	 *  

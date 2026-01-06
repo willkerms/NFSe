@@ -12,18 +12,33 @@ class NFSeGenericoInfoDest {
 
 	/**
 	 * Número de CNPJ
-	 * ou
+	 * 
+	 * @var $CNPJ
+	 */
+	public $CNPJ;
+
+	/**
 	 * Número de CPF
-	 * ou
+	 * 
+	 * @var $CPF
+	 */
+	public $CPF;
+
+	/**
 	 * NIF - Número de Identificação Fiscal fornecido por órgão de administração tributária no exterior
-	 * ou
+	 * 
+	 * @var $NIF
+	 */
+	public $NIF;
+
+	/**
 	 * Motivo para não informação do NIF:
 	 * 1 - Dispensado do NIF;
 	 * 2 - Não exigência do NIF;
 	 * 
-	 * @var $CNPJ | $CPF | $NIF | $cNaoNIF
+	 * @var $cNaoNIF
 	 */
-	public $CnpjCpfNifCNaoNif;
+	public $cNaoNif;
 
 	/**
 	 * Nome/Nome Empresarial

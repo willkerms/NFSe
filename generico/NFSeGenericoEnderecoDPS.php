@@ -14,7 +14,7 @@ class NFSeGenericoEnderecoDPS {
 	 * ou
 	 * Grupo de informações específicas de endereço no exterior
 	 * 
-	 * @var NFSeGenericoEnderNac | NFSeGenericoEnderExt 
+	 * @var NFSeGenericoEnderNacEnderExt
 	*/
 	public $endNacEndExt;
 

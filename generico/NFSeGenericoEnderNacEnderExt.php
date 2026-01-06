@@ -7,7 +7,24 @@ namespace NFSe\generico;
  * @author Norton Almeida Pontes
  *
 */
-class NFSeGenericoEnderExt {
+class NFSeGenericoEnderNacEnderExt {
+
+	/**
+	 * Código do município, conforme Tabela do IBGE
+	 * 
+	 * @var $cMun 
+	*/
+	public $cMun;
+
+	/**
+	 * Número do CEP
+	 * 
+	 * @var $CEP 
+	*/
+	public $CEP;
+
+
+	# Endereço no exterior
 
 	/**
 	 * Código do país (Tabela de Países ISO)

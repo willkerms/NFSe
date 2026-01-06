@@ -18,13 +18,22 @@ class NFSeGenericoObra {
 
 	/**
 	 * Número de identificação da obra.
-	 * Cadastro Nacional de Obras (CNO) ou Cadastro Específico do INSS (CEI).
-	 * ou
+	 * 
+	 * @var $cObra
+	*/
+	public $cObra;
+
+	/**
 	 * Código do Cadastro Imobiliário Brasileiro - CIB.
-	 * ou
+	 * 
+	 * @var $cCIB
+	*/
+	public $cCIB;
+
+	/**
 	 * Grupo de informações do endereço da obra do serviço prestado
 	 * 
-	 * @var NFSeGenericoEndObra | $cObra | $cCIB
+	 * @var NFSeGenericoEndObra
 	*/
-	public $cObraCCIBEnd;
+	public $end;
 }

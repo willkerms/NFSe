@@ -29,10 +29,15 @@ class NFSeGenericoBeneficioMunicipal {
 
 	/**
 	 * Valor monetário informado pelo emitente para redução da base de cálculo (BC) do ISSQN devido a um Benefício Municipal (BM).
-	 * ou
+	 * 
+	 * @var $vRedBCBM
+	*/
+	public $vRedBCBM;
+
+	/**
 	 * Valor percentual informado pelo emitente para redução da base de cálculo (BC) do ISSQN devido a um Benefício Municipal (BM).
 	 * 
-	 * @var $vRedBCBM | $pRedBCBM
+	 * @var $pRedBCBM
 	*/
-	public $vRedBCBMPRedBCBM;
+	public $pRedBCBM;
 }

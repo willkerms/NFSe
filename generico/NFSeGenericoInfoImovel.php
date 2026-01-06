@@ -18,11 +18,16 @@ class NFSeGenericoInfoImovel {
 
 	/**
 	 * Código do Cadastro Imobiliário Brasileiro - CIB
-	 * ou
+	 * 
+	 * @var $cCIB
+	*/
+	public $cCIB;
+
+	/**
 	 * Grupo de informações do endereço da obra do serviço prestado
 	 * 
-	 * @var NFSeGenericoEnderecoSimples | $cCIB
+	 * @var NFSeGenericoEnderecoSimples
 	*/
-	public $cCIBEnd;
+	public $end;
 
 }
