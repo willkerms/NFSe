@@ -1025,28 +1025,30 @@ class NFSeGenerico extends NFSe {
 			'{@xMotivo}' => $oDPS->subst->xMotivo,
 			
 			// Prestador
-			'{@CNPJPrestador}' => $oDPS->prest->CnpjCpfNifCNaoNif,
-			'{@CPFPrestador}' => $oDPS->prest->CnpjCpfNifCNaoNif,
-			'{@CAEPFPrestador}' => $oDPS->prest->CAEPF,
+			'{@CNPJPrestador}' => $oDPS->prest->CNPJ ?? null,
+			'{@CPFPrestador}' => $oDPS->prest->CPF ?? null,
+			// '{@NIFPrestador}' => $oDPS->prest->NIF ?? null, // Não utilizado no padrão da Nota Control
+			// '{@cNaoNIFPrestador}' => $oDPS->prest->cNaoNIF ?? null, // Não utilizado no padrão da Nota Control
+			'{@CAEPFPrestador}' => $oDPS->prest->CAEPF ?? null,
 			'{@IMPrestador}' => $oDPS->prest->IM,
 			'{@opSimpNac}' => $oDPS->prest->regTrib->opSimpNac,
 			'{@regApTribSN}' => $oDPS->prest->regTrib->regApTribSN,
 			'{@regEspTrib}' => $oDPS->prest->regTrib->regEspTrib,
 			
 			// Tomador
-			'{@CNPJTomador}' => $oDPS->toma->CnpjCpfNifCNaoNif,
-			'{@CPFTomador}' => $oDPS->toma->CnpjCpfNifCNaoNif,
-			'{@NIFTomador}' => $oDPS->toma->CnpjCpfNifCNaoNif,
-			'{@cNaoNIFTomador}' => $oDPS->toma->CnpjCpfNifCNaoNif,
-			'{@CAEPFTomador}' => $oDPS->toma->CAEPF,
-			'{@IMTomador}' => $oDPS->toma->IM,
+			'{@CNPJTomador}' => $oDPS->toma->CNPJ ?? null,
+			'{@CPFTomador}' => $oDPS->toma->CPF ?? null,
+			'{@NIFTomador}' => $oDPS->toma->NIF ?? null,
+			'{@cNaoNIFTomador}' => $oDPS->toma->cNaoNIF ?? null,
+			'{@CAEPFTomador}' => $oDPS->toma->CAEPF ?? null,
+			'{@IMTomador}' => $oDPS->toma->IM ?? null,
 			'{@xNomeTomador}' => $oDPS->toma->xNome,
-			'{@cMunTomador}' => $oDPS->toma->end->endNac->cMun,
-			'{@CEPTomador}' => $oDPS->toma->end->endNac->CEP,
-			'{@cPaisTomador}' => $oDPS->toma->end->endExt->cPais,
-			'{@cEndPostTomador}' => $oDPS->toma->end->endExt->cEndPost,
-			'{@xCidadeTomador}' => $oDPS->toma->end->endExt->xCidade,
-			'{@xEstProvRegTomador}' => $oDPS->toma->end->endExt->xEstProvReg,
+			'{@cMunTomador}' => $oDPS->toma->end->endNacEndExt->cMun ?? null,
+			'{@CEPTomador}' => $oDPS->toma->end->endNacEndExt->CEP ?? null,
+			'{@cPaisTomador}' => $oDPS->toma->end->endNacEndExt->cPais ?? null,
+			'{@cEndPostTomador}' => $oDPS->toma->end->endNacEndExt->cEndPost ?? null,
+			'{@xCidadeTomador}' => $oDPS->toma->end->endNacEndExt->xCidade ?? null,
+			'{@xEstProvRegTomador}' => $oDPS->toma->end->endNacEndExt->xEstProvReg ?? null,
 			'{@xLgrTomador}' => $oDPS->toma->end->xLgr,
 			'{@nroTomador}' => $oDPS->toma->end->nro,
 			'{@xCplTomador}' => $oDPS->toma->end->xCpl,
@@ -1055,29 +1057,28 @@ class NFSeGenerico extends NFSe {
 			'{@emailTomador}' => $oDPS->toma->email,
 			
 			// Intermediário
-			'{@CNPJInterm}' => $oDPS->interm->CnpjCpfNifCNaoNif,
-			'{@CPFInterm}' => $oDPS->interm->CnpjCpfNifCNaoNif,
-			'{@NIFInterm}' => $oDPS->interm->CnpjCpfNifCNaoNif,
-			'{@cNaoNIFInterm}' => $oDPS->interm->CnpjCpfNifCNaoNif,
-			'{@CAEPFInterm}' => $oDPS->interm->CAEPF,
+			'{@CNPJInterm}' => $oDPS->interm->CNPJ ?? null,
+			'{@CPFInterm}' => $oDPS->interm->CPF ?? null,
+			'{@NIFInterm}' => $oDPS->interm->NIF ?? null,
+			'{@cNaoNIFInterm}' => $oDPS->interm->cNaoNIF ?? null,
 			'{@IMInterm}' => $oDPS->interm->IM,
-			'{@xNomeInterm}' => $oDPS->interm->xNome,
-			'{@cMunInterm}' => $oDPS->interm->end->endNac->cMun,
-			'{@CEPInterm}' => $oDPS->interm->end->endNac->CEP,
-			'{@cPaisInterm}' => $oDPS->interm->end->endExt->cPais,
-			'{@cEndPostInterm}' => $oDPS->interm->end->endExt->cEndPost,
-			'{@xCidadeInterm}' => $oDPS->interm->end->endExt->xCidade,
-			'{@xEstProvRegInterm}' => $oDPS->interm->end->endExt->xEstProvReg,
+			'{@xNomeInterm}' => $oDPS->interm->xNome,			
+			'{@cMunInterm}' => $oDPS->interm->end->endNacEndExt->cMun ?? null,
+			'{@CEPInterm}' => $oDPS->interm->end->endNacEndExt->CEP ?? null,
+			'{@cPaisInterm}' => $oDPS->interm->end->endNacEndExt->cPais ?? null,
+			'{@cEndPostInterm}' => $oDPS->interm->end->endNacEndExt->cEndPost ?? null,
+			'{@xCidadeInterm}' => $oDPS->interm->end->endNacEndExt->xCidade ?? null,
+			'{@xEstProvRegInterm}' => $oDPS->interm->end->endNacEndExt->xEstProvReg ?? null,
 			'{@xLgrInterm}' => $oDPS->interm->end->xLgr,
 			'{@nroInterm}' => $oDPS->interm->end->nro,
-			'{@xCplInterm}' => $oDPS->interm->end->xCpl,
+			'{@xCplInterm}' => $oDPS->interm->end->xCpl ?? null,
 			'{@xBairroInterm}' => $oDPS->interm->end->xBairro,
 			'{@foneInterm}' => $oDPS->interm->fone,
 			'{@emailInterm}' => $oDPS->interm->email,
 			
 			// Serviço - Local de Prestação
-			'{@cLocPrestacao}' => $oDPS->serv->locPrest->cLocPrestacao,
-			'{@cPaisPrestacao}' => $oDPS->serv->locPrest->cPaisPrestacao,
+			'{@cLocPrestacao}' => $oDPS->serv->locPrest->cLocPrestacao ?? null,
+			'{@cPaisPrestacao}' => $oDPS->serv->locPrest->cPaisPrestacao ?? null,
 			
 			// Serviço - Código do Serviço
 			'{@cTribNac}' => $oDPS->serv->cServ->cTribNac,
@@ -1087,49 +1088,49 @@ class NFSeGenerico extends NFSe {
 			'{@cIntContrib}' => $oDPS->serv->cServ->cIntContrib,
 			
 			// Serviço - Comércio Exterior
-			'{@mdPrestacao}' => $oDPS->serv->comExt->mdPrestacao,
-			'{@vincPrest}' => $oDPS->serv->comExt->vincPrest,
-			'{@tpMoeda}' => $oDPS->serv->comExt->tpMoeda,
-			'{@vServMoeda}' => $oDPS->serv->comExt->vServMoeda,
-			'{@mecAFComexP}' => $oDPS->serv->comExt->mecAFComexP,
-			'{@mecAFComexT}' => $oDPS->serv->comExt->mecAFComexT,
-			'{@movTempBens}' => $oDPS->serv->comExt->movTempBens,
-			'{@nDI}' => $oDPS->serv->comExt->nDI,
-			'{@nRE}' => $oDPS->serv->comExt->nRE,
-			'{@mdic}' => $oDPS->serv->comExt->mdic,
+			'{@mdPrestacao}' => $oDPS->serv->comExt->mdPrestacao ?? null,
+			'{@vincPrest}' => $oDPS->serv->comExt->vincPrest ?? null,
+			'{@tpMoeda}' => $oDPS->serv->comExt->tpMoeda ?? null,
+			'{@vServMoeda}' => $oDPS->serv->comExt->vServMoeda ?? null,
+			'{@mecAFComexP}' => $oDPS->serv->comExt->mecAFComexP ?? null,
+			'{@mecAFComexT}' => $oDPS->serv->comExt->mecAFComexT ?? null,
+			'{@movTempBens}' => $oDPS->serv->comExt->movTempBens ?? null,
+			'{@nDI}' => $oDPS->serv->comExt->nDI ?? null,
+			'{@nRE}' => $oDPS->serv->comExt->nRE ?? null,
+			'{@mdic}' => $oDPS->serv->comExt->mdic ?? null,
 			
 			// Serviço - Obra
-			'{@inscImobFiscObra}' => $oDPS->serv->obra->inscImobFisc,
-			'{@cObra}' => $oDPS->serv->obra->cObra,
-			'{@cCIBObra}' => $oDPS->serv->obra->cCIB,
-			'{@CEPObra}' => $oDPS->serv->obra->end->CEP,
-			'{@cEndPostObra}' => $oDPS->serv->obra->end->endExt->cEndPost,
-			'{@xCidadeObra}' => $oDPS->serv->obra->end->endExt->xCidade,
-			'{@xEstProvRegObra}' => $oDPS->serv->obra->end->endExt->xEstProvReg,
-			'{@xLgrObra}' => $oDPS->serv->obra->end->xLgr,
-			'{@nroObra}' => $oDPS->serv->obra->end->nro,
-			'{@xCplObra}' => $oDPS->serv->obra->end->xCpl,
-			'{@xBairroObra}' => $oDPS->serv->obra->end->xBairro,
+			'{@inscImobFiscObra}' => $oDPS->serv->obra->inscImobFisc ?? null,
+			'{@cObra}' => $oDPS->serv->obra->cObra ?? null,
+			'{@cCIBObra}' => $oDPS->serv->obra->cCIB ?? null,
+			'{@CEPObra}' => $oDPS->serv->obra->end->CEP ?? null,
+			'{@cEndPostObra}' => $oDPS->serv->obra->end->endNacEndExt->cEndPost ?? null,
+			'{@xCidadeObra}' => $oDPS->serv->obra->end->endNacEndExt->xCidade ?? null,
+			'{@xEstProvRegObra}' => $oDPS->serv->obra->end->endNacEndExt->xEstProvReg ?? null,
+			'{@xLgrObra}' => $oDPS->serv->obra->end->xLgr ?? null,
+			'{@nroObra}' => $oDPS->serv->obra->end->nro ?? null,
+			'{@xCplObra}' => $oDPS->serv->obra->end->xCpl ?? null,
+			'{@xBairroObra}' => $oDPS->serv->obra->end->xBairro ?? null,
 			
 			// Serviço - Atividade/Evento
-			'{@xNomeAtvEvento}' => $oDPS->serv->atvEvento->xNome,
-			'{@dtIniAtvEvento}' => $oDPS->serv->atvEvento->dtIni,
-			'{@dtFimAtvEvento}' => $oDPS->serv->atvEvento->dtFim,
-			'{@idAtvEv}' => $oDPS->serv->atvEvento->idAtvEv,
-			'{@CEPAtvEvento}' => $oDPS->serv->atvEvento->end->CEP,
-			'{@cEndPostAtvEvento}' => $oDPS->serv->atvEvento->end->endExt->cEndPost,
-			'{@xCidadeAtvEvento}' => $oDPS->serv->atvEvento->end->endExt->xCidade,
-			'{@xEstProvRegAtvEvento}' => $oDPS->serv->atvEvento->end->endExt->xEstProvReg,
-			'{@xLgrAtvEvento}' => $oDPS->serv->atvEvento->end->xLgr,
-			'{@nroAtvEvento}' => $oDPS->serv->atvEvento->end->nro,
-			'{@xCplAtvEvento}' => $oDPS->serv->atvEvento->end->xCpl,
-			'{@xBairroAtvEvento}' => $oDPS->serv->atvEvento->end->xBairro,
+			'{@xNomeAtvEvento}' => $oDPS->serv->atvEvento->xNome ?? null,
+			'{@dtIniAtvEvento}' => $oDPS->serv->atvEvento->dtIni ?? null,
+			'{@dtFimAtvEvento}' => $oDPS->serv->atvEvento->dtFim ?? null,
+			'{@idAtvEv}' => $oDPS->serv->atvEvento->idAtvEv ?? null,
+			'{@CEPAtvEvento}' => $oDPS->serv->atvEvento->end->CEP ?? null,
+			'{@cEndPostAtvEvento}' => $oDPS->serv->atvEvento->end->endNacEndExt->cEndPost ?? null,
+			'{@xCidadeAtvEvento}' => $oDPS->serv->atvEvento->end->endNacEndExt->xCidade ?? null,
+			'{@xEstProvRegAtvEvento}' => $oDPS->serv->atvEvento->end->endNacEndExt->xEstProvReg ?? null,
+			'{@xLgrAtvEvento}' => $oDPS->serv->atvEvento->end->xLgr ?? null,
+			'{@nroAtvEvento}' => $oDPS->serv->atvEvento->end->nro ?? null,
+			'{@xCplAtvEvento}' => $oDPS->serv->atvEvento->end->xCpl ?? null,
+			'{@xBairroAtvEvento}' => $oDPS->serv->atvEvento->end->xBairro ?? null,
 			
 			// Serviço - Informações Complementares
 			'{@idDocTec}' => $oDPS->serv->infoCompl->idDocTec,
 			'{@docRef}' => $oDPS->serv->infoCompl->docRef,
 			'{@xPed}' => $oDPS->serv->infoCompl->xPed,
-			'{@xItemPed}' => $oDPS->serv->infoCompl->gItemPed->xItemPed,
+			'{@xItemPed}' => $oDPS->serv->infoCompl->gItemPed->xItemPed ?? null,
 			'{@xInfComp}' => $oDPS->serv->infoCompl->xInfComp,
 			
 			// Valores - Serviço Prestado
@@ -1205,17 +1206,17 @@ class NFSeGenerico extends NFSe {
 			'{@indDest}' => $oDPS->IBSCBS->indDest ?? null,
 			
 			// IBS/CBS - Destinatário
-			'{@CNPJDest}' => $oDPS->IBSCBS->dest->CNPJ ?? null,
-			'{@CPFDest}' => $oDPS->IBSCBS->dest->CPF ?? null,
-			'{@NIFDest}' => $oDPS->IBSCBS->dest->NIF ?? null,
-			'{@cNaoNIFDest}' => $oDPS->IBSCBS->dest->cNaoNIF ?? null,
+			'{@CNPJDest}' => $oDPS->IBSCBS->dest->CnpjCpfNifCNaoNif ?? null,
+			'{@CPFDest}' => $oDPS->IBSCBS->dest->CnpjCpfNifCNaoNif ?? null,
+			'{@NIFDest}' => $oDPS->IBSCBS->dest->CnpjCpfNifCNaoNif ?? null,
+			'{@cNaoNIFDest}' => $oDPS->IBSCBS->dest->CnpjCpfNifCNaoNif ?? null,
 			'{@xNomeDest}' => $oDPS->IBSCBS->dest->xNome ?? null,
-			'{@cMunDest}' => $oDPS->IBSCBS->dest->end->endNac->cMun ?? null,
-			'{@CEPDest}' => $oDPS->IBSCBS->dest->end->endNac->CEP ?? null,
-			'{@cPaisDest}' => $oDPS->IBSCBS->dest->end->endExt->cPais ?? null,
-			'{@cEndPostDest}' => $oDPS->IBSCBS->dest->end->endExt->cEndPost ?? null,
-			'{@xCidadeDest}' => $oDPS->IBSCBS->dest->end->endExt->xCidade ?? null,
-			'{@xEstProvRegDest}' => $oDPS->IBSCBS->dest->end->endExt->xEstProvReg ?? null,
+			'{@cMunDest}' => $oDPS->IBSCBS->dest->end->endNacEndExt->cMun ?? null,
+			'{@CEPDest}' => $oDPS->IBSCBS->dest->end->endNacEndExt->CEP ?? null,
+			'{@cPaisDest}' => $oDPS->IBSCBS->dest->end->endNacEndExt->cPais ?? null,
+			'{@cEndPostDest}' => $oDPS->IBSCBS->dest->end->endNacEndExt->cEndPost ?? null,
+			'{@xCidadeDest}' => $oDPS->IBSCBS->dest->end->endNacEndExt->xCidade ?? null,
+			'{@xEstProvRegDest}' => $oDPS->IBSCBS->dest->end->endNacEndExt->xEstProvReg ?? null,
 			'{@xLgrDest}' => $oDPS->IBSCBS->dest->end->xLgr ?? null,
 			'{@nroDest}' => $oDPS->IBSCBS->dest->end->nro ?? null,
 			'{@xCplDest}' => $oDPS->IBSCBS->dest->end->xCpl ?? null,
@@ -1227,25 +1228,13 @@ class NFSeGenerico extends NFSe {
 			'{@inscImobFiscImovel}' => $oDPS->IBSCBS->imovel->inscImobFisc ?? null,
 			'{@cCIBImovel}' => $oDPS->IBSCBS->imovel->cCIB ?? null,
 			'{@CEPImovel}' => $oDPS->IBSCBS->imovel->end->CEP ?? null,
-			'{@cEndPostImovel}' => $oDPS->IBSCBS->imovel->end->endExt->cEndPost ?? null,
-			'{@xCidadeImovel}' => $oDPS->IBSCBS->imovel->end->endExt->xCidade ?? null,
-			'{@xEstProvRegImovel}' => $oDPS->IBSCBS->imovel->end->endExt->xEstProvReg ?? null,
+			'{@cEndPostImovel}' => $oDPS->IBSCBS->imovel->end->endNacEndExt->cEndPost ?? null,
+			'{@xCidadeImovel}' => $oDPS->IBSCBS->imovel->end->endNacEndExt->xCidade ?? null,
+			'{@xEstProvRegImovel}' => $oDPS->IBSCBS->imovel->end->endNacEndExt->xEstProvReg ?? null,
 			'{@xLgrImovel}' => $oDPS->IBSCBS->imovel->end->xLgr ?? null,
 			'{@nroImovel}' => $oDPS->IBSCBS->imovel->end->nro ?? null,
 			'{@xCplImovel}' => $oDPS->IBSCBS->imovel->end->xCpl ?? null,
 			'{@xBairroImovel}' => $oDPS->IBSCBS->imovel->end->xBairro ?? null,
-			
-			// IBS/CBS - Valores - Tributação IBS
-			'{@polTribIBS}' => $oDPS->IBSCBS->valores->trib->IBS->polTrib ?? null,
-			'{@vBCIBS}' => $oDPS->IBSCBS->valores->trib->IBS->vBC ?? null,
-			'{@pAliqIBS}' => $oDPS->IBSCBS->valores->trib->IBS->pAliq ?? null,
-			'{@vTribIBS}' => $oDPS->IBSCBS->valores->trib->IBS->vTrib ?? null,
-			
-			// IBS/CBS - Valores - Tributação CBS
-			'{@polTribCBS}' => $oDPS->IBSCBS->valores->trib->CBS->polTrib ?? null,
-			'{@vBCCBS}' => $oDPS->IBSCBS->valores->trib->CBS->vBC ?? null,
-			'{@pAliqCBS}' => $oDPS->IBSCBS->valores->trib->CBS->pAliq ?? null,
-			'{@vTribCBS}' => $oDPS->IBSCBS->valores->trib->CBS->vTrib ?? null,
 		);
 
 		// Processar arrays de documentos de dedução/redução se existirem
@@ -1253,13 +1242,13 @@ class NFSeGenerico extends NFSe {
 			$docDedRedXml = '';
 			foreach($oDPS->valores->vDedRed->aDocDedRed as $doc){
 				$docDedRedXml .= '<tc:docDedRed>';
-				if(!empty($doc->chNFSe)) $docDedRedXml .= '<tc:chNFSe>' . htmlspecialchars($doc->chNFSe) . '</tc:chNFSe>';
-				if(!empty($doc->chNFe)) $docDedRedXml .= '<tc:chNFe>' . htmlspecialchars($doc->chNFe) . '</tc:chNFe>';
-				if(!empty($doc->tpDedRed)) $docDedRedXml .= '<tc:tpDedRed>' . htmlspecialchars($doc->tpDedRed) . '</tc:tpDedRed>';
-				if(!empty($doc->xDescOutDed)) $docDedRedXml .= '<tc:xDescOutDed>' . htmlspecialchars($doc->xDescOutDed) . '</tc:xDescOutDed>';
-				if(!empty($doc->dtEmiDoc)) $docDedRedXml .= '<tc:dtEmiDoc>' . htmlspecialchars($doc->dtEmiDoc) . '</tc:dtEmiDoc>';
-				if(!empty($doc->vDedutivelRedutivel)) $docDedRedXml .= '<tc:vDedutivelRedutivel>' . htmlspecialchars($doc->vDedutivelRedutivel) . '</tc:vDedutivelRedutivel>';
-				if(!empty($doc->vDeducaoReducao)) $docDedRedXml .= '<tc:vDeducaoReducao>' . htmlspecialchars($doc->vDeducaoReducao) . '</tc:vDeducaoReducao>';
+				if(!empty($doc->chNFSe)) $docDedRedXml .= '<tc:chNFSe>' . $doc->chNFSe . '</tc:chNFSe>';
+				if(!empty($doc->chNFe)) $docDedRedXml .= '<tc:chNFe>' . $doc->chNFe . '</tc:chNFe>';
+				if(!empty($doc->tpDedRed)) $docDedRedXml .= '<tc:tpDedRed>' . $doc->tpDedRed . '</tc:tpDedRed>';
+				if(!empty($doc->xDescOutDed)) $docDedRedXml .= '<tc:xDescOutDed>' . $doc->xDescOutDed . '</tc:xDescOutDed>';
+				if(!empty($doc->dtEmiDoc)) $docDedRedXml .= '<tc:dtEmiDoc>' . $doc->dtEmiDoc . '</tc:dtEmiDoc>';
+				if(!empty($doc->vDedutivelRedutivel)) $docDedRedXml .= '<tc:vDedutivelRedutivel>' . $doc->vDedutivelRedutivel . '</tc:vDedutivelRedutivel>';
+				if(!empty($doc->vDeducaoReducao)) $docDedRedXml .= '<tc:vDeducaoReducao>' . $doc->vDeducaoReducao . '</tc:vDeducaoReducao>';
 				$docDedRedXml .= '</tc:docDedRed>';
 			}
 			$aReplace['{@foreachDocDedRed}'] = $docDedRedXml;
@@ -1269,24 +1258,25 @@ class NFSeGenerico extends NFSe {
 		
 		// Processar arrays de referências NFS-e se existirem
 		if(!empty($oDPS->IBSCBS->gRefNFSe) && is_array($oDPS->IBSCBS->gRefNFSe)){
-			$gRefNFSeXml = '';
+			$gRefNFSeXml = '<tc:gRefNFSe>';
 			foreach($oDPS->IBSCBS->gRefNFSe as $ref){
-				$gRefNFSeXml .= '<tc:gRefNFSe><tc:refNFSe>' . htmlspecialchars($ref->refNFSe) . '</tc:refNFSe></tc:gRefNFSe>';
+				$gRefNFSeXml .= '<tc:refNFSe>' . $ref->refNFSe . '</tc:refNFSe>';
 			}
+			$gRefNFSeXml .= '</tc:gRefNFSe>';
 			$aReplace['{@foreachGRefNFSe}'] = $gRefNFSeXml;
 		} else {
 			$aReplace['{@foreachGRefNFSe}'] = '';
 		}
 		
 		// Processar arrays de reembolsos/repasses/ressarcimentos se existirem
-		if(!empty($oDPS->IBSCBS->valores->gReeRepRes) && is_array($oDPS->IBSCBS->valores->gReeRepRes)){
+		if(!empty($oDPS->IBSCBS->valores->gReeRepRes->documentos) && is_array($oDPS->IBSCBS->valores->gReeRepRes->documentos)){
 			$gReeRepResXml = '';
-			foreach($oDPS->IBSCBS->valores->gReeRepRes as $ree){
+			foreach($oDPS->IBSCBS->valores->gReeRepRes->documentos as $ree){
 				$gReeRepResXml .= '<tc:gReeRepRes>';
-				if(!empty($ree->chNFSe)) $gReeRepResXml .= '<tc:chNFSe>' . htmlspecialchars($ree->chNFSe) . '</tc:chNFSe>';
-				if(!empty($ree->tpReeRepRes)) $gReeRepResXml .= '<tc:tpReeRepRes>' . htmlspecialchars($ree->tpReeRepRes) . '</tc:tpReeRepRes>';
-				if(!empty($ree->dtEmiDoc)) $gReeRepResXml .= '<tc:dtEmiDoc>' . htmlspecialchars($ree->dtEmiDoc) . '</tc:dtEmiDoc>';
-				if(!empty($ree->vReeRepRes)) $gReeRepResXml .= '<tc:vReeRepRes>' . htmlspecialchars($ree->vReeRepRes) . '</tc:vReeRepRes>';
+				if(!empty($ree->chNFSe)) $gReeRepResXml .= '<tc:chNFSe>' . $ree->chNFSe . '</tc:chNFSe>';
+				if(!empty($ree->tpReeRepRes)) $gReeRepResXml .= '<tc:tpReeRepRes>' . $ree->tpReeRepRes . '</tc:tpReeRepRes>';
+				if(!empty($ree->dtEmiDoc)) $gReeRepResXml .= '<tc:dtEmiDoc>' . $ree->dtEmiDoc . '</tc:dtEmiDoc>';
+				if(!empty($ree->vReeRepRes)) $gReeRepResXml .= '<tc:vReeRepRes>' . $ree->vReeRepRes . '</tc:vReeRepRes>';
 				$gReeRepResXml .= '</tc:gReeRepRes>';
 			}
 			$aReplace['{@foreachGReeRepRes}'] = $gReeRepResXml;
@@ -1318,9 +1308,18 @@ class NFSeGenerico extends NFSe {
 			['begin' => '{@ifCNaoNIFTomador}', 'end' => '{@endifCNaoNIFTomador}', 'bool' => !empty($oDPS->toma->cNaoNIF)],
 			['begin' => '{@ifCAEPFTomador}', 'end' => '{@endifCAEPFTomador}', 'bool' => !empty($oDPS->toma->CAEPF)],
 			['begin' => '{@ifIMTomador}', 'end' => '{@endifIMTomador}', 'bool' => !empty($oDPS->toma->IM)],
-			['begin' => '{@ifEndTomador}', 'end' => '{@endifEndTomador}', 'bool' => !empty($oDPS->toma->end->xLgr)],
-			['begin' => '{@ifEndNacTomador}', 'end' => '{@endifEndNacTomador}', 'bool' => !empty($oDPS->toma->end->endNac->cMun)],
-			['begin' => '{@ifEndExtTomador}', 'end' => '{@endifEndExtTomador}', 'bool' => !empty($oDPS->toma->end->endExt->cPais)],
+			['begin' => '{@ifEndTomador}', 'end' => '{@endifEndTomador}', 'bool' => 
+				( !is_null($oDPS->toma->end->endNacEndExt->cMun) && !is_null($oDPS->toma->end->endNacEndExt->CEP) ) ||
+				( !is_null($oDPS->toma->end->endNacEndExt->cPais) && !is_null($oDPS->toma->end->endNacEndExt->cEndPost) && !is_null($oDPS->toma->end->endNacEndExt->xCidade) && !is_null($oDPS->toma->end->endNacEndExt->xEstProvReg) )
+			],
+			['begin' => '{@ifEndNacTomador}', 'end' => '{@endifEndNacTomador}', 'bool' => 
+				( !is_null($oDPS->toma->end->endNacEndExt->cMun) && !is_null($oDPS->toma->end->endNacEndExt->CEP) ) &&
+				( is_null($oDPS->toma->end->endNacEndExt->cPais) && is_null($oDPS->toma->end->endNacEndExt->cEndPost) && is_null($oDPS->toma->end->endNacEndExt->xCidade) && is_null($oDPS->toma->end->endNacEndExt->xEstProvReg) )
+			],
+			['begin' => '{@ifEndExtTomador}', 'end' => '{@endifEndExtTomador}', 'bool' =>
+				( is_null($oDPS->toma->end->endNacEndExt->cMun) && is_null($oDPS->toma->end->endNacEndExt->CEP) ) && 
+				( !is_null($oDPS->toma->end->endNacEndExt->cPais) && !is_null($oDPS->toma->end->endNacEndExt->cEndPost) && !is_null($oDPS->toma->end->endNacEndExt->xCidade) && !is_null($oDPS->toma->end->endNacEndExt->xEstProvReg) )
+			],
 			['begin' => '{@ifXCplTomador}', 'end' => '{@endifXCplTomador}', 'bool' => !empty($oDPS->toma->end->xCpl)],
 			['begin' => '{@ifFoneTomador}', 'end' => '{@endifFoneTomador}', 'bool' => !empty($oDPS->toma->fone)],
 			['begin' => '{@ifEmailTomador}', 'end' => '{@endifEmailTomador}', 'bool' => !empty($oDPS->toma->email)],
@@ -1334,8 +1333,8 @@ class NFSeGenerico extends NFSe {
 			['begin' => '{@ifCAEPFInterm}', 'end' => '{@endifCAEPFInterm}', 'bool' => !empty($oDPS->interm->CAEPF)],
 			['begin' => '{@ifIMInterm}', 'end' => '{@endifIMInterm}', 'bool' => !empty($oDPS->interm->IM)],
 			['begin' => '{@ifEndInterm}', 'end' => '{@endifEndInterm}', 'bool' => !empty($oDPS->interm->end->xLgr)],
-			['begin' => '{@ifEndNacInterm}', 'end' => '{@endifEndNacInterm}', 'bool' => !empty($oDPS->interm->end->endNac->cMun)],
-			['begin' => '{@ifEndExtInterm}', 'end' => '{@endifEndExtInterm}', 'bool' => !empty($oDPS->interm->end->endExt->cPais)],
+			['begin' => '{@ifEndNacInterm}', 'end' => '{@endifEndNacInterm}', 'bool' => !empty($oDPS->interm->end->endNacEndExt->cMun)],
+			['begin' => '{@ifEndExtInterm}', 'end' => '{@endifEndExtInterm}', 'bool' => !empty($oDPS->interm->end->endNacEndExt->cPais)],
 			['begin' => '{@ifXCplInterm}', 'end' => '{@endifXCplInterm}', 'bool' => !empty($oDPS->interm->end->xCpl)],
 			['begin' => '{@ifFoneInterm}', 'end' => '{@endifFoneInterm}', 'bool' => !empty($oDPS->interm->fone)],
 			['begin' => '{@ifEmailInterm}', 'end' => '{@endifEmailInterm}', 'bool' => !empty($oDPS->interm->email)],
@@ -1352,13 +1351,13 @@ class NFSeGenerico extends NFSe {
 			['begin' => '{@ifCCIBObra}', 'end' => '{@endifCCIBObra}', 'bool' => !empty($oDPS->serv->obra->cCIB)],
 			['begin' => '{@ifEndObra}', 'end' => '{@endifEndObra}', 'bool' => !empty($oDPS->serv->obra->end->xLgr)],
 			['begin' => '{@ifCEPObra}', 'end' => '{@endifCEPObra}', 'bool' => !empty($oDPS->serv->obra->end->CEP)],
-			['begin' => '{@ifEndExtObra}', 'end' => '{@endifEndExtObra}', 'bool' => !empty($oDPS->serv->obra->end->endExt->cEndPost)],
+			['begin' => '{@ifEndExtObra}', 'end' => '{@endifEndExtObra}', 'bool' => !empty($oDPS->serv->obra->end->endNacEndExt->cEndPost)],
 			['begin' => '{@ifXCplObra}', 'end' => '{@endifXCplObra}', 'bool' => !empty($oDPS->serv->obra->end->xCpl)],
 			['begin' => '{@ifAtvEvento}', 'end' => '{@endifAtvEvento}', 'bool' => !empty($oDPS->serv->atvEvento->xNome)],
 			['begin' => '{@ifIdAtvEv}', 'end' => '{@endifIdAtvEv}', 'bool' => !empty($oDPS->serv->atvEvento->idAtvEv)],
 			['begin' => '{@ifEndAtvEvento}', 'end' => '{@endifEndAtvEvento}', 'bool' => !empty($oDPS->serv->atvEvento->end->xLgr)],
 			['begin' => '{@ifCEPAtvEvento}', 'end' => '{@endifCEPAtvEvento}', 'bool' => !empty($oDPS->serv->atvEvento->end->CEP)],
-			['begin' => '{@ifEndExtAtvEvento}', 'end' => '{@endifEndExtAtvEvento}', 'bool' => !empty($oDPS->serv->atvEvento->end->endExt->cEndPost)],
+			['begin' => '{@ifEndExtAtvEvento}', 'end' => '{@endifEndExtAtvEvento}', 'bool' => !empty($oDPS->serv->atvEvento->end->endNacEndExt->cEndPost)],
 			['begin' => '{@ifXCplAtvEvento}', 'end' => '{@endifXCplAtvEvento}', 'bool' => !empty($oDPS->serv->atvEvento->end->xCpl)],
 			['begin' => '{@ifInfoCompl}', 'end' => '{@endifInfoCompl}', 'bool' => !empty($oDPS->serv->infoCompl->xInfComp) || !empty($oDPS->serv->infoCompl->idDocTec) || !empty($oDPS->serv->infoCompl->docRef)],
 			['begin' => '{@ifIdDocTec}', 'end' => '{@endifIdDocTec}', 'bool' => !empty($oDPS->serv->infoCompl->idDocTec)],
@@ -1374,7 +1373,7 @@ class NFSeGenerico extends NFSe {
 			['begin' => '{@ifVDedRed}', 'end' => '{@endifVDedRed}', 'bool' => !empty($oDPS->valores->vDedRed->pDR) || !empty($oDPS->valores->vDedRed->vDR) || !empty($oDPS->valores->vDedRed->aDocDedRed)],
 			['begin' => '{@ifPDR}', 'end' => '{@endifPDR}', 'bool' => !empty($oDPS->valores->vDedRed->pDR)],
 			['begin' => '{@ifVDR}', 'end' => '{@endifVDR}', 'bool' => !empty($oDPS->valores->vDedRed->vDR)],
-			['begin' => '{@ifDocumentos}', 'end' => '{@endifDocumentos}', 'bool' => !empty($oDPS->valores->vDedRed->aDocDedRed)],
+			['begin' => '{@ifDocumentos}', 'end' => '{@endifDocumentos}', 'bool' => !empty($oDPS->valores->vDedRed->documentos)],
 			
 			// Tributação Municipal
 			['begin' => '{@ifCPaisResult}', 'end' => '{@endifCPaisResult}', 'bool' => !empty($oDPS->valores->trib->tribMun->cPaisResult)],
@@ -1421,7 +1420,6 @@ class NFSeGenerico extends NFSe {
 			['begin' => '{@ifPTotTribMun}', 'end' => '{@endifPTotTribMun}', 'bool' => !empty($oDPS->valores->trib->totTrib->pTotTribMun)],
 			
 			// IBS/CBS
-			['begin' => '{@ifIBSCBS}', 'end' => '{@endifIBSCBS}', 'bool' => !empty($oDPS->IBSCBS->finNFSe)],
 			['begin' => '{@ifTpOper}', 'end' => '{@endifTpOper}', 'bool' => !empty($oDPS->IBSCBS->tpOper)],
 			['begin' => '{@ifGRefNFSe}', 'end' => '{@endifGRefNFSe}', 'bool' => !empty($oDPS->IBSCBS->gRefNFSe)],
 			['begin' => '{@ifTpEnteGov}', 'end' => '{@endifTpEnteGov}', 'bool' => !empty($oDPS->IBSCBS->tpEnteGov)],
@@ -1431,8 +1429,8 @@ class NFSeGenerico extends NFSe {
 			['begin' => '{@ifNIFDest}', 'end' => '{@endifNIFDest}', 'bool' => !empty($oDPS->IBSCBS->dest->NIF)],
 			['begin' => '{@ifCNaoNIFDest}', 'end' => '{@endifCNaoNIFDest}', 'bool' => !empty($oDPS->IBSCBS->dest->cNaoNIF)],
 			['begin' => '{@ifEndDest}', 'end' => '{@endifEndDest}', 'bool' => !empty($oDPS->IBSCBS->dest->end->xLgr)],
-			['begin' => '{@ifEndNacDest}', 'end' => '{@endifEndNacDest}', 'bool' => !empty($oDPS->IBSCBS->dest->end->endNac->cMun)],
-			['begin' => '{@ifEndExtDest}', 'end' => '{@endifEndExtDest}', 'bool' => !empty($oDPS->IBSCBS->dest->end->endExt->cPais)],
+			['begin' => '{@ifEndNacDest}', 'end' => '{@endifEndNacDest}', 'bool' => !empty($oDPS->IBSCBS->dest->end->endNacEndExt->cMun)],
+			['begin' => '{@ifEndExtDest}', 'end' => '{@endifEndExtDest}', 'bool' => !empty($oDPS->IBSCBS->dest->end->endNacEndExt->cPais)],
 			['begin' => '{@ifXCplDest}', 'end' => '{@endifXCplDest}', 'bool' => !empty($oDPS->IBSCBS->dest->end->xCpl)],
 			['begin' => '{@ifFoneDest}', 'end' => '{@endifFoneDest}', 'bool' => !empty($oDPS->IBSCBS->dest->fone)],
 			['begin' => '{@ifEmailDest}', 'end' => '{@endifEmailDest}', 'bool' => !empty($oDPS->IBSCBS->dest->email)],
@@ -1441,7 +1439,7 @@ class NFSeGenerico extends NFSe {
 			['begin' => '{@ifCCIBImovel}', 'end' => '{@endifCCIBImovel}', 'bool' => !empty($oDPS->IBSCBS->imovel->cCIB)],
 			['begin' => '{@ifEndImovel}', 'end' => '{@endifEndImovel}', 'bool' => !empty($oDPS->IBSCBS->imovel->end->xLgr)],
 			['begin' => '{@ifCEPImovel}', 'end' => '{@endifCEPImovel}', 'bool' => !empty($oDPS->IBSCBS->imovel->end->CEP)],
-			['begin' => '{@ifEndExtImovel}', 'end' => '{@endifEndExtImovel}', 'bool' => !empty($oDPS->IBSCBS->imovel->end->endExt->cEndPost)],
+			['begin' => '{@ifEndExtImovel}', 'end' => '{@endifEndExtImovel}', 'bool' => !empty($oDPS->IBSCBS->imovel->end->endNacEndExt->cEndPost)],
 			['begin' => '{@ifXCplImovel}', 'end' => '{@endifXCplImovel}', 'bool' => !empty($oDPS->IBSCBS->imovel->end->xCpl)],
 			['begin' => '{@ifGReeRepRes}', 'end' => '{@endifGReeRepRes}', 'bool' => !empty($oDPS->IBSCBS->valores->gReeRepRes)],
 			['begin' => '{@ifTribIBS}', 'end' => '{@endifTribIBS}', 'bool' => !empty($oDPS->IBSCBS->valores->trib->IBS->polTrib)],
