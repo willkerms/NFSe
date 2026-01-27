@@ -24,7 +24,7 @@
 		</tc:subst>
 		{@endifSubst}
 		<tc:prest>
-			<!-- IF CHOICE CNPJ/CPF PRESTADOR tc:-->
+			<!-- IF CHOICE CNPJ/CPF/NIF/C NÃO NIF TOMADOR tc:-->
 			{@ifCNPJPrestador}
 			<tc:CNPJ>{@CNPJPrestador}</tc:CNPJ>
 			{@endifCNPJPrestador}
@@ -32,11 +32,60 @@
 			{@ifCPFPrestador}
 			<tc:CPF>{@CPFPrestador}</tc:CPF>
 			{@endifCPFPrestador}
+			<!-- IF CHOICE tc:-->
+			{@ifNIFPrestador}
+			<tc:NIF>{@NIFPrestador}</tc:NIF>
+			{@endifNIFPrestador}
+			<!-- IF CHOICE tc:-->
+			{@ifCNaoNIFPrestador}
+			<tc:cNaoNIF>{@cNaoNIFPrestador}</tc:cNaoNIF>
+			{@endifCNaoNIFPrestador}
 			<!-- IF OPCIONAL CAEPF DPS PRESTADOR tc:-->
 			{@ifCAEPFPrestador}
 			<tc:CAEPF>{@CAEPFPrestador}</tc:CAEPF>
 			{@endifCAEPFPrestador}
+			{@ifIMPrestador}
 			<tc:IM>{@IMPrestador}</tc:IM>
+			{@endifIMPrestador}
+			{@ifXNomePrestador}
+			<tc:xNome>{@xNomePrestador}</tc:xNome>
+			{@endifXNomePrestador}
+			<!-- IF OPCIONAL END DPS PRESTADOR tc:-->
+			{@ifEndPrestador}
+			<tc:end>
+				<!-- IF CHOICE tc:-->
+				{@ifEndNacPrestador}
+				<tc:endNac>
+					<tc:cMun>{@cMunPrestador}</tc:cMun>
+					<tc:CEP>{@CEPPrestador}</tc:CEP>
+				</tc:endNac>
+				{@endifEndNacPrestador}
+				<!-- IF CHOICE tc:-->
+				{@ifEndExtPrestador}
+				<tc:endExt>
+					<tc:cPais>{@cPaisPrestador}</tc:cPais>
+					<tc:cEndPost>{@cEndPostPrestador}</tc:cEndPost>
+					<tc:xCidade>{@xCidadePrestador}</tc:xCidade>
+					<tc:xEstProvReg>{@xEstProvRegPrestador}</tc:xEstProvReg>
+				</tc:endExt>
+				{@endifEndExtPrestador}
+				<tc:xLgr>{@xLgrPrestador}</tc:xLgr>
+				<tc:nro>{@nroPrestador}</tc:nro>
+				<!-- IF OPCIONAL tc:-->
+				{@ifXCplPrestador}
+				<tc:xCpl>{@xCplPrestador}</tc:xCpl>
+				{@endifXCplPrestador}
+				<tc:xBairro>{@xBairroPrestador}</tc:xBairro>
+			</tc:end>
+			{@endifEndPrestador}
+			<!-- IF OPCIONAL tc:-->
+			{@ifFonePrestador}
+			<tc:fone>{@fonePrestador}</tc:fone>
+			{@endifFonePrestador}
+			<!-- IF OPCIONAL tc:-->
+			{@ifEmailPrestador}
+			<tc:email>{@emailPrestador}</tc:email>
+			{@endifEmailPrestador}
 			<tc:regTrib>
 				<tc:opSimpNac>{@opSimpNac}</tc:opSimpNac>
 				<!-- IF OPCIONAL tc:-->
@@ -315,9 +364,7 @@
 				<!-- IF OPCIONAL tc:-->
 				{@ifGItemPed}
 				<tc:gItemPed>
-					{@foreachXItemPed}
 					<tc:xItemPed>{@xItemPed}</tc:xItemPed>
-					{@endforeachXItemPed}
 				</tc:gItemPed>
 				{@endifGItemPed}
 				<!-- IF OPCIONAL tc:-->
@@ -362,7 +409,6 @@
 				<!-- IF CHOICE tc:-->
 				{@ifDocumentos}
 				<tc:documentos>
-					{@foreachDocDedRed}
 					<tc:docDedRed>
 						<!-- IF CHOICE tc:-->
 						{@ifChNFSe}
@@ -471,7 +517,6 @@
 						</tc:fornec>
 						{@endifFornec}
 					</tc:docDedRed>
-					{@endforeachDocDedRed}
 				</tc:documentos>
 				{@endifDocumentos}
 			</tc:vDedRed>
@@ -604,9 +649,7 @@
 			<!-- IF OPCIONAL tc:-->
 			{@ifGRefNFSe}
 			<tc:gRefNFSe>
-				{@foreachGRefNFSe}
 				<tc:refNFSe>{@refNFSe}</tc:refNFSe>
-				{@endforeachGRefNFSe}
 			</tc:gRefNFSe>
 			{@endifGRefNFSe}
 			<!-- IF OPCIONAL tc:-->
@@ -713,7 +756,6 @@
 				<!-- IF OPCIONAL tc:-->
 				{@ifGReeRepRes}
 				<tc:gReeRepRes>
-					{@foreachDocumentos}
 					<tc:documentos>
 						<!-- IF CHOICE tc:-->
 						{@ifDFeNacional}
@@ -769,7 +811,6 @@
 						{@endifXTpReeRepRes}
 						<tc:vlrReeRepRes>{@vlrReeRepRes}</tc:vlrReeRepRes>
 					</tc:documentos>
-					{@endforeachDocumentos}
 				</tc:gReeRepRes>
 				{@endifGReeRepRes}
 				<tc:trib>
