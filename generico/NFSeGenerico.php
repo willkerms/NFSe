@@ -1686,12 +1686,12 @@ class NFSeGenerico extends NFSe {
 				'{@dtCompDoc}' => $doc->dtCompDoc ?? null,
 				'{@tpReeRepRes}' => $doc->tpReeRepRes ?? null,
 				'{@xTpReeRepRes}' => $doc->xTpReeRepRes ?? null,
-				'{@vlrReeRepRes}' => $doc->vlrReeRepRes ?? null				
+				'{@vlrReeRepRes}' => $doc->vlrReeRepRes ?? null
 			];
 
 			$aIfs2 = [
 				['begin' => '{@ifDFeNacional}', 'end' => '{@endifDFeNacional}', 'bool' => !empty($doc->dfeNacional->tipoChaveDFe)],
-				
+
 				['begin' => '{@ifDocFiscalOutro}', 'end' => '{@endifDocFiscalOutro}', 'bool' => !empty($doc->docFiscalOutro->cMunDocFiscal)],
 
 				['begin' => '{@ifDocOutro}', 'end' => '{@endifDocOutro}', 'bool' => !empty($doc->docOutro->nDoc)],
