@@ -28,6 +28,6 @@ class NFSeGenericoInfoDedRed {
 	 * 
 	 * @var array[NFSeGenericoDocDedRed]
 	*/
-	public $documentos;
+	public $documentos = [];
 
 }
