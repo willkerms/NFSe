@@ -6,5 +6,6 @@ class NFSeGenericoMensagemRetorno {
 	public $Codigo;
 	public $Mensagem;
 	public $Correcao;
+	public $IdDPS;
 
 }

@@ -47,6 +47,10 @@ class NFSeGenerico extends NFSe {
 			),
 			'escapeAsHTML' => false,
 			'retirarAcentos' => false,//Somente funciona a remoção dos acentos se também escapar o HTML, ou seja para retirar os acentos escapeAsHTML tem que ser true
+			'tagMensagensRetorno' => [
+				'tagListaMensagens' => 'ListaMensagemRetorno',
+				'tagMensagem' => 'MensagemRetorno'
+			],
 			'autenticacao' => array(
 				'type' => 'none',
 				//'type' => 'xml',
