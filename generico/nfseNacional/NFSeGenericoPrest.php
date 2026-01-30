@@ -17,6 +17,7 @@ class NFSeGenericoPrest extends NFSeGenericoInfoPessoa {
 	public $regTrib;
 
 	public function __construct() {
+		parent::__construct();
 		$this->regTrib = new NFSeGenericoPrestRegTrib();
 	}
 
