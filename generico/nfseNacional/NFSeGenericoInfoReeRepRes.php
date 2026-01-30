@@ -13,11 +13,7 @@ class NFSeGenericoInfoReeRepRes {
 	 * Grupo relativo aos documentos referenciados nos casos de reembolso, repasse e ressarcimento que serão 
 	 * considerados na base de cálculo do ISSQN, do IBS e da CBS
 	 * 
-	 * @var NFSeGenericoRTCDoc
+	 * @var array[NFSeGenericoRTCDoc]
 	*/
-	public $documentos;
-
-	public function __construct() {
-		$this->documentos = new NFSeGenericoRTCDoc();
-	}
+	public $documentos = [];
 }
