@@ -45,5 +45,9 @@ class NFSeGenericoEnderecoDPS {
 	 * @var $xBairro 
 	*/
 	public $xBairro;
+
+	public function __construct() {
+		$this->endNacEndExt = new NFSeGenericoEnderNacEnderExt();
+	}
 	
 }
