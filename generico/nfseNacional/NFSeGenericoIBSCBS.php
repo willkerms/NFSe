@@ -42,7 +42,7 @@ class NFSeGenericoIBSCBS {
 	 * 
 	 * @var array[NFSeGenericoInfoRefNFSe]
 	*/
-	public $aRefNFSe;
+	public $aRefNFSe = [];
 
 	/**
 	 * Tipo de ente governamental
@@ -83,6 +83,6 @@ class NFSeGenericoIBSCBS {
 		$this->dest 	= new NFSeGenericoInfoDest();
 		$this->imovel 	= new NFSeGenericoInfoImovel();
 		$this->valores 	= new NFSeGenericoIBSCBSValores();
-		$this->aRefNFSe = array();
+		$this->aRefNFSe = [];
 	}
 }
