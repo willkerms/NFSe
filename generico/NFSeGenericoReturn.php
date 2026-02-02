@@ -314,7 +314,10 @@ class NFSeGenericoReturn extends NFSeReturn {
 				break;
 				
 				case "gerarNfse":
-					return $this->gerarNfseRetorno($oDocument);
+					$aConfig = $this->oGenerico->getConfig('metodos');
+					$configGerarNfse = PQDUtil::retDefault($aConfig, $metodo);
+					$tagResposta = PQDUtil::retDefault($configGerarNfse['tagMap'], 'tagResposta', 'GerarNfseResposta');
+					return $this->gerarNfseRetorno($oDocument, $tagResposta);
 				break;
 				
 				case "enviarLoteRps":
@@ -528,13 +531,13 @@ class NFSeGenericoReturn extends NFSeReturn {
 	 * @param NFSeDocument $oGerarNfseRetorno
 	 * @return array
 	 */
-	private function gerarNfseRetorno(NFSeDocument $oGerarNfseRetorno) {
+	private function gerarNfseRetorno(NFSeDocument $oGerarNfseRetorno, $tagResposta = 'GerarNfseResposta') {
 
 		$return = array();
-		if ($oGerarNfseRetorno->getElementsByTagName('GerarNfseResposta')->length == 1) {
+		if ($oGerarNfseRetorno->getElementsByTagName($tagResposta)->length == 1) {
 
 			$return = array(
-				'ListaMensagemRetorno' => $this->retListaMensagem($oGerarNfseRetorno),
+				'ListaMensagemRetorno' => $this->retListaMensagem($oGerarNfseRetorno, null, $this->oGenerico->getConfig('tagMensagensReturn', 'ListaMensagemRetorno')),
 				'ListaNfse' => $this->retListNFSe($oGerarNfseRetorno)
 			);
 
