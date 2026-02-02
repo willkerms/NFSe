@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:nfse="http://www.fiorilli.com.br/nfse-nacional" xmlns:nfse1="http://www.sped.fazenda.gov.br/nfse" xmlns:xd="http://www.w3.org/2000/09/xmldsig#">
+   <soapenv:Body>
+      <nfse:{@action}>
+         <!--Optional:-->
+         {@xml}
+      </nfse:{@action}>
+   </soapenv:Body>
+</soapenv:Envelope>
