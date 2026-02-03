@@ -2,6 +2,7 @@
 
 namespace NFSe\generico;
 
+use NFSe\generico\nfseNacional\NFSeGenericoInfDPS;
 use NFSe\NFSe;
 use NFSe\NFSeDocument;
 use PQD\PQDUtil;
@@ -79,6 +80,7 @@ class NFSeGenerico extends NFSe {
 				'path' => realpath(dirname(__FILE__) . '/../templates/') . '/',
 				'folder' => 'abrasf-v2.4',
 				'rps' => 'Rps.xml',
+				'dps' => 'DPS.xml',
 				'enviarLoteRps' => 'EnviarLoteRps.xml',
 				'deducao' => 'Deducao.xml',
 				'gerarNfse' => 'GerarNfseEnvio.xml',
@@ -98,7 +100,8 @@ class NFSeGenerico extends NFSe {
 					'tagSign' => 'InfDeclaracaoPrestacaoServico', 
 					'tagAppend' => 'Rps',
 					'tagMap' => array(
-						'return' => 'gerarNfseResponse'
+						'return' => 'gerarNfseResponse',
+						'tagResposta' => 'GerarNfseResposta'
 					),
 					//'replaceXmlSOAP' => ['action2' => 'GerarNfse'],//Para replaces no do XML SOAP, quando a prefeitura tem mais de um action
 					'search' => array("\r\n", "\n", "\r", "\t"),
@@ -126,6 +129,16 @@ class NFSeGenerico extends NFSe {
 					'tagAppend' => 'ConsultarNfseRpsEnvio',
 					'tagMap' => array(
 						'return' => 'consultarNfseRpsResponse'
+					)
+				),
+				'consultarNFSePorDps' => array(
+					'action' => 'consultarNfseDps',
+					'signConsulta' => false,
+					'nameSpace' => '',
+					'tagSign' => 'Pedido', 
+					'tagAppend' => 'ConsultarNfseDpsEnvio',
+					'tagMap' => array(
+						'return' => 'consultarNfseDpsResponse'
 					)
 				),
 				'consultarLoteRps' => array(
@@ -380,7 +393,7 @@ class NFSeGenerico extends NFSe {
 		if($oRps instanceof NFSeGenericoInfRps)
 			$aReplaces['replace']['{@Rps}'] = $xml;
 		else
-			$aReplaces['replace']['{@Dps}'] = $xml;
+			$aReplaces['replace']['{@DPS}'] = $xml;
 
 		$xml = $this->retXML(PQDUtil::procTplText($tpl, $aReplaces['replace'], $aReplaces['ifs']));
 		$this->saveXML($xml, $metodo . '-' . $fileName);
@@ -1011,7 +1024,17 @@ class NFSeGenerico extends NFSe {
 
 		// Mapeamento dos campos do DPS
 		$aReplace = array(
-			'{@IdDPS}' => $oDPS->serie . $oDPS->nDPS,
+			# Informação obrigatória.
+			# Informe no id:
+			# "DPS" +
+			# Cód.Mun (7) +
+			# Tipo de Inscrição Federal (1) +
+			# Inscrição Federal (14 - CPF completar com 000 à esquerda) +
+			# Série DPS (5) +
+			# Núm. DPS (15).
+			# Complete com zeros à esquerda para completar os itens da composição até o tamanho exigido.
+			'{@IdDPS}' => "DPS" . PQDUtil::addZeros($oDPS->serie . $oDPS->nDPS, 42),
+			'{@versao}' => "1.01",
 			'{@tpAmb}' => $oDPS->tpAmb,
 			'{@dhEmi}' => $oDPS->dhEmi,
 			'{@verAplic}' => $oDPS->verAplic,
@@ -1042,12 +1065,12 @@ class NFSeGenerico extends NFSe {
 			'{@cEndPostPrestador}' => $oDPS->prest->end->endNacEndExt->cEndPost ?? null,
 			'{@xCidadePrestador}' => $oDPS->prest->end->endNacEndExt->xCidade ?? null,
 			'{@xEstProvRegPrestador}' => $oDPS->prest->end->endNacEndExt->xEstProvReg ?? null,
-			'{@xLgrPrestador}' => $oDPS->prest->end->xLgr,
-			'{@nroPrestador}' => $oDPS->prest->end->nro,
-			'{@xCplPrestador}' => $oDPS->prest->end->xCpl,
-			'{@xBairroPrestador}' => $oDPS->prest->end->xBairro,
-			'{@fonePrestador}' => $oDPS->prest->fone,
-			'{@emailPrestador}' => $oDPS->prest->email,
+			'{@xLgrPrestador}' => $oDPS->prest->end->xLgr ?? null,
+			'{@nroPrestador}' => $oDPS->prest->end->nro ?? null,
+			'{@xCplPrestador}' => $oDPS->prest->end->xCpl ?? null,
+			'{@xBairroPrestador}' => $oDPS->prest->end->xBairro ?? null,
+			'{@fonePrestador}' => $oDPS->prest->fone ?? null,
+			'{@emailPrestador}' => $oDPS->prest->email ?? null,
 			'{@opSimpNac}' => $oDPS->prest->regTrib->opSimpNac,
 			'{@regApTribSN}' => $oDPS->prest->regTrib->regApTribSN,
 			'{@regEspTrib}' => $oDPS->prest->regTrib->regEspTrib,
@@ -1148,7 +1171,7 @@ class NFSeGenerico extends NFSe {
 			'{@idDocTec}' => $oDPS->serv->infoCompl->idDocTec,
 			'{@docRef}' => $oDPS->serv->infoCompl->docRef,
 			'{@xPed}' => $oDPS->serv->infoCompl->xPed,
-			'{@gItemPed}' =>  $this->retItensPed($oDPS->serv->infoCompl->gItemPed->xItemPed),
+			'{@gItemPed}' =>  $this->retItensPed($oDPS->serv->infoCompl->gItemPed->xItemPed ?? []),
 			'{@xInfComp}' => $oDPS->serv->infoCompl->xInfComp,
 
 			// Valores - Serviço Prestado
@@ -1162,7 +1185,7 @@ class NFSeGenerico extends NFSe {
 			// Valores - Deduções/Reduções
 			'{@pDR}' => $oDPS->valores->vDedRed->pDR ?? null,
 			'{@vDR}' => $oDPS->valores->vDedRed->vDR ?? null,
-			'{@documentos}' => $this->retDocumentosDocDedRed($oDPS->valores->vDedRed->documentos),
+			'{@documentos}' => $this->retDocumentosDocDedRed($oDPS->valores->vDedRed->documentos ?? []),
 
 			// Tributação Municipal - ISSQN
 			'{@tribISSQN}' => $oDPS->valores->trib->tribMun->tribISSQN ?? null,
@@ -1205,7 +1228,7 @@ class NFSeGenerico extends NFSe {
 			'{@indFinal}' => $oDPS->IBSCBS->indFinal ?? null,
 			'{@cIndOp}' => $oDPS->IBSCBS->cIndOp ?? null,
 			'{@tpOper}' => $oDPS->IBSCBS->tpOper ?? null,
-			'{@gRefNFSe}' => $this->retRefsNfse($oDPS->IBSCBS->gRefNFSe),
+			'{@gRefNFSe}' => $this->retRefsNfse($oDPS->IBSCBS->gRefNFSe ?? []),
 			'{@tpEnteGov}' => $oDPS->IBSCBS->tpEnteGov ?? null,
 			'{@indDest}' => $oDPS->IBSCBS->indDest ?? null,
 
@@ -1241,7 +1264,7 @@ class NFSeGenerico extends NFSe {
 			'{@xBairroImovel}' => $oDPS->IBSCBS->imovel->end->xBairro ?? null,
 
 			// IBS/CBS - Valores - Tributação
-			'{@gReeRepRes}' => $this->retReeRepRes($oDPS->IBSCBS->valores->gReeRepRes),
+			'{@documentosReeRepRes}' => $this->retReeRepRes($oDPS->IBSCBS->valores->gReeRepRes->documentos ?? []),
 			'{@CSTIBSCBS}' => $oDPS->IBSCBS->valores->trib->gIBSCBS->CST ?? null,
 			'{@cClassTribIBSCBS}' => $oDPS->IBSCBS->valores->trib->gIBSCBS->cClassTrib ?? null,
 			'{@cCredPresIBSCBS}' => $oDPS->IBSCBS->valores->trib->gIBSCBS->cCredPres ?? null,
@@ -1251,72 +1274,6 @@ class NFSeGenerico extends NFSe {
 			'{@pDifMun}' => $oDPS->IBSCBS->valores->trib->gIBSCBS->gDif->pDifMun ?? null,
 			'{@pDifCBS}' => $oDPS->IBSCBS->valores->trib->gIBSCBS->gDif->pDifCBS ?? null,
 		);
-		
-		// Processar arrays de reembolsos/repasses/ressarcimentos se existirem
-		if(!empty($oDPS->IBSCBS->valores->gReeRepRes->documentos) && is_array($oDPS->IBSCBS->valores->gReeRepRes->documentos)){
-			$gReeRepResXml = '';
-			foreach($oDPS->IBSCBS->valores->gReeRepRes->documentos as $doc){
-				$gReeRepResXml .= '<tc:documentos>';
-	
-				// Escolha entre dFeNacional, docFiscalOutro ou docOutro
-				if(!empty($doc->dFeNacional)){
-					$gReeRepResXml .= '<tc:dFeNacional>';
-					$gReeRepResXml .= '<tc:tipoChaveDFe>' . $doc->dFeNacional->tipoChaveDFe . '</tc:tipoChaveDFe>';
-		
-					if(!empty($doc->dFeNacional->xTipoChaveDFe)){
-						$gReeRepResXml .= '<tc:xTipoChaveDFe>' . $doc->dFeNacional->xTipoChaveDFe . '</tc:xTipoChaveDFe>';
-					}
-		
-					$gReeRepResXml .= '<tc:chaveDFe>' . $doc->dFeNacional->chaveDFe . '</tc:chaveDFe>';
-					$gReeRepResXml .= '</tc:dFeNacional>';
-				} elseif(!empty($doc->docFiscalOutro)){
-					$gReeRepResXml .= '<tc:docFiscalOutro>';
-					$gReeRepResXml .= '<tc:cMunDocFiscal>' . $doc->docFiscalOutro->cMunDocFiscal . '</tc:cMunDocFiscal>';
-					$gReeRepResXml .= '<tc:nDocFiscal>' . $doc->docFiscalOutro->nDocFiscal . '</tc:nDocFiscal>';
-					$gReeRepResXml .= '<tc:xDocFiscal>' . $doc->docFiscalOutro->xDocFiscal . '</tc:xDocFiscal>';
-					$gReeRepResXml .= '</tc:docFiscalOutro>';
-				} elseif(!empty($doc->docOutro)){
-					$gReeRepResXml .= '<tc:docOutro>';
-					$gReeRepResXml .= '<tc:nDoc>' . $doc->docOutro->nDoc . '</tc:nDoc>';
-					$gReeRepResXml .= '<tc:xDoc>' . $doc->docOutro->xDoc . '</tc:xDoc>';
-					$gReeRepResXml .= '</tc:docOutro>';
-				}
-	
-				// Fornecedor opcional
-				if(!empty($doc->fornec)){
-					$gReeRepResXml .= '<tc:fornec>';
-		
-					// Escolha entre CNPJ, CPF, NIF ou cNaoNIF
-					if(!empty($doc->fornec->CNPJ)){
-						$gReeRepResXml .= '<tc:CNPJ>' . $doc->fornec->CNPJ . '</tc:CNPJ>';
-					} elseif(!empty($doc->fornec->CPF)){
-						$gReeRepResXml .= '<tc:CPF>' . $doc->fornec->CPF . '</tc:CPF>';
-					} elseif(!empty($doc->fornec->NIF)){
-						$gReeRepResXml .= '<tc:NIF>' . $doc->fornec->NIF . '</tc:NIF>';
-					} elseif(!empty($doc->fornec->cNaoNIF)){
-						$gReeRepResXml .= '<tc:cNaoNIF>' . $doc->fornec->cNaoNIF . '</tc:cNaoNIF>';
-					}
-		
-					$gReeRepResXml .= '<tc:xNome>' . $doc->fornec->xNome . '</tc:xNome>';
-					$gReeRepResXml .= '</tc:fornec>';
-				}
-	
-				$gReeRepResXml .= '<tc:dtEmitDoc>' . $doc->dtEmitDoc . '</tc:dtEmitDoc>';
-				$gReeRepResXml .= '<tc:dtCompDoc>' . $doc->dtCompDoc . '</tc:dtCompDoc>';
-				$gReeRepResXml .= '<tc:tpReeRepRes>' . $doc->tpReeRepRes . '</tc:tpReeRepRes>';
-	
-				if(!empty($doc->xTpReeRepRes)){
-					$gReeRepResXml .= '<tc:xTpReeRepRes>' . $doc->xTpReeRepRes . '</tc:xTpReeRepRes>';
-				}
-	
-				$gReeRepResXml .= '<tc:vlrReeRepRes>' . $doc->vlrReeRepRes . '</tc:vlrReeRepRes>';
-				$gReeRepResXml .= '</tc:documentos>';
-			}
-			$aReplace['{@foreachDocumentos}'] = $gReeRepResXml;
-		} else {
-			$aReplace['{@foreachDocumentos}'] = '';
-			$aReplace['{@endforeachDocumentos}'] = '';
-		}
 
 		// Apply field functions
 		foreach($aReplace as $k => $v){
@@ -1328,12 +1285,26 @@ class NFSeGenerico extends NFSe {
 		// Conditional statements
 		$aIfs = array(
 			['begin' => '{@ifVerAplic}', 'end' => '{@endifVerAplic}', 'bool' => !empty($oDPS->verAplic)],
+
+			['begin' => '{@ifCMotivoEmisTI}', 'end' => '{@endifCMotivoEmisTI}', 'bool' => !empty($oDPS->cMotivoEmisTI)],
+			['begin' => '{@ifChNFSeRej}', 'end' => '{@endifChNFSeRej}', 'bool' => !empty($oDPS->chNFSeRej)],
+
 			['begin' => '{@ifSubst}', 'end' => '{@endifSubst}', 'bool' => !empty($oDPS->subst->chSubstda)],
 			['begin' => '{@ifXMotivo}', 'end' => '{@endifXMotivo}', 'bool' => !empty($oDPS->subst->xMotivo)],
 
 			['begin' => '{@ifCNPJPrestador}', 'end' => '{@endifCNPJPrestador}', 'bool' => strlen($oDPS->prest->CNPJ ?? '') == 14],
 			['begin' => '{@ifCPFPrestador}', 'end' => '{@endifCPFPrestador}', 'bool' => strlen($oDPS->prest->CPF ?? '') == 11],
+			['begin' => '{@ifNIFPrestador}', 'end' => '{@endifNIFPrestador}', 'bool' => !empty($oDPS->prest->NIF)],
+			['begin' => '{@ifCNaoNIFPrestador}', 'end' => '{@endifCNaoNIFPrestador}', 'bool' => !empty($oDPS->prest->cNaoNIF)],
 			['begin' => '{@ifCAEPFPrestador}', 'end' => '{@endifCAEPFPrestador}', 'bool' => !empty($oDPS->prest->CAEPF)],
+			['begin' => '{@ifIMPrestador}', 'end' => '{@endifIMPrestador}', 'bool' => !empty($oDPS->prest->IM)],
+			['begin' => '{@ifXNomePrestador}', 'end' => '{@endifXNomePrestador}', 'bool' => !empty($oDPS->prest->xNome)],
+			['begin' => '{@ifEndPrestador}', 'end' => '{@endifEndPrestador}', 'bool' => !is_null($oDPS->prest->end->endNacEndExt->CEP) || !is_null($oDPS->prest->end->endNacEndExt->cPais)],
+			['begin' => '{@ifEndNacPrestador}', 'end' => '{@endifEndNacPrestador}', 'bool' =>  !is_null($oDPS->prest->end->endNacEndExt->CEP)],
+			['begin' => '{@ifEndExtPrestador}', 'end' => '{@endifEndExtPrestador}', 'bool' => is_null($oDPS->prest->end->endNacEndExt->CEP)],
+			['begin' => '{@ifXCplPrestador}', 'end' => '{@endifXCplPrestador}', 'bool' => !empty($oDPS->prest->end->xCpl)],
+			['begin' => '{@ifFonePrestador}', 'end' => '{@endifFonePrestador}', 'bool' => !empty($oDPS->prest->fone)],
+			['begin' => '{@ifEmailPrestador}', 'end' => '{@endifEmailPrestador}', 'bool' => !empty($oDPS->prest->email)],
 			['begin' => '{@ifRegApTribSN}', 'end' => '{@endifRegApTribSN}', 'bool' => !empty($oDPS->prest->regTrib->regApTribSN)],
 
 			['begin' => '{@ifToma}', 'end' => '{@endifToma}', 'bool' => !empty($oDPS->toma->xNome)],
@@ -1343,18 +1314,9 @@ class NFSeGenerico extends NFSe {
 			['begin' => '{@ifCNaoNIFTomador}', 'end' => '{@endifCNaoNIFTomador}', 'bool' => !empty($oDPS->toma->cNaoNIF)],
 			['begin' => '{@ifCAEPFTomador}', 'end' => '{@endifCAEPFTomador}', 'bool' => !empty($oDPS->toma->CAEPF)],
 			['begin' => '{@ifIMTomador}', 'end' => '{@endifIMTomador}', 'bool' => !empty($oDPS->toma->IM)],
-			['begin' => '{@ifEndTomador}', 'end' => '{@endifEndTomador}', 'bool' => 
-				( !is_null($oDPS->toma->end->endNacEndExt->cMun) && !is_null($oDPS->toma->end->endNacEndExt->CEP) ) ||
-				( !is_null($oDPS->toma->end->endNacEndExt->cPais) && !is_null($oDPS->toma->end->endNacEndExt->cEndPost) && !is_null($oDPS->toma->end->endNacEndExt->xCidade) && !is_null($oDPS->toma->end->endNacEndExt->xEstProvReg) )
-			],
-			['begin' => '{@ifEndNacTomador}', 'end' => '{@endifEndNacTomador}', 'bool' => 
-				( !is_null($oDPS->toma->end->endNacEndExt->cMun) && !is_null($oDPS->toma->end->endNacEndExt->CEP) ) &&
-				( is_null($oDPS->toma->end->endNacEndExt->cPais) && is_null($oDPS->toma->end->endNacEndExt->cEndPost) && is_null($oDPS->toma->end->endNacEndExt->xCidade) && is_null($oDPS->toma->end->endNacEndExt->xEstProvReg) )
-			],
-			['begin' => '{@ifEndExtTomador}', 'end' => '{@endifEndExtTomador}', 'bool' =>
-				( is_null($oDPS->toma->end->endNacEndExt->cMun) && is_null($oDPS->toma->end->endNacEndExt->CEP) ) && 
-				( !is_null($oDPS->toma->end->endNacEndExt->cPais) && !is_null($oDPS->toma->end->endNacEndExt->cEndPost) && !is_null($oDPS->toma->end->endNacEndExt->xCidade) && !is_null($oDPS->toma->end->endNacEndExt->xEstProvReg) )
-			],
+			['begin' => '{@ifEndTomador}', 'end' => '{@endifEndTomador}', 'bool' => !is_null($oDPS->toma->end->endNacEndExt->CEP) || !is_null($oDPS->toma->end->endNacEndExt->cPais)],
+			['begin' => '{@ifEndNacTomador}', 'end' => '{@endifEndNacTomador}', 'bool' =>  !is_null($oDPS->toma->end->endNacEndExt->CEP)],
+			['begin' => '{@ifEndExtTomador}', 'end' => '{@endifEndExtTomador}', 'bool' => is_null($oDPS->toma->end->endNacEndExt->CEP)],
 			['begin' => '{@ifXCplTomador}', 'end' => '{@endifXCplTomador}', 'bool' => !empty($oDPS->toma->end->xCpl)],
 			['begin' => '{@ifFoneTomador}', 'end' => '{@endifFoneTomador}', 'bool' => !empty($oDPS->toma->fone)],
 			['begin' => '{@ifEmailTomador}', 'end' => '{@endifEmailTomador}', 'bool' => !empty($oDPS->toma->email)],
@@ -1420,7 +1382,7 @@ class NFSeGenerico extends NFSe {
 			['begin' => '{@ifPAliqISSQN}', 'end' => '{@endifPAliqISSQN}', 'bool' => !empty($oDPS->valores->trib->tribMun->pAliq)],
 
 			// Tributação Federal
-			['begin' => '{@ifTribFed}', 'end' => '{@endifTribFed}', 'bool' => !empty($oDPS->valores->trib->tribFed)],
+			['begin' => '{@ifTribFed}', 'end' => '{@endifTribFed}', 'bool' => !empty($oDPS->valores->trib->tribFed->piscofins->CST)],
 			['begin' => '{@ifPiscofins}', 'end' => '{@endifPiscofins}', 'bool' => !empty($oDPS->valores->trib->tribFed->piscofins)],
 			['begin' => '{@ifVBCPisCofins}', 'end' => '{@endifVBCPisCofins}', 'bool' => !empty($oDPS->valores->trib->tribFed->piscofins->vBCPisCofins)],
 			['begin' => '{@ifPAliqPis}', 'end' => '{@endifPAliqPis}', 'bool' => !empty($oDPS->valores->trib->tribFed->piscofins->pAliqPis)],
@@ -1435,6 +1397,7 @@ class NFSeGenerico extends NFSe {
 			// Total de Tributos
 			['begin' => '{@ifVTotTrib}', 'end' => '{@endifVTotTrib}', 'bool' => !empty($oDPS->valores->trib->totTrib->vTotTrib)],
 			['begin' => '{@ifPTotTrib}', 'end' => '{@endifPTotTrib}', 'bool' => !empty($oDPS->valores->trib->totTrib->pTotTrib)],
+			['begin' => '{@ifIndTotTrib}', 'end' => '{@endifIndTotTrib}', 'bool' => !is_null($oDPS->valores->trib->totTrib->indTotTrib)],
 			['begin' => '{@ifpTotTribSN}', 'end' => '{@endifpTotTribSN}', 'bool' => !empty($oDPS->valores->trib->totTrib->pTotTribSN)],
 
 			// IBS/CBS
@@ -1488,7 +1451,6 @@ class NFSeGenerico extends NFSe {
 	 * @return string
 	*/
 	private function retDocumentosDocDedRed(array $aDocumentos): string{
-		$tplDoc = $this->getTemplate('documentoDocDedRed');
 		$xmlDocs = '';
 
 		$aReplace = [];
@@ -1496,6 +1458,7 @@ class NFSeGenerico extends NFSe {
 		if( count($aDocumentos) == 0 ){
 			return $xmlDocs;
 		}
+		$tplDoc = $this->getTemplate('documentoDocDedRed');
 
 		$aIfs = [
 			['begin' => '{@ifDocumentos}', 'end' => '{@endifDocumentos}', 'bool' => count($aDocumentos) > 0],
@@ -1589,12 +1552,12 @@ class NFSeGenerico extends NFSe {
 	 * @return string
 	*/
 	private function retItensPed(array $aItensPed){
-		$tplItemPed = $this->getTemplate('itemPed');
 		$xmlItensPed = '';
-
+		
 		if( count($aItensPed) == 0 ){
 			return $xmlItensPed;
 		}
+		$tplItemPed = $this->getTemplate('itemPed');
 
 		$aIfs = [
 			['begin' => '{@ifGItemPed}', 'end' => '{@endifGItemPed}', 'bool' => count($aItensPed) > 0],
@@ -1619,12 +1582,12 @@ class NFSeGenerico extends NFSe {
 	 * @return string
 	*/
 	private function retRefsNfse(array $aRefsNfse){
-		$tplRefNfse = $this->getTemplate('refNfse');
 		$xmlRefsNfse = '';
-
+		
 		if( count($aRefsNfse) == 0 ){
 			return $xmlRefsNfse;
 		}
+		$tplRefNfse = $this->getTemplate('refNfse');
 
 		$aIfs = [
 			['begin' => '{@ifGRefNFSe}', 'end' => '{@endifGRefNFSe}', 'bool' => count($aRefsNfse) > 0],
@@ -1649,7 +1612,6 @@ class NFSeGenerico extends NFSe {
 	 * @return string
 	*/
 	private function retReeRepRes(array $aDocumentos){
-		$tplDoc = $this->getTemplate('documentoReeRepRes');
 		$xmlDocs = '';
 
 		$aReplace = [];
@@ -1657,6 +1619,7 @@ class NFSeGenerico extends NFSe {
 		if( count($aDocumentos) == 0 ){
 			return $xmlDocs;
 		}
+		$tplDoc = $this->getTemplate('documentoReeRepRes');
 
 		$aIfs = [
 			['begin' => '{@ifGReeRepRes}', 'end' => '{@endifGReeRepRes}', 'bool' => count($aDocumentos) > 0],
