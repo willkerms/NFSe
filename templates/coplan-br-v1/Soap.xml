@@ -1,0 +1,15 @@
+<soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:trib="Tributario" xmlns:gx="GX_KB_Tributario_Tributario">
+	<soapenv:Header/>
+	<soapenv:Body>
+		<trib:nfse_web_service.{@action2}>
+			<trib:{@action}request>
+				<gx:nfseCabecMsg>
+					<![CDATA[<?xml version = "1.0" encoding = "utf-8"?><cabecalho versao="2.02"><versaoDados>2.02</versaoDados></cabecalho>]]>
+				</gx:nfseCabecMsg>
+				<gx:nfseDadosMsg>
+					<![CDATA[ {@xml} ]]>
+				</gx:nfseDadosMsg>
+			</trib:{@action}request>
+		</trib:nfse_web_service.{@action2}>
+	</soapenv:Body>
+</soapenv:Envelope>

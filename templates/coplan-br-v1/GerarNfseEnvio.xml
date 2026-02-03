@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<GerarNfseEnvio 
+	xmlns="http://www.sped.fazenda.gov.br/nfse"
+	xmlns:dsig="http://www.w3.org/2000/09/xmldsig#"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+	{@DPS}
+</GerarNfseEnvio>
