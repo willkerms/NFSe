@@ -1,9 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
-<soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:nfd="http://www.issnetonline.com.br/webservice/nfd">
+<soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:nfse="http://www.sped.fazenda.gov.br/nfse">
    <soapenv:Body>
-      <nfd:{@action}>
+      <nfse:{@action}>
          <!--Optional:-->
-         <nfd:xml><![CDATA[{@xml}]]></nfd:xml>
-      </nfd:{@action}>
+		 <nfseCabecMsg>?</nfseCabecMsg>
+         <nfseDadosMsg><![CDATA[{@xml}]]></nfseDadosMsg>
+      </nfse:{@action}>
    </soapenv:Body>
 </soapenv:Envelope>

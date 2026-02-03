@@ -4,9 +4,7 @@
 		<tc:tpAmb>{@tpAmb}</tc:tpAmb>
 		<tc:dhEmi>{@dhEmi}</tc:dhEmi>
 		<!-- IF OPCIONAL tc:-->
-		{@ifVerAplic}
 		<tc:verAplic>{@verAplic}</tc:verAplic>
-		{@endifVerAplic}
 		<tc:serie>{@serie}</tc:serie>
 		<tc:nDPS>{@nDPS}</tc:nDPS>
 		<tc:dCompet>{@dCompet}</tc:dCompet>
@@ -24,7 +22,7 @@
 		</tc:subst>
 		{@endifSubst}
 		<tc:prest>
-			<!-- IF CHOICE CNPJ/CPF/NIF/C NÃO NIF TOMADOR tc:-->
+			<!-- IF CHOICE CNPJ/CPF TOMADOR tc:-->
 			{@ifCNPJPrestador}
 			<tc:CNPJ>{@CNPJPrestador}</tc:CNPJ>
 			{@endifCNPJPrestador}
@@ -32,14 +30,6 @@
 			{@ifCPFPrestador}
 			<tc:CPF>{@CPFPrestador}</tc:CPF>
 			{@endifCPFPrestador}
-			<!-- IF CHOICE tc:-->
-			{@ifNIFPrestador}
-			<tc:NIF>{@NIFPrestador}</tc:NIF>
-			{@endifNIFPrestador}
-			<!-- IF CHOICE tc:-->
-			{@ifCNaoNIFPrestador}
-			<tc:cNaoNIF>{@cNaoNIFPrestador}</tc:cNaoNIF>
-			{@endifCNaoNIFPrestador}
 			<!-- IF OPCIONAL CAEPF DPS PRESTADOR tc:-->
 			{@ifCAEPFPrestador}
 			<tc:CAEPF>{@CAEPFPrestador}</tc:CAEPF>
@@ -47,45 +37,6 @@
 			{@ifIMPrestador}
 			<tc:IM>{@IMPrestador}</tc:IM>
 			{@endifIMPrestador}
-			{@ifXNomePrestador}
-			<tc:xNome>{@xNomePrestador}</tc:xNome>
-			{@endifXNomePrestador}
-			<!-- IF OPCIONAL END DPS PRESTADOR tc:-->
-			{@ifEndPrestador}
-			<tc:end>
-				<!-- IF CHOICE tc:-->
-				{@ifEndNacPrestador}
-				<tc:endNac>
-					<tc:cMun>{@cMunPrestador}</tc:cMun>
-					<tc:CEP>{@CEPPrestador}</tc:CEP>
-				</tc:endNac>
-				{@endifEndNacPrestador}
-				<!-- IF CHOICE tc:-->
-				{@ifEndExtPrestador}
-				<tc:endExt>
-					<tc:cPais>{@cPaisPrestador}</tc:cPais>
-					<tc:cEndPost>{@cEndPostPrestador}</tc:cEndPost>
-					<tc:xCidade>{@xCidadePrestador}</tc:xCidade>
-					<tc:xEstProvReg>{@xEstProvRegPrestador}</tc:xEstProvReg>
-				</tc:endExt>
-				{@endifEndExtPrestador}
-				<tc:xLgr>{@xLgrPrestador}</tc:xLgr>
-				<tc:nro>{@nroPrestador}</tc:nro>
-				<!-- IF OPCIONAL tc:-->
-				{@ifXCplPrestador}
-				<tc:xCpl>{@xCplPrestador}</tc:xCpl>
-				{@endifXCplPrestador}
-				<tc:xBairro>{@xBairroPrestador}</tc:xBairro>
-			</tc:end>
-			{@endifEndPrestador}
-			<!-- IF OPCIONAL tc:-->
-			{@ifFonePrestador}
-			<tc:fone>{@fonePrestador}</tc:fone>
-			{@endifFonePrestador}
-			<!-- IF OPCIONAL tc:-->
-			{@ifEmailPrestador}
-			<tc:email>{@emailPrestador}</tc:email>
-			{@endifEmailPrestador}
 			<tc:regTrib>
 				<tc:opSimpNac>{@opSimpNac}</tc:opSimpNac>
 				<!-- IF OPCIONAL tc:-->
