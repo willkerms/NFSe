@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<ConsultarNfseDpsEnvio xmlns="http://www.abrasf.org.br/nfse.xsd" xsi:schemaLocation="http://www.abrasf.org.br/nfse.xsd schema.xsd" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+<ConsultarNfseDpsEnvio  xmlns="http://www.sped.fazenda.gov.br/nfse">
 	<IdentificacaoDps>
 		<NumDPS>{@NumDPS}</NumDPS>
 		<SerieDPS>{@SerieDPS}</SerieDPS>
@@ -15,5 +15,4 @@
 
 		<IM>{@IMPrestador}</IM>
 	</Prestador>
-	<Protocolo>{@Protocolo}</Protocolo>
 </ConsultarNfseDpsEnvio>
