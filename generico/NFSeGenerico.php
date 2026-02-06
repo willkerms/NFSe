@@ -51,6 +51,7 @@ class NFSeGenerico extends NFSe {
 				'type' => 'none',
 				//'type' => 'xml',
 				//'type' => 'soap',
+				//'type' => 'rest',
 
 				'tagUsuario' => 'username',
 				'tagPassword' => 'password',
@@ -62,7 +63,6 @@ class NFSeGenerico extends NFSe {
 				'senha' => '',
 				'chavePrivada' => ''
 			),
-
 			'producao' => array(
 				'wsdl' => '',
 				'usuario' => '',
