@@ -69,6 +69,7 @@ class NFSeGenerico extends NFSe {
 				'senha' => '',
 				'chavePrivada' => ''
 			),
+			'possuiDeducao' => true,
 			'hasConsultaUrlNfse' => false,
 			'pathSaveXMLs' => realpath(dirname(__FILE__) . '/../xml') . '/',
 			'templates' => array(
@@ -643,6 +644,33 @@ class NFSeGenerico extends NFSe {
 		$typeCommunication = PQDUtil::retDefault($this->aConfig['metodos'][$metodo], 'typeCommunication', 'soap');
 
 		switch($typeCommunication){
+			case 'rest':
+
+				$urlReq = $url . $action;
+
+				$curl = PQDUtil::retDefault($this->aConfig, 'curl', []);
+
+				$headers = [];
+				foreach(PQDUtil::retDefault($curl, 'header', [] ) as $header)
+					$headers[] = $header;
+				foreach(PQDUtil::retDefault($this->aConfig['metodos'][$metodo], 'header', [] ) as $header)
+					$headers[] = $header;
+
+
+				$body = [
+					'xml' => $xml,
+					'usuario' => $this->aConfig['autenticacao']['tagUsuario'],
+					'senha' => $this->aConfig['autenticacao']['tagPassword']
+				];
+
+				return $this->curl(
+					$urlReq,
+					PQDUtil::json_encode($body),
+					\count($headers) == 0 ? null : $headers,
+					PQDUtil::retDefault($curl, 'port', 443),
+					PQDUtil::retDefault($this->aConfig, 'proxy', null)
+				);
+
 			case 'curl':
 
 				$curl = PQDUtil::retDefault($this->aConfig, 'curl', array());
@@ -787,44 +815,48 @@ class NFSeGenerico extends NFSe {
 		$oRps = $this->escapeTextObj($oRps);
 
 		$tplRps = $this->getTemplate('rps');
-		$tplDeducao = $this->getTemplate('deducao');
 
 		$deducoes = '';
-		foreach($oRps->aDeducoes as $deducao){
-			/**
-			 * @var NFSeGenericoDeducao $deducao
-			 */
-			$aReplace = array(
-				'{@TipoDeducao}' => $deducao->TipoDeducao,
-				'{@DescricaoDeducao}' => $deducao->DescricaoDeducao,
-				'{@CodigoMunicipioGerador}' => $deducao->IdentificacaoDocumentoDeducao->CodigoMunicipioGerador,
-				'{@NumeroNfse}' => $deducao->IdentificacaoDocumentoDeducao->NumeroNfse,
-				'{@CodigoVerificacao}' => $deducao->IdentificacaoDocumentoDeducao->CodigoVerificacao,
-				'{@NumeroNfe}' => $deducao->IdentificacaoDocumentoDeducao->NumeroNfe,
-				'{@UfNfe}' => $deducao->IdentificacaoDocumentoDeducao->UfNfe,
-				'{@ChaveAcessoNfe}' => $deducao->IdentificacaoDocumentoDeducao->ChaveAcessoNfe,
-				'{@IdentificacaoDocumento}' => $deducao->IdentificacaoDocumentoDeducao->IdentificacaoDocumento,
-				'{@Cpf}' => $deducao->DadosFornecedor->CpfCnpj,
-				'{@Cnpj}' => $deducao->DadosFornecedor->CpfCnpj,
-				'{@NifFornecedor}' => $deducao->DadosFornecedor->NifFornecedor,
-				'{@CodigoPais}' => $deducao->DadosFornecedor->CodigoPais,
-				'{@DataEmissao}' => $deducao->DataEmissao,
-				'{@ValorDedutivel}' => $deducao->ValorDedutivel,
-				'{@ValorUtilizadoDeducao}' => $deducao->ValorUtilizadoDeducao
-			);
+		if( $this->aConfig['possuiDeducao'] ){
+			$tplDeducao = $this->getTemplate('deducao');
 
-			$aIfs = array(
-				array('begin' => '{@ifIdentificacaoNfse}', 'end' => '{@endifIdentificacaoNfse}', 'bool' => $deducao->IdentificacaoDocumentoDeducao->tpDocumento == 0),
-				array('begin' => '{@ifIdentificacaoNfe}', 'end' => '{@endifIdentificacaoNfe}', 'bool' => $deducao->IdentificacaoDocumentoDeducao->tpDocumento == 1),
-				array('begin' => '{@ifOutroDocumento}', 'end' => '{@endifOutroDocumento}', 'bool' => $deducao->IdentificacaoDocumentoDeducao->tpDocumento == 2),
-				array('begin' => '{@ifIdentificacaoFornecedor}', 'end' => '{@endifIdentificacaoFornecedor}', 'bool' => is_null($deducao->DadosFornecedor->CodigoPais)),
-				array('begin' => '{@ifCpf}', 'end' => '{@endifCpf}', 'bool' => strlen($deducao->DadosFornecedor->CpfCnpj) == 11),
-				array('begin' => '{@ifCnpj}', 'end' => '{@endifCnpj}', 'bool' => strlen($deducao->DadosFornecedor->CpfCnpj) == 14),
-				array('begin' => '{@ifFornecedorExterior}', 'end' => '{@endifFornecedorExterior}', 'bool' => !is_null($deducao->DadosFornecedor->CodigoPais)),
-				array('begin' => '{@ifNifFornecedor}', 'end' => '{@endifNifFornecedor}', 'bool' => !is_null($deducao->DadosFornecedor->NifFornecedor))
-			);
+			foreach($oRps->aDeducoes as $deducao){
+				/**
+				 * @var NFSeGenericoDeducao $deducao
+				 */
+				$aReplace = array(
+					'{@TipoDeducao}' => $deducao->TipoDeducao,
+					'{@DescricaoDeducao}' => $deducao->DescricaoDeducao,
+					'{@CodigoMunicipioGerador}' => $deducao->IdentificacaoDocumentoDeducao->CodigoMunicipioGerador,
+					'{@NumeroNfse}' => $deducao->IdentificacaoDocumentoDeducao->NumeroNfse,
+					'{@CodigoVerificacao}' => $deducao->IdentificacaoDocumentoDeducao->CodigoVerificacao,
+					'{@NumeroNfe}' => $deducao->IdentificacaoDocumentoDeducao->NumeroNfe,
+					'{@UfNfe}' => $deducao->IdentificacaoDocumentoDeducao->UfNfe,
+					'{@ChaveAcessoNfe}' => $deducao->IdentificacaoDocumentoDeducao->ChaveAcessoNfe,
+					'{@IdentificacaoDocumento}' => $deducao->IdentificacaoDocumentoDeducao->IdentificacaoDocumento,
+					'{@Cpf}' => $deducao->DadosFornecedor->CpfCnpj,
+					'{@Cnpj}' => $deducao->DadosFornecedor->CpfCnpj,
+					'{@NifFornecedor}' => $deducao->DadosFornecedor->NifFornecedor,
+					'{@CodigoPais}' => $deducao->DadosFornecedor->CodigoPais,
+					'{@DataEmissao}' => $deducao->DataEmissao,
+					'{@ValorDedutivel}' => $deducao->ValorDedutivel,
+					'{@ValorUtilizadoDeducao}' => $deducao->ValorUtilizadoDeducao
+				);
 
-			$deducoes .= PQDUtil::procTplText($tplDeducao, $aReplace, $aIfs);
+				$aIfs = array(
+					array('begin' => '{@ifIdentificacaoNfse}', 'end' => '{@endifIdentificacaoNfse}', 'bool' => $deducao->IdentificacaoDocumentoDeducao->tpDocumento == 0),
+					array('begin' => '{@ifIdentificacaoNfe}', 'end' => '{@endifIdentificacaoNfe}', 'bool' => $deducao->IdentificacaoDocumentoDeducao->tpDocumento == 1),
+					array('begin' => '{@ifOutroDocumento}', 'end' => '{@endifOutroDocumento}', 'bool' => $deducao->IdentificacaoDocumentoDeducao->tpDocumento == 2),
+					array('begin' => '{@ifIdentificacaoFornecedor}', 'end' => '{@endifIdentificacaoFornecedor}', 'bool' => is_null($deducao->DadosFornecedor->CodigoPais)),
+					array('begin' => '{@ifCpf}', 'end' => '{@endifCpf}', 'bool' => strlen($deducao->DadosFornecedor->CpfCnpj) == 11),
+					array('begin' => '{@ifCnpj}', 'end' => '{@endifCnpj}', 'bool' => strlen($deducao->DadosFornecedor->CpfCnpj) == 14),
+					array('begin' => '{@ifFornecedorExterior}', 'end' => '{@endifFornecedorExterior}', 'bool' => !is_null($deducao->DadosFornecedor->CodigoPais)),
+					array('begin' => '{@ifNifFornecedor}', 'end' => '{@endifNifFornecedor}', 'bool' => !is_null($deducao->DadosFornecedor->NifFornecedor))
+				);
+
+				$deducoes .= PQDUtil::procTplText($tplDeducao, $aReplace, $aIfs);
+			}
+
 		}
 
 		//RPS
