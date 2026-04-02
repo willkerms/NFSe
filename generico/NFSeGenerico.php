@@ -3,6 +3,7 @@
 namespace NFSe\generico;
 
 use NFSe\generico\nfseNacional\NFSeGenericoInfDPS;
+use NFSe\generico\nfseNacional\NFSeGenericoConsultarNfseDps;
 use NFSe\NFSe;
 use NFSe\NFSeDocument;
 use PQD\PQDUtil;
@@ -85,6 +86,7 @@ class NFSeGenerico extends NFSe {
 				'deducao' => 'Deducao.xml',
 				'gerarNfse' => 'GerarNfseEnvio.xml',
 				'consultarNFSePorRps' => 'ConsultarNfseRpsEnvio.xml',
+				'consultarNFSePorDps' => 'ConsultarNfseDpsEnvio.xml',
 				'consultarLoteRps' => 'ConsultarLoteRpsEnvio.xml',
 				'consultarUrlNfse' => 'ConsultarUrlNfseEnvio.xml',
 				'cancelarNfse' => 'CancelarNfseEnvio.xml',
@@ -320,6 +322,56 @@ class NFSeGenerico extends NFSe {
 				true
 			);		
 		}
+
+		$this->saveXML($xml, $metodo . '-' . $fileName);
+
+		return $this->procReturn($this->makeSOAPRequest($metodo, $xml, $fileName), $metodo);
+	}
+	
+	/**
+	 * Consulta uma NFSe por DPS
+	 *
+	 * @param NFSeGenericoConsultarNfseDps $oConsultarNfseDps
+	 * @return string
+	 */
+	public function consultarNFSePorDps(NFSeGenericoConsultarNfseDps $oConsultarNfseDps){
+
+		$fileName = $oConsultarNfseDps->IdentificacaoDps . ".xml";
+		$metodo = 'consultarNFSePorDps';
+
+		//Gerar NFSe
+		$tpl = $this->getTemplate($metodo);
+
+		$aReplaces = $this->retReplaceUsuarios('xml');
+		$aReplaces['replace']['{@IdentificacaoDPS}'] = $oConsultarNfseDps->IdentificacaoDps;
+
+		$aReplaces['replace']['{@CpfPrestador}'] = $this->aConfig['cpfCnpj'];
+		$aReplaces['replace']['{@CnpjPrestador}'] = $this->aConfig['cpfCnpj'];
+		$aReplaces['replace']['{@InscricaoMunicipal}'] = $this->aConfig['insMunicipal'];
+
+		foreach($aReplaces['replace'] as $k => $v){
+			$field = str_replace(['{@', '}'], '', $k);
+			$field = strtolower(substr($field, 0, 1)) . substr($field, 1);
+			$aReplaces['replace'][$k] = $this->applyFnField($field, $v);
+		}
+
+		$aReplaces['ifs'][] = array('begin' => '{@ifCpfPrestador}', 'end' => '{@endifCpfPrestador}', 'bool' => strlen($this->aConfig['cpfCnpj']) == 11);
+		$aReplaces['ifs'][] = array('begin' => '{@ifCnpjPrestador}', 'end' => '{@endifCnpjPrestador}', 'bool' => strlen($this->aConfig['cpfCnpj']) == 14);
+		$aReplaces['ifs'][] = array('begin' => '{@ifInscricaoMunicipal}', 'end' => '{@endifInscricaoMunicipal}', 'bool' => !empty($this->aConfig['insMunicipal']) );
+
+		$xml = $this->retXML(PQDUtil::procTplText($tpl, $aReplaces['replace'], $aReplaces['ifs']));
+		
+		if( $this->aConfig['metodos'][$metodo]['signConsulta'] ){
+			$xml = $this->signXML(
+				$xml, 
+				$this->aConfig['metodos'][$metodo]['tagSign'], 
+				$this->aConfig['metodos'][$metodo]['tagAppend'], 
+				$this->aConfig['metodos'][$metodo]['nameSpace'],
+				true
+			);		
+		}
+
+		PQDUtil::print_pre($xml);
 
 		$this->saveXML($xml, $metodo . '-' . $fileName);
 
@@ -1023,6 +1075,8 @@ class NFSeGenerico extends NFSe {
 		$tplDPS = $this->getTemplate('dps');
 
 		// Mapeamento dos campos do DPS
+		$tpInscricaoFederal = is_null($oDPS->prest->CNPJ) ? '1' : '2';
+		$inscricaoFederal = (!is_null( $oDPS->prest->CNPJ ) ?  $oDPS->prest->CNPJ : $oDPS->prest->CPF );
 		$aReplace = array(
 			# Informação obrigatória.
 			# Informe no id:
@@ -1033,7 +1087,8 @@ class NFSeGenerico extends NFSe {
 			# Série DPS (5) +
 			# Núm. DPS (15).
 			# Complete com zeros à esquerda para completar os itens da composição até o tamanho exigido.
-			'{@IdDPS}' => "DPS" . PQDUtil::addZeros($oDPS->serie . $oDPS->nDPS, 42),
+			
+			'{@IdDPS}' => "DPS" . $oDPS->cLocEmi . $tpInscricaoFederal . PQDUtil::addZeros($inscricaoFederal, 14) . PQDUtil::addZeros($oDPS->serie, 5) . PQDUtil::addZeros($oDPS->nDPS, 15),
 			'{@versao}' => "1.01",
 			'{@tpAmb}' => $oDPS->tpAmb,
 			'{@dhEmi}' => $oDPS->dhEmi,
@@ -1398,10 +1453,10 @@ class NFSeGenerico extends NFSe {
 			['begin' => '{@ifVTotTrib}', 'end' => '{@endifVTotTrib}', 'bool' => !empty($oDPS->valores->trib->totTrib->vTotTrib)],
 			['begin' => '{@ifPTotTrib}', 'end' => '{@endifPTotTrib}', 'bool' => !empty($oDPS->valores->trib->totTrib->pTotTrib)],
 			['begin' => '{@ifIndTotTrib}', 'end' => '{@endifIndTotTrib}', 'bool' => !is_null($oDPS->valores->trib->totTrib->indTotTrib)],
-			['begin' => '{@ifpTotTribSN}', 'end' => '{@endifpTotTribSN}', 'bool' => !empty($oDPS->valores->trib->totTrib->pTotTribSN)],
+			['begin' => '{@ifPTotTribSN}', 'end' => '{@endifPTotTribSN}', 'bool' => !empty($oDPS->valores->trib->totTrib->pTotTribSN)],
 
 			// IBS/CBS
-			['begin' => '{@ifIBSCBS}', 'end' => '{@endifIBSCBS}', 'bool' => !empty($oDPS->IBSCBS)],
+			['begin' => '{@ifIBSCBS}', 'end' => '{@endifIBSCBS}', 'bool' => !empty($oDPS->IBSCBS->finNFSe)],
 			['begin' => '{@ifIndFinal}', 'end' => '{@endifIndFinal}', 'bool' => !empty($oDPS->IBSCBS->indFinal)],
 			['begin' => '{@ifTpOper}', 'end' => '{@endifTpOper}', 'bool' => !empty($oDPS->IBSCBS->tpOper)],
 			['begin' => '{@ifGRefNFSe}', 'end' => '{@endifGRefNFSe}', 'bool' => !empty($oDPS->IBSCBS->gRefNFSe)],
@@ -1424,7 +1479,7 @@ class NFSeGenerico extends NFSe {
 			['begin' => '{@ifCEPImovel}', 'end' => '{@endifCEPImovel}', 'bool' => !empty($oDPS->IBSCBS->imovel->end->CEP)],
 			['begin' => '{@ifEndExtImovel}', 'end' => '{@endifEndExtImovel}', 'bool' => !empty($oDPS->IBSCBS->imovel->end->endNacEndExt->cEndPost)],
 			['begin' => '{@ifXCplImovel}', 'end' => '{@endifXCplImovel}', 'bool' => !empty($oDPS->IBSCBS->imovel->end->xCpl)],
-			['begin' => '{@ifGReeRepRes}', 'end' => '{@endifGReeRepRes}', 'bool' => !empty($oDPS->IBSCBS->valores->gReeRepRes)],
+			['begin' => '{@ifGReeRepRes}', 'end' => '{@endifGReeRepRes}', 'bool' => !empty($oDPS->IBSCBS->valores->gReeRepRes->documentos->dtCompDoc)],
 			['begin' => '{@ifDFeNacional}', 'end' => '{@endifDFeNacional}', 'bool' => !empty($oDPS->IBSCBS->valores->gReeRepRes->documentos->dFeNacional)],
 			['begin' => '{@ifXTipoChaveDFe}', 'end' => '{@endifXTipoChaveDFe}', 'bool' => !empty($oDPS->IBSCBS->valores->gReeRepRes->documentos->dFeNacional->xTipoChaveDFe)],
 			['begin' => '{@ifDocFiscalOutro}', 'end' => '{@endifDocFiscalOutro}', 'bool' => !empty($oDPS->IBSCBS->valores->gReeRepRes->documentos->docFiscalOutro)],
