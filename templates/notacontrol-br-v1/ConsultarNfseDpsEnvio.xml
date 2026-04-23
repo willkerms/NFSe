@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ConsultarNfseDpsEnvio  xmlns="http://www.sped.fazenda.gov.br/nfse">
+	<IdentificacaoDps>
+		<NumDPS>{@NumDPS}</NumDPS>
+		<SerieDPS>{@SerieDPS}</SerieDPS>
+	</IdentificacaoDps>
+	<Prestador>
+		{@ifCNPJPrestador}
+		<CNPJ>{@CNPJPrestador}</CNPJ>
+		{@endifCNPJPrestador}
+
+		{@ifCPFPrestador}
+		<CPF>{@CPFPrestador}</CPF>
+		{@endifCPFPrestador}
+
+		<IM>{@IMPrestador}</IM>
+	</Prestador>
+</ConsultarNfseDpsEnvio>

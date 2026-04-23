@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<nfse:ConsultarLoteDpsEnvio xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:nfse="http://www.fiorilli.com.br/nfse-nacional">
+	{@ifCNPJPrestador}
+	<nfse:CNPJ>{@CNPJPrestador}</nfse:CNPJ>
+	{@endifCNPJPrestador}
+	{@ifCPFPrestador}
+	<nfse:CPF>{@CPFPrestador}</nfse:CPF>
+	{@endifCPFPrestador}
+	<nfse:IM>{@IMPrestador}</nfse:IM>
+	<nfse:Protocolo>{@Protocolo}</nfse:Protocolo>
+</nfse:ConsultarLoteDpsEnvio>

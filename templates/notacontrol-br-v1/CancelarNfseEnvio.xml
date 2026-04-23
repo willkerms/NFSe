@@ -1,0 +1,170 @@
+<?xml version="1.0" encoding="utf-8"?>
+<CancelarNfseEnvio xmlns:nfse="http://www.sped.fazenda.gov.br/nfse">
+	<pedRegEvento>
+		<infPedReg>
+			<tpAmb>{@tpAmb}</tpAmb>
+			<verAplic>{@verAplic}</verAplic>
+			<dhEvento>{@dhEvento}</dhEvento>
+
+			<!-- CHOICE CNPJ/CPF AUTOR -->
+			{@ifCNPJAutor}
+			<CNPJAutor>{@CNPJAutor}</CNPJAutor>
+			{@endifCNPJAutor}
+
+			{@ifCPFAutor}
+			<CPFAutor>{@CPFAutor}</CPFAutor>
+			{@endifCPFAutor}
+
+			<chNFSe>{@chNFSe}</chNFSe>
+			<nPedRegEvento>{@nPedRegEvento}</nPedRegEvento>
+
+			{@ifE101101}
+			<e101101>
+				<xDesc>{@xDesc}</xDesc>
+				<cMotivo>{@cMotivo}</cMotivo>
+				<xMotivo>{@xMotivo}</xMotivo>
+			</e101101>
+			{@endifE101101}
+
+			{@ifE105102}
+			<e105102>
+				<xDesc>{@xDesc}</xDesc>
+				<cMotivo>{@cMotivo}</cMotivo>
+				{@ifXMotivo}
+				<xMotivo>{@xMotivo}</xMotivo>
+				{@endifXMotivo}
+				<chSubstituida>{@chSubstituida}</chSubstituida>
+			</e105102>
+			{@endifE105102}
+
+			{@ifE110103}
+			<e110103>
+				<xDesc>{@xDesc}</xDesc>
+				<cMotivo>{@cMotivo}</cMotivo>
+				<xMotivo>{@xMotivo}</xMotivo>
+			</e110103>
+			{@endifE110103}
+
+			{@ifE105104}
+			<e105104>
+				<xDesc>{@xDesc}</xDesc>
+				<CPFAgTrib>{@CPFAgTrib}</CPFAgTrib>
+				{@ifNProcAdm}
+				<nProcAdm>{@nProcAdm}</nProcAdm>
+				{@endifNProcAdm}
+				<cMotivo>{@cMotivo}</cMotivo>
+				<xMotivo>{@xMotivo}</xMotivo>
+			</e105104>
+			{@endifE105104}
+
+			{@ifE105105}
+			<e105105>
+				<xDesc>{@xDesc}</xDesc>
+				<CNPJAgTrib>{@CNPJAgTrib}</CNPJAgTrib>
+				{@ifNProcAdm}
+				<nProcAdm>{@nProcAdm}</nProcAdm>
+				{@endifNProcAdm}
+				<cMotivo>{@cMotivo}</cMotivo>
+				<xMotivo>{@xMotivo}</xMotivo>
+			</e105105>
+			{@endifE105105}
+
+			{@ifE202201}
+			<e202201>
+				<xDesc>{@xDesc}</xDesc>
+			</e202201>
+			{@endifE202201}
+
+			{@ifE203202}
+			<e203202>
+				<xDesc>{@xDesc}</xDesc>
+			</e203202>
+			{@endifE203202}
+
+			{@ifE204203}
+			<e204203>
+				<xDesc>{@xDesc}</xDesc>
+			</e204203>
+			{@endifE204203}
+
+			{@ifE205204}
+			<e205204>
+				<xDesc>{@xDesc}</xDesc>
+			</e205204>
+			{@endifE205204}
+
+			{@ifE202205}
+			<e202205>
+				<xDesc>{@xDesc}</xDesc>
+				<injRej>
+					<cMotivo>{@cMotivo}</cMotivo>
+					{@ifXMotivo}
+					<xMotivo>{@xMotivo}</xMotivo>
+					{@endifXMotivo}
+				</injRej>
+			</e202205>
+			{@endifE202205}
+
+			{@ifE202206}
+			<e202206>
+				<xDesc>{@xDesc}</xDesc>
+				<injRej>
+					<cMotivo>{@cMotivo}</cMotivo>
+					{@ifXMotivo}
+					<xMotivo>{@xMotivo}</xMotivo>
+					{@endifXMotivo}
+				</injRej>
+			</e202206>
+			{@endifE202206}
+
+			{@ifE204207}
+			<e204207>
+				<xDesc>{@xDesc}</xDesc>
+				<injRej>
+					<cMotivo>{@cMotivo}</cMotivo>
+					{@ifXMotivo}
+					<xMotivo>{@xMotivo}</xMotivo>
+					{@endifXMotivo}
+				</injRej>
+			</e204207>
+			{@endifE204207}
+
+			{@ifE205208}
+			<e205208>
+				<xDesc>{@xDesc}</xDesc>
+				<injAnRej>
+					<CPFAgTrib>{@CPFAgTrib}</CPFAgTrib>
+					<idEvManifRej>{@idEvManifRej}</idEvManifRej>
+					<xMotivo>{@xMotivo}</xMotivo>
+				</injAnRej>
+			</e205208>
+			{@endifE205208}
+
+			{@ifE305101}
+			<e305101>
+				<xDesc>{@xDesc}</xDesc>
+				<CPFAgTrib>{@CPFAgTrib}</CPFAgTrib>
+				<nProcAdm>{@nProcAdm}</nProcAdm>
+				<xProcAdm>{@xProcAdm}</xProcAdm>
+			</e305101>
+			{@endifE305101}
+
+			{@ifE305102}
+			<e305102>
+				<xDesc>{@xDesc}</xDesc>
+				<CPFAgTrib>{@CPFAgTrib}</CPFAgTrib>
+				<xMotivo>{@xMotivo}</xMotivo>
+				<codEvento>{@codEvento}</codEvento>
+			</e305102>
+			{@endifE305102}
+
+			{@ifE305103}
+			<e305103>
+				<xDesc>{@xDesc}</xDesc>
+				<CNPJAgTrib>{@CNPJAgTrib}</CNPJAgTrib>
+				<idBloqOfic>{@idBloqOfic}</idBloqOfic>
+			</e305103>
+			{@endifE305103}
+		</infPedReg>
+	</pedRegEvento>
+</CancelarNfseEnvio>

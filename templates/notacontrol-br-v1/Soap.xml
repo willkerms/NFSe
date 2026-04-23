@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:nfse="http://www.sped.fazenda.gov.br/nfse">
+   <soapenv:Body>
+      <nfse:{@action}>
+         <!--Optional:-->
+		 <nfseCabecMsg>?</nfseCabecMsg>
+         <nfseDadosMsg><![CDATA[{@xml}]]></nfseDadosMsg>
+      </nfse:{@action}>
+   </soapenv:Body>
+</soapenv:Envelope>

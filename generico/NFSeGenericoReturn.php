@@ -21,13 +21,17 @@ class NFSeGenericoReturn extends NFSeReturn {
 		
 		$return = array();
 
-		$ListaMensagemRetorno = $oDocument->documentElement->getElementsByTagName($listaMensagem);
+		$aTags = $this->oGenerico->getConfig('tagMensagensRetorno', []);
+		$tagListaMensagem = PQDUtil::retDefault($aTags, 'tagListaMensagens', $listaMensagem);
+		$tagMensagem = PQDUtil::retDefault($aTags, 'tagMensagem', 'MensagemRetorno');
+
+		$ListaMensagemRetorno = $oDocument->documentElement->getElementsByTagName($tagListaMensagem);
 
 		if($ListaMensagemRetorno->length == 1) {
 
 			$ListaMensagemRetorno = $ListaMensagemRetorno->item(0);
 
-			$aMensagens = $ListaMensagemRetorno->getElementsByTagName('MensagemRetorno');
+			$aMensagens = $ListaMensagemRetorno->getElementsByTagName($tagMensagem);
 
 			for ($i = 0; $i< $aMensagens->length; $i++){
 
@@ -35,6 +39,9 @@ class NFSeGenericoReturn extends NFSeReturn {
 				$oMensagem->Codigo = $oDocument->getValue($aMensagens->item($i), 'Codigo');//codigo do erro
 				$oMensagem->Mensagem = $oDocument->getValue($aMensagens->item($i), 'Mensagem');//mensagem de erro
 				$oMensagem->Correcao = $oDocument->getValue($aMensagens->item($i), 'Correcao');//correcao
+
+				if(!empty($oDocument->getValue($aMensagens->item($i), 'IdDPS')))
+					$oMensagem->IdDPS = $oDocument->getValue($aMensagens->item($i), 'IdDPS');
 
 				$return[] = $oMensagem;
 				
@@ -307,7 +314,10 @@ class NFSeGenericoReturn extends NFSeReturn {
 				break;
 				
 				case "gerarNfse":
-					return $this->gerarNfseRetorno($oDocument);
+					$aConfig = $this->oGenerico->getConfig('metodos');
+					$configGerarNfse = PQDUtil::retDefault($aConfig, $metodo);
+					$tagResposta = PQDUtil::retDefault($configGerarNfse['tagMap'], 'tagResposta', 'GerarNfseResposta');
+					return $this->gerarNfseRetorno($oDocument, $tagResposta);
 				break;
 				
 				case "enviarLoteRps":
@@ -521,13 +531,13 @@ class NFSeGenericoReturn extends NFSeReturn {
 	 * @param NFSeDocument $oGerarNfseRetorno
 	 * @return array
 	 */
-	private function gerarNfseRetorno(NFSeDocument $oGerarNfseRetorno) {
+	private function gerarNfseRetorno(NFSeDocument $oGerarNfseRetorno, $tagResposta = 'GerarNfseResposta') {
 
 		$return = array();
-		if ($oGerarNfseRetorno->getElementsByTagName('GerarNfseResposta')->length == 1) {
+		if ($oGerarNfseRetorno->getElementsByTagName($tagResposta)->length == 1) {
 
 			$return = array(
-				'ListaMensagemRetorno' => $this->retListaMensagem($oGerarNfseRetorno),
+				'ListaMensagemRetorno' => $this->retListaMensagem($oGerarNfseRetorno, null, $this->oGenerico->getConfig('tagMensagensReturn', 'ListaMensagemRetorno')),
 				'ListaNfse' => $this->retListNFSe($oGerarNfseRetorno)
 			);
 

@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<CancelarNfseEnvio 
+	xmlns="http://www.sped.fazenda.gov.br/nfse"
+	xmlns:dsig="http://www.w3.org/2000/09/xmldsig#"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+	<Pedido>
+		<InfPedidoCancelamento>
+			<IdentificacaoNfse>
+				<Numero>{@Numero}</Numero>
+				<CpfCnpj>
+					<!-- IF CHOICE Cpf/Cnpj -->
+					{@ifCpfPrestador}
+					<Cpf>{@CpfPrestador}</Cpf>
+					{@endifCpfPrestador}
+
+					{@ifCnpjPrestador}
+					<Cnpj>{@CnpjPrestador}</Cnpj>
+					{@endifCnpjPrestador}
+				</CpfCnpj>
+				{@ifInscricaoMunicipal}
+				<InscricaoMunicipal>{@InscricaoMunicipal}</InscricaoMunicipal>
+				{@endifInscricaoMunicipal}
+				<CodigoMunicipio>{@CodigoMunicipio}</CodigoMunicipio>
+			</IdentificacaoNfse>
+			{@ifCodigoCancelamento}
+			<CodigoCancelamento>{@CodigoCancelamento}</CodigoCancelamento>
+			{@endifCodigoCancelamento}
+		</InfPedidoCancelamento>
+		<!--Signature>string</Signature-->
+	</Pedido>
+</CancelarNfseEnvio>

@@ -1,0 +1,26 @@
+<?php
+namespace NFSe\generico\nfseNacional;
+
+/**
+ *
+ * @since 2025-12-30
+ * @author Norton Almeida Pontes
+ *
+*/
+class NFSeGenericoLocPrest {
+
+	/**
+	 * Código do município onde o serviço foi prestado (tabela do IBGE)
+	 * 
+	 * @var $cLocPrestacao
+	*/
+	public $cLocPrestacao;
+
+	/**
+	 * Código do país onde o serviço foi prestado (Tabela de Países ISO)
+	 * 
+	 * @var $cPaisPrestacao
+	*/
+	public $cPaisPrestacao;
+
+}
