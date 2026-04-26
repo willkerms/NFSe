@@ -371,8 +371,6 @@ class NFSeGenerico extends NFSe {
 			);		
 		}
 
-		PQDUtil::print_pre($xml);
-
 		$this->saveXML($xml, $metodo . '-' . $fileName);
 
 		return $this->procReturn($this->makeSOAPRequest($metodo, $xml, $fileName), $metodo);
