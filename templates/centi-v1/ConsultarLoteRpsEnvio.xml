@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ConsultarLoteRpsEnvio xmlns="http://www.abrasf.org.br/nfse.xsd">
+	<Prestador>
+		<CpfCnpj>
+			{@ifCpfPrestador}<Cpf>{@CpfPrestador}</Cpf>{@endifCpfPrestador}
+			{@ifCnpjPrestador}<Cnpj>{@CnpjPrestador}</Cnpj>{@endifCnpjPrestador}
+		</CpfCnpj>
+
+		{@ifEnderecoPrestador}
+			<Endereco>
+				{@ifEnderecoPrestador}<Endereco>{@EnderecoPrestador}</Endereco>{@endifEnderecoPrestador}
+				{@ifNumeroPrestador}<Numero>{@NumeroPrestador}</Numero>{@endifNumeroPrestador}
+				{@ifComplementoPrestador}<Complemento>{@ComplementoPrestador}</Complemento>{@endifComplementoPrestador}
+				{@ifBairroPrestador}<Bairro>{@BairroPrestador}</Bairro>{@endifBairroPrestador}
+				{@ifCodigoMunicipioPrestador}<CodigoMunicipio>{@CodigoMunicipioPrestador}</CodigoMunicipio>{@endifCodigoMunicipioPrestador}
+				{@ifUfPrestador}<Uf>{@UfPrestador}</Uf>{@endifUfPrestador}
+				{@ifCepPrestador}<Cep>{@CepPrestador}</Cep>{@endifCepPrestador}
+			</Endereco>
+			{@endifEnderecoPrestador}
+
+			{@ifContatoPrestador}
+			<Contato>
+				{@ifTelefonePrestador}<Telefone>{@TelefonePrestador}</Telefone>{@endifTelefonePrestador}
+				{@ifEmailPrestador}<Email>{@EmailPrestador}</Email>{@endifEmailPrestador}
+			</Contato>
+			{@endifContatoPrestador}
+
+			{@ifDadosObra}
+			<DadosObra>
+				{@ifCnoFild}<cnoFild>{@cnoFild}</cnoFild>{@endifCnoFild}
+				{@ifCepObraFild}<cepObraFild>{@cepObraFild}</cepObraFild>{@endifCepObraFild}
+				{@ifLogradouroObraFild}<logradouroObraFild>{@logradouroObraFild}</logradouroObraFild>{@endifLogradouroObraFild}
+				{@ifNumeroObraFild}<numeroObraFild>{@numeroObraFild}</numeroObraFild>{@endifNumeroObraFild}
+				{@ifBairroObraFild}<bairroObraFild>{@bairroObraFild}</bairroObraFild>{@endifBairroObraFild}
+				{@ifComplementoObraFild}<complementoObraFild>{@complementoObraFild}</complementoObraFild>{@endifComplementoObraFild}
+				{@ifQuadraObraFild}<quadraObraFild>{@quadraObraFild}</quadraObraFild>{@endifQuadraObraFild}
+				{@ifLoteObraFild}<loteObraFild>{@loteObraFild}</loteObraFild>{@endifLoteObraFild}
+			</DadosObra>
+			{@endifDadosObra}
+
+			{@ifRazaoSocialPrestador}<RazaoSocial>{@RazaoSocialPrestador}</RazaoSocial>{@endifRazaoSocialPrestador}
+			{@ifNomeFantasiaPrestador}<NomeFantasia>{@NomeFantasiaPrestador}</NomeFantasia>{@endifNomeFantasiaPrestador}
+			{@ifInscricaoMunicipalPrestador}<InscricaoMunicipal>{@InscricaoMunicipalPrestador}</InscricaoMunicipal>{@endifInscricaoMunicipalPrestador}
+			{@ifInscricaoEstadualPrestador}<InscricaoEstadual>{@InscricaoEstadualPrestador}</InscricaoEstadual>{@endifInscricaoEstadualPrestador}
+	</Prestador>
+	<Protocolo>{@Protocolo}</Protocolo>
+</ConsultarLoteRpsEnvio>
