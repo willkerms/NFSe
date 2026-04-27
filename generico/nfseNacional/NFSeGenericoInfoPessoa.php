@@ -60,6 +60,13 @@ class NFSeGenericoInfoPessoa {
 	*/
 	public $xNome;
 
+	/**
+	 * Nome / Fantasia do emitente.
+	 * 
+	 * @var $xFant
+	*/
+	public $xFant;
+
 
 	/**
 	 * Dados de endereço

@@ -4,6 +4,7 @@ namespace NFSe\generico;
 use NFSe\NFSeReturn;
 use NFSe\NFSeDocument;
 use PQD\PQDUtil;
+use NFSe\generico\nfseNacional\NFSeGenericoInfNFSe as NFSeGenericoInfNFSeNacional;
 
 class NFSeGenericoReturn extends NFSeReturn {
 
@@ -63,7 +64,118 @@ class NFSeGenericoReturn extends NFSeReturn {
 
 	}
 
+	private function retInfNFSeNacional(\DOMElement $oCompNfse, NFSeDocument $oDocument) {
+
+		$NFSe       = $oCompNfse->getElementsByTagName('NFSe')->item(0);
+		$infNFSe    = $NFSe->getElementsByTagName('infNFSe')->item(0);
+		$emit       = $infNFSe->getElementsByTagName('emit')->item(0);
+		$enderNac   = !is_null($emit) ? $emit->getElementsByTagName('enderNac')->item(0) : null;
+		$valoresNFSe = $infNFSe->getElementsByTagName('valores')->item(0);
+
+		$DPS        = $infNFSe->getElementsByTagName('DPS')->item(0);
+		$infDPS     = !is_null($DPS) ? $DPS->getElementsByTagName('infDPS')->item(0) : null;
+		$prest      = !is_null($infDPS) ? $infDPS->getElementsByTagName('prest')->item(0) : null;
+		$regTrib    = !is_null($prest) ? $prest->getElementsByTagName('regTrib')->item(0) : null;
+		$toma       = !is_null($infDPS) ? $infDPS->getElementsByTagName('toma')->item(0) : null;
+		$endToma    = !is_null($toma) ? $toma->getElementsByTagName('end')->item(0) : null;
+		$endNacToma = !is_null($endToma) ? $endToma->getElementsByTagName('endNac')->item(0) : null;
+		$serv       = !is_null($infDPS) ? $infDPS->getElementsByTagName('serv')->item(0) : null;
+		$locPrest   = !is_null($serv) ? $serv->getElementsByTagName('locPrest')->item(0) : null;
+		$cServ      = !is_null($serv) ? $serv->getElementsByTagName('cServ')->item(0) : null;
+		$valoresDPS = !is_null($infDPS) ? $infDPS->getElementsByTagName('valores')->item(0) : null;
+		$vServPrest = !is_null($valoresDPS) ? $valoresDPS->getElementsByTagName('vServPrest')->item(0) : null;
+		$trib       = !is_null($valoresDPS) ? $valoresDPS->getElementsByTagName('trib')->item(0) : null;
+		$tribMun    = !is_null($trib) ? $trib->getElementsByTagName('tribMun')->item(0) : null;
+		$tribFed    = !is_null($trib) ? $trib->getElementsByTagName('tribFed')->item(0) : null;
+		$piscofins  = !is_null($tribFed) ? $tribFed->getElementsByTagName('piscofins')->item(0) : null;
+		$totTrib    = !is_null($trib) ? $trib->getElementsByTagName('totTrib')->item(0) : null;
+
+		$oNFSe = new NFSeGenericoInfNFSeNacional();
+
+		$oNFSe->Id            = $infNFSe->getAttribute('Id');
+		$oNFSe->xLocEmi       = $oDocument->getValue($infNFSe, 'xLocEmi');
+		$oNFSe->xLocPrestacao = $oDocument->getValue($infNFSe, 'xLocPrestacao');
+		$oNFSe->nNFSe         = $oDocument->getValue($infNFSe, 'nNFSe');
+		$oNFSe->cLocIncid     = $oDocument->getValue($infNFSe, 'cLocIncid');
+		$oNFSe->xLocIncid     = $oDocument->getValue($infNFSe, 'xLocIncid');
+		$oNFSe->xTribNac      = $oDocument->getValue($infNFSe, 'xTribNac');
+		$oNFSe->verAplic      = $oDocument->getValue($infNFSe, 'verAplic');
+		$oNFSe->ambGer        = $oDocument->getValue($infNFSe, 'ambGer');
+		$oNFSe->tpEmis        = $oDocument->getValue($infNFSe, 'tpEmis');
+		$oNFSe->cStat         = $oDocument->getValue($infNFSe, 'cStat');
+		$oNFSe->dhProc        = $oDocument->getValue($infNFSe, 'dhProc');
+		$oNFSe->nDFSe         = $oDocument->getValue($infNFSe, 'nDFSe');
+		$oNFSe->xOutInf       = $oDocument->getValue($infNFSe, 'xOutInf');
+
+		$oNFSe->emit->CNPJ  = $oDocument->getValue($emit, 'CNPJ');
+		$oNFSe->emit->IM    = $oDocument->getValue($emit, 'IM');
+		$oNFSe->emit->xNome = $oDocument->getValue($emit, 'xNome');
+		$oNFSe->emit->xFant = $oDocument->getValue($emit, 'xFant');
+		$oNFSe->emit->fone  = $oDocument->getValue($emit, 'fone');
+		$oNFSe->emit->email = $oDocument->getValue($emit, 'email');
+
+		$oNFSe->emit->end->xLgr              = $oDocument->getValue($enderNac, 'xLgr');
+		$oNFSe->emit->end->nro               = $oDocument->getValue($enderNac, 'nro');
+		$oNFSe->emit->end->xCpl              = $oDocument->getValue($enderNac, 'xCpl');
+		$oNFSe->emit->end->xBairro           = $oDocument->getValue($enderNac, 'xBairro');
+		$oNFSe->emit->end->endNacEndExt->cMun = $oDocument->getValue($enderNac, 'cMun');
+		$oNFSe->emit->end->endNacEndExt->CEP  = $oDocument->getValue($enderNac, 'CEP');
+
+		$oNFSe->valores->vBC        = $oDocument->getValue($valoresNFSe, 'vBC');
+		$oNFSe->valores->pAliqAplic = $oDocument->getValue($valoresNFSe, 'pAliqAplic');
+		$oNFSe->valores->vISSQN     = $oDocument->getValue($valoresNFSe, 'vISSQN');
+		$oNFSe->valores->vLiq       = $oDocument->getValue($valoresNFSe, 'vLiq');
+
+		$oNFSe->DPS->tpAmb    = $oDocument->getValue($infDPS, 'tpAmb');
+		$oNFSe->DPS->dhEmi    = $oDocument->getValue($infDPS, 'dhEmi');
+		$oNFSe->DPS->verAplic = $oDocument->getValue($infDPS, 'verAplic');
+		$oNFSe->DPS->serie    = $oDocument->getValue($infDPS, 'serie');
+		$oNFSe->DPS->nDPS     = $oDocument->getValue($infDPS, 'nDPS');
+		$oNFSe->DPS->dCompet  = $oDocument->getValue($infDPS, 'dCompet');
+		$oNFSe->DPS->tpEmit   = $oDocument->getValue($infDPS, 'tpEmit');
+		$oNFSe->DPS->cLocEmi  = $oDocument->getValue($infDPS, 'cLocEmi');
+
+		$oNFSe->DPS->prest->CNPJ  = $oDocument->getValue($prest, 'CNPJ');
+		$oNFSe->DPS->prest->IM    = $oDocument->getValue($prest, 'IM');
+		$oNFSe->DPS->prest->fone  = $oDocument->getValue($prest, 'fone');
+		$oNFSe->DPS->prest->email = $oDocument->getValue($prest, 'email');
+
+		$oNFSe->DPS->prest->regTrib->opSimpNac  = $oDocument->getValue($regTrib, 'opSimpNac');
+		$oNFSe->DPS->prest->regTrib->regEspTrib = $oDocument->getValue($regTrib, 'regEspTrib');
+
+		$oNFSe->DPS->toma->CNPJ   = $oDocument->getValue($toma, 'CNPJ');
+		$oNFSe->DPS->toma->xNome  = $oDocument->getValue($toma, 'xNome');
+		$oNFSe->DPS->toma->email  = $oDocument->getValue($toma, 'email');
+
+		$oNFSe->DPS->toma->end->xLgr               = $oDocument->getValue($endToma, 'xLgr');
+		$oNFSe->DPS->toma->end->nro                = $oDocument->getValue($endToma, 'nro');
+		$oNFSe->DPS->toma->end->xCpl               = $oDocument->getValue($endToma, 'xCpl');
+		$oNFSe->DPS->toma->end->xBairro            = $oDocument->getValue($endToma, 'xBairro');
+		$oNFSe->DPS->toma->end->endNacEndExt->cMun  = $oDocument->getValue($endNacToma, 'cMun');
+		$oNFSe->DPS->toma->end->endNacEndExt->CEP   = $oDocument->getValue($endNacToma, 'CEP');
+
+		$oNFSe->DPS->serv->locPrest->cLocPrestacao = $oDocument->getValue($locPrest, 'cLocPrestacao');
+		$oNFSe->DPS->serv->cServ->cTribNac         = $oDocument->getValue($cServ, 'cTribNac');
+		$oNFSe->DPS->serv->cServ->xDescServ        = $oDocument->getValue($cServ, 'xDescServ');
+		$oNFSe->DPS->serv->cServ->cNBS             = $oDocument->getValue($cServ, 'cNBS');
+
+		$oNFSe->DPS->valores->vServPrest->vServ = $oDocument->getValue($vServPrest, 'vServ');
+
+		$oNFSe->DPS->valores->trib->tribMun->tribISSQN  = $oDocument->getValue($tribMun, 'tribISSQN');
+		$oNFSe->DPS->valores->trib->tribMun->tpRetISSQN = $oDocument->getValue($tribMun, 'tpRetISSQN');
+
+		$oNFSe->DPS->valores->trib->tribFed->piscofins->CST           = $oDocument->getValue($piscofins, 'CST');
+		$oNFSe->DPS->valores->trib->tribFed->piscofins->tpRetPisCofins = $oDocument->getValue($piscofins, 'tpRetPisCofins');
+
+		$oNFSe->DPS->valores->trib->totTrib->indTotTrib = $oDocument->getValue($totTrib, 'indTotTrib');
+
+		return $oNFSe;
+	}
+	
 	private function retInfNFSe(\DOMElement $oCompNfse, NFSeDocument $oDocument) {
+
+		if($oCompNfse->getElementsByTagName('xLocEmi')->length > 0)
+			return $this->retInfNFSeNacional($oCompNfse, $oDocument);
 
 		$aConfig = $this->oGenerico->getConfig($this->oGenerico->getIsHomologacao() ? 'homologacao': 'producao', array());
 
