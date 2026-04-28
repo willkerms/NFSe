@@ -371,8 +371,22 @@ class NFSeGenericoReturn extends NFSeReturn {
 		$xml = "";
 		$oReturn = $dom->getElementsByTagName($aConfig[$metodo]['tagMap']['return'])->item(0);
 
-		if(PQDUtil::retDefault($aConfig[$metodo], 'returnType', 'child') == 'string')
+		if( PQDUtil::retDefault($aConfig[$metodo], 'returnType', 'child') == 'string' ){
 			$xml = htmlspecialchars_decode( $oReturn->nodeValue );
+
+			$aReplaces = PQDUtil::retDefault($aConfig[$metodo], 'returnReplace', [ 
+				'search' => null,
+				'replace' => null
+			]);
+			
+			// Buscar textos que devem ser substituidos antes de carregar o XML, para evitar erros de parsing
+			$aReplaces['search'] = is_null($aReplaces['search']) ? "" : ( is_array($aReplaces['search']) ? array_map('stripcslashes', $aReplaces['search']) : $aReplaces['search'] );
+
+			$aReplaces['replace'] = is_null($aReplaces['replace']) ? "" : ( is_array($aReplaces['replace']) ? array_map('stripcslashes', $aReplaces['replace']) : $aReplaces['replace'] );
+
+			if( isset($aReplaces['search']) )
+				$xml = str_replace($aReplaces['search'], $aReplaces['replace'], $xml);
+		}
 		else
 			$xml = $dom->saveXML($oReturn);
 
