@@ -66,6 +66,8 @@ class NFSeGenericoReturn extends NFSeReturn {
 
 	private function retInfNFSeNacional(\DOMElement $oCompNfse, NFSeDocument $oDocument) {
 
+		$aConfig = $this->oGenerico->getConfig($this->oGenerico->getIsHomologacao() ? 'homologacao': 'producao', []);
+
 		$NFSe       = $oCompNfse->getElementsByTagName('NFSe')->item(0);
 		$infNFSe    = $NFSe->getElementsByTagName('infNFSe')->item(0);
 		$emit       = $infNFSe->getElementsByTagName('emit')->item(0);
@@ -120,6 +122,20 @@ class NFSeGenericoReturn extends NFSeReturn {
 		$oNFSe->emit->end->xBairro           = $oDocument->getValue($enderNac, 'xBairro');
 		$oNFSe->emit->end->endNacEndExt->cMun = $oDocument->getValue($enderNac, 'cMun');
 		$oNFSe->emit->end->endNacEndExt->CEP  = $oDocument->getValue($enderNac, 'CEP');
+
+		$url = $oDocument->getValue($infNFSe, "UrlNfse");
+		$url = is_null($url) ? PQDUtil::retDefault($aConfig, 'urlNfse', '') : $url;
+		$url = PQDUtil::procTplText($url, [
+			'{@cpfCnpj}' => $this->oGenerico->getConfig('cpfCnpj', ''),
+			'{@inscMunicipal}' => $this->oGenerico->getConfig('insMunicipal', ''),
+			'{@numeroNFSe}' => $oDocument->getValue($infNFSe, "nNFSe"),
+			'{@nDFSe}' => $oDocument->getValue($infNFSe, "nDFSe"),
+			'{@codigoVerificacao}' => PQDUtil::onlyNumbers($infNFSe->getAttribute('Id')),
+			'{@sha1CodigoVerificacao}' => sha1(PQDUtil::onlyNumbers($infNFSe->getAttribute('Id'))),
+			'{@idInfNfse}' => $infNFSe->getAttribute('Id')
+		]);
+
+		$oNFSe->Url = ( !empty($url) && substr($url, 0, 7) != 'http://' && substr($url, 0, 8) != 'https://' ? 'http://' : '') . $url;
 
 		$oNFSe->valores->vBC        = $oDocument->getValue($valoresNFSe, 'vBC');
 		$oNFSe->valores->pAliqAplic = $oDocument->getValue($valoresNFSe, 'pAliqAplic');

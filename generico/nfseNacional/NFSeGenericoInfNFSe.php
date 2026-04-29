@@ -164,6 +164,11 @@ class NFSeGenericoInfNFSe {
 	*/
 	public $DPS;
 
+	/**
+	 * @var string
+	 */
+	public $Url;
+
 	public function __construct() {
 		$this->emit   = new NFSeGenericoEmitente();
 		$this->valores = new NFSeGenericoInfNFSeValores();
