@@ -1,0 +1,192 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Rps>
+	<InfDeclaracaoPrestacaoServico>
+		<Rps {@ifIdRps} Id="{@idRps}"{@endifIdRps}>
+			<IdentificacaoRps>
+				<Numero>{@NumeroRps}</Numero>
+				<Serie>{@SerieRps}</Serie>
+				<Tipo>{@TipoRps}</Tipo>
+			</IdentificacaoRps>
+			<DataEmissao>{@DataEmissao}</DataEmissao>
+			<Status>{@Status}</Status>
+
+			{@ifRpsSubstituido}
+			<RpsSubstituido>
+				<Numero>{@NumeroRpsSubstituido}</Numero>
+				<Serie>{@SerieRpsSubstituido}</Serie>
+				<Tipo>{@TipoRpsSubstituido}</Tipo>
+			</RpsSubstituido>
+			{@endifRpsSubstituido}
+
+		</Rps>
+		<Competencia>{@Competencia}</Competencia>
+		<Servico>
+			<Valores>
+				<ValorServicos>{@ValorServicos}</ValorServicos>
+				{@ifValorDeducoes}<ValorDeducoes>{@ValorDeducoes}</ValorDeducoes>{@endifValorDeducoes}
+				{@ifValorPis}<ValorPis>{@ValorPis}</ValorPis>{@endifValorPis}
+				{@ifValorCofins}<ValorCofins>{@ValorCofins}</ValorCofins>{@endifValorCofins}
+				{@ifValorInss}<ValorInss>{@ValorInss}</ValorInss>{@endifValorInss}
+				{@ifValorIr}<ValorIr>{@ValorIr}</ValorIr>{@endifValorIr}
+				{@ifValorCsll}<ValorCsll>{@ValorCsll}</ValorCsll>{@endifValorCsll}
+				{@ifOutrasRetencoes}<OutrasRetencoes>{@OutrasRetencoes}</OutrasRetencoes>{@endifOutrasRetencoes}
+				{@ifValTotTributos}<ValTotTributos>{@ValTotTributos}</ValTotTributos>{@endifValTotTributos}
+				{@ifValorIss}<ValorIss>{@ValorIss}</ValorIss>{@endifValorIss}
+				{@ifAliquota}<Aliquota>{@Aliquota}</Aliquota>{@endifAliquota}
+				{@ifDescontoIncondicionado}<DescontoIncondicionado>{@DescontoIncondicionado}</DescontoIncondicionado>{@endifDescontoIncondicionado}
+				{@ifDescontoCondicionado}<DescontoCondicionado>{@DescontoCondicionado}</DescontoCondicionado>{@endifDescontoCondicionado}
+			</Valores>
+			<!--## DEIXADO COMO OBRIGATÓRIO SEGUINDO MODELO ABRASF-2.4, NA CENTI É OPCIONAL-->
+			<IssRetido>{@IssRetido}</IssRetido>
+
+			{@ifResponsavelRetencao}<ResponsavelRetencao>{@ResponsavelRetencao}</ResponsavelRetencao>{@endifResponsavelRetencao}
+
+			<!--## DEIXADO COMO OBRIGATÓRIO SEGUINDO MODELO ABRASF-2.4, NA CENTI É OPCIONAL-->
+			<ItemListaServico>{@ItemListaServico}</ItemListaServico>
+
+			{@ifCodigoNbs}<CodigoNbs>{@CodigoNbs}</CodigoNbs>{@endifCodigoNbs}
+
+			{@ifCodigoCnae}<CodigoCnae>{@CodigoCnae}</CodigoCnae>{@endifCodigoCnae}
+
+			{@ifCodigoTributacaoMunicipio}<CodigoTributacaoMunicipio>{@CodigoTributacaoMunicipio}</CodigoTributacaoMunicipio>{@endifCodigoTributacaoMunicipio}
+
+			<Discriminacao>{@Discriminacao}</Discriminacao>
+			<CodigoMunicipio>{@CodigoMunicipioServico}</CodigoMunicipio>
+
+			{@ifCodigoPaisServico}<CodigoPais>{@CodigoPaisServico}</CodigoPais>{@endifCodigoPaisServico}
+
+			<!--## DEIXADO COMO OBRIGATÓRIO SEGUINDO MODELO ABRASF-2.4, NA CENTI É OPCIONAL-->
+			{@ifExigibilidadeISS}<ExigibilidadeISS>{@ExigibilidadeISS}</ExigibilidadeISS>{@endifExigibilidadeISS}
+
+			{@ifMunicipioIncidencia}<MunicipioIncidencia>{@MunicipioIncidencia}</MunicipioIncidencia>{@endifMunicipioIncidencia}
+
+			{@ifNumeroProcesso}<NumeroProcesso>{@NumeroProcesso}</NumeroProcesso>{@endifNumeroProcesso}
+		</Servico>
+
+		<Prestador>
+			<CpfCnpj>
+				{@ifCpfPrestador}<Cpf>{@CpfPrestador}</Cpf>{@endifCpfPrestador}
+				{@ifCnpjPrestador}<Cnpj>{@CnpjPrestador}</Cnpj>{@endifCnpjPrestador}
+			</CpfCnpj>
+
+			<!-- ## COMENTADO POR NÃO TER NO MODELO ABRASF-2.4 E TAMBÉM NO LOTTUS, NA CENTI É OPCIONAL
+			{@ifEnderecoPrestador}
+			<Endereco>
+				{@ifEnderecoPrestador}<Endereco>{@EnderecoPrestador}</Endereco>{@endifEnderecoPrestador}
+				{@ifNumeroPrestador}<Numero>{@NumeroPrestador}</Numero>{@endifNumeroPrestador}
+				{@ifComplementoPrestador}<Complemento>{@ComplementoPrestador}</Complemento>{@endifComplementoPrestador}
+				{@ifBairroPrestador}<Bairro>{@BairroPrestador}</Bairro>{@endifBairroPrestador}
+				{@ifCodigoMunicipioPrestador}<CodigoMunicipio>{@CodigoMunicipioPrestador}</CodigoMunicipio>{@endifCodigoMunicipioPrestador}
+				{@ifUfPrestador}<Uf>{@UfPrestador}</Uf>{@endifUfPrestador}
+				{@ifCepPrestador}<Cep>{@CepPrestador}</Cep>{@endifCepPrestador}
+			</Endereco>
+			{@endifEnderecoPrestador}
+
+			{@ifContatoPrestador}
+			<Contato>
+				{@ifTelefonePrestador}<Telefone>{@TelefonePrestador}</Telefone>{@endifTelefonePrestador}
+				{@ifEmailPrestador}<Email>{@EmailPrestador}</Email>{@endifEmailPrestador}
+			</Contato>
+			{@endifContatoPrestador}
+
+			{@ifDadosObra}
+			<DadosObra>
+				{@ifCnoFild}<cnoFild>{@cnoFild}</cnoFild>{@endifCnoFild}
+				{@ifCepObraFild}<cepObraFild>{@cepObraFild}</cepObraFild>{@endifCepObraFild}
+				{@ifLogradouroObraFild}<logradouroObraFild>{@logradouroObraFild}</logradouroObraFild>{@endifLogradouroObraFild}
+				{@ifNumeroObraFild}<numeroObraFild>{@numeroObraFild}</numeroObraFild>{@endifNumeroObraFild}
+				{@ifBairroObraFild}<bairroObraFild>{@bairroObraFild}</bairroObraFild>{@endifBairroObraFild}
+				{@ifComplementoObraFild}<complementoObraFild>{@complementoObraFild}</complementoObraFild>{@endifComplementoObraFild}
+				{@ifQuadraObraFild}<quadraObraFild>{@quadraObraFild}</quadraObraFild>{@endifQuadraObraFild}
+				{@ifLoteObraFild}<loteObraFild>{@loteObraFild}</loteObraFild>{@endifLoteObraFild}
+			</DadosObra>
+			{@endifDadosObra}
+
+			{@ifRazaoSocialPrestador}<RazaoSocial>{@RazaoSocialPrestador}</RazaoSocial>{@endifRazaoSocialPrestador}
+			{@ifNomeFantasiaPrestador}<NomeFantasia>{@NomeFantasiaPrestador}</NomeFantasia>{@endifNomeFantasiaPrestador}
+			{@ifInscricaoEstadualPrestador}<InscricaoEstadual>{@InscricaoEstadualPrestador}</InscricaoEstadual>{@endifInscricaoEstadualPrestador}-->
+
+			<!--## DEIXADO COMO OBRIGATÓRIO SEGUINDO MODELO ABRASF-2.4, NA CENTI É OPCIONAL-->
+			<InscricaoMunicipal>{@InscricaoMunicipalPrestador}</InscricaoMunicipal>
+		</Prestador>
+		
+		<Tomador>
+			<IdentificacaoTomador>
+				<CpfCnpj>
+					{@ifCpfTomador}<Cpf>{@CpfTomador}</Cpf>{@endifCpfTomador}
+					{@ifCnpjTomador}<Cnpj>{@CnpjTomador}</Cnpj>{@endifCnpjTomador}
+				</CpfCnpj>
+				{@ifInscricaoMunicipalTomador}<InscricaoMunicipal>{@InscricaoMunicipalTomador}</InscricaoMunicipal>{@endifInscricaoMunicipalTomador}
+				<!-- ## COMENTADO POR NÃO TER NO MODELO ABRASF-2.4 E TAMBÉM NO LOTTUS, NA CENTI É OPCIONAL
+				{@ifEstrangeiroTomador}<Estrangeiro>{@EstrangeiroTomador}</Estrangeiro>{@endifEstrangeiroTomador}
+				{@ifDocumentoEstrangeiroTomador}<DocumentoEstrangeiro>{@DocumentoEstrangeiroTomador}</DocumentoEstrangeiro>{@endifDocumentoEstrangeiroTomador}-->
+			</IdentificacaoTomador>
+
+			<RazaoSocial>{@RazaoSocialTomadorServico}</RazaoSocial>
+
+			{@ifEndereco}
+			<Endereco>
+				<Endereco>{@Endereco}</Endereco>
+				<Numero>{@Numero}</Numero>
+				<Complemento>{@Complemento}</Complemento>
+				<Bairro>{@Bairro}</Bairro>
+				<CodigoMunicipio>{@CodigoMunicipioTomadorServico}</CodigoMunicipio>
+				<Uf>{@Uf}</Uf>
+				<Cep>{@Cep}</Cep>
+			</Endereco>
+			{@endifEndereco}
+			
+			{@ifContato}
+			<Contato>
+				{@ifTelefone}<Telefone>{@Telefone}</Telefone>{@endifTelefone}
+				{@ifEmail}<Email>{@Email}</Email>{@endifEmail}
+			</Contato>
+			{@endifContato}
+
+			<!-- ## COMENTADO POR NÃO TER NO MODELO ABRASF-2.4 E TAMBÉM NO LOTTUS, NA CENTI É OPCIONAL
+			{@ifInscricaoEstadualTomador}<InscricaoEstadual>{@InscricaoEstadualTomador}</InscricaoEstadual>{@endifInscricaoEstadualTomador}-->
+		</Tomador>
+		
+		{@ifIntermediario}
+		<Intermediario>
+			<IdentificacaoIntermediario>
+				<CpfCnpj>
+					{@ifCpfIntermediario}}<Cpf>{@CpfIntermediario}</Cpf>{@endifCpfIntermediario}}
+					{@ifCnpjIntermediario}<Cnpj>{@CnpjIntermediario}</Cnpj>{@endifCnpjIntermediario}
+				</CpfCnpj>
+				<InscricaoMunicipal>{@InscricaoMunicipalIntermediario}</InscricaoMunicipal>
+			</IdentificacaoIntermediario>
+			<RazaoSocial>{@RazaoSocialIntermediario}</RazaoSocial>
+			<!-- ## COMENTADO POR TER NO MODELO ABRASF-2.4 PORÉM NÃO TER NA CENTI
+			<CodigoMunicipio>{@CodigoMunicipioIntermediario}</CodigoMunicipio> 
+			-->
+		</Intermediario>
+		{@endifIntermediario}
+		
+		{@ifConstrucaoCivil}
+		<ConstrucaoCivil>
+			{@ifCodigoObra}<CodigoObra>{@CodigoObra}</CodigoObra>{@endifCodigoObra}			
+			{@ifArt}<Art>{@Art}</Art>{@endifArt}
+		</ConstrucaoCivil>
+		{@endifConstrucaoCivil}
+		
+		{@ifRegimeEspecialTributacao}<RegimeEspecialTributacao>{@RegimeEspecialTributacao}</RegimeEspecialTributacao>{@endifRegimeEspecialTributacao}
+
+		{@ifOptanteSimplesNacional}<OptanteSimplesNacional>{@OptanteSimplesNacional}</OptanteSimplesNacional>{@endifOptanteSimplesNacional}
+
+		<!--## DEIXADO COMO OBRIGATÓRIO SEGUINDO MODELO ABRASF-2.4, NA CENTI É OPCIONAL-->
+		<IncentivoFiscal>{@IncentivoFiscal}</IncentivoFiscal>
+
+		<!-- ## COMENTADO POR NÃO TER NO MODELO ABRASF-2.4 E TAMBÉM NO LOTTUS, NA CENTI É OPCIONAL
+		<CondicaoPagamento>
+			<Condicao>{@Condicao}</Condicao>
+			<QuantidadeParcela>{@QuantidadeParcela}</QuantidadeParcela>
+			{@ifObservacao}<Observacao>{@Observacao}</Observacao>{@endifObservacao}
+			<Parcela>
+				<Parcela>{@Parcela}</Parcela>
+				<Valor>{@ValorParcela}</Valor>
+			</Parcela>
+		</CondicaoPagamento>-->
+	</InfDeclaracaoPrestacaoServico>
+	<!--Signature>string</Signature-->
+</Rps>

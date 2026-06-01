@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<CancelarNfseEnvio xmlns="http://www.centi.com.br/files/nfse.xsd">
+	<Pedido>
+		<InfPedidoCancelamento Id="pedido_cancel_{@Numero}">
+			<IdentificacaoNfse>
+				<Numero>{@Numero}</Numero>
+				<CpfCnpj>
+					{@ifCnpj}<Cnpj>{@Cnpj}</Cnpj>{@endifCnpj}
+					{@ifCpf}<Cpf>{@Cpf}</Cpf>{@endifCpf}
+				</CpfCnpj>
+				{@ifInscricaoMunicipal}<InscricaoMunicipal>{@InscricaoMunicipal}</InscricaoMunicipal>{@endifInscricaoMunicipal}
+				<CodigoMunicipio>{@CodigoMunicipio}</CodigoMunicipio>
+				<CodigoVerificacao>{@CodigoVerificacao}</CodigoVerificacao>
+				{@ifDescricaoCancelamento}<DescricaoCancelamento>{@DescricaoCancelamento}</DescricaoCancelamento>{@endifDescricaoCancelamento}
+				<IdNumero>{@IdNumero}</IdNumero>
+			</IdentificacaoNfse>
+			{@ifCodigoCancelamento}<CodigoCancelamento>{@CodigoCancelamento}</CodigoCancelamento>{@endifCodigoCancelamento}
+		</InfPedidoCancelamento>
+		<!--Signature>string</Signature-->
+	</Pedido>
+</CancelarNfseEnvio>
