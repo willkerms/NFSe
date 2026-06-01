@@ -1,0 +1,150 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Rps>
+	<InfDeclaracaoPrestacaoServico{@ifIdInfDeclaracaoPrestacaoServico} Id="{@idInfDeclaracaoPrestacaoServico}"{@endifIdInfDeclaracaoPrestacaoServico}>
+
+		<!-- Identificação e Status do RPS -->
+		<Rps{@ifIdRps} Id="{@idRps}"{@endifIdRps}>
+			<IdentificacaoRps>
+				<Numero>{@NumeroRps}</Numero>
+				<Serie>{@SerieRps}</Serie>
+				<Tipo>{@TipoRps}</Tipo>
+			</IdentificacaoRps>
+			<DataEmissao>{@DataEmissao}</DataEmissao>
+			<Status>{@Status}</Status>
+		</Rps>
+
+		<Competencia>{@Competencia}</Competencia>
+
+		<!-- Detalhamento do Serviço e Valores -->
+		<Servico>
+			<Valores>
+				<ValorServicos>{@ValorServicos}</ValorServicos>
+				<ValorDeducoes>{@ValorDeducoes}</ValorDeducoes>
+				<ValorPis>{@ValorPis}</ValorPis>
+				<ValorCofins>{@ValorCofins}</ValorCofins>
+				<ValorInss>{@ValorInss}</ValorInss>
+				<ValorIr>{@ValorIr}</ValorIr>
+				<ValorCsll>{@ValorCsll}</ValorCsll>
+				<OutrasRetencoes>{@OutrasRetencoes}</OutrasRetencoes>
+				<ValorIss>{@ValorIss}</ValorIss>
+				<Aliquota>{@Aliquota}</Aliquota>
+				<DescontoIncondicionado>{@DescontoIncondicionado}</DescontoIncondicionado>
+				<DescontoCondicionado>{@DescontoCondicionado}</DescontoCondicionado>
+			</Valores>
+			
+			<IssRetido>{@IssRetido}</IssRetido>
+			{@ifResponsavelRetencao}
+			<ResponsavelRetencao>{@ResponsavelRetencao}</ResponsavelRetencao>
+			{@endifResponsavelRetencao}
+			<Discriminacao>{@Discriminacao}</Discriminacao>
+			<CodigoMunicipio>{@CodigoMunicipio}</CodigoMunicipio>
+			<ExigibilidadeISS>{@ExigibilidadeISS}</ExigibilidadeISS>
+			{@ifMunicipioIncidencia}
+			<MunicipioIncidencia>{@MunicipioIncidencia}</MunicipioIncidencia>
+			{@endifMunicipioIncidencia}
+			{@ifNumeroProcesso}
+			<NumeroProcesso>{@NumeroProcesso}</NumeroProcesso>
+			{@endifNumeroProcesso}
+			
+			<ListaItemServico>
+				<ItemServico>
+					<ItemListaServico>{@ItemListaServico}</ItemListaServico>
+				</ItemServico>
+			</ListaItemServico>
+		</Servico>
+
+		<!-- 3. Detalhamento do Prestador -->
+		<DadosPrestador>
+			<IdentificacaoPrestador>
+				<CpfCnpj>
+					{@ifCpfPrestador}
+					<CPF>{@CpfPrestador}</CPF>
+					{@endifCpfPrestador}
+
+					{@ifCnpjPrestador}
+					<CNPJ>{@CnpjPrestador}</CNPJ>
+					{@endifCnpjPrestador}
+				</CpfCnpj>
+				<InscricaoMunicipal>{@InscricaoMunicipalPrestador}</InscricaoMunicipal>
+			</IdentificacaoPrestador>
+			<RazaoSocial>
+				<!-- {@RazaoSocial} -->
+			</RazaoSocial>
+			<Endereco>
+				<!-- {@ifEndereco}
+				<Endereco>{@Endereco}</Endereco>
+				{@endifEndereco}
+				{@ifNumero}
+				<Numero>{@Numero}</Numero>
+				{@endifNumero}
+				{@ifComplemento}
+				<Complemento>{@Complemento}</Complemento>
+				{@endifComplemento}
+				{@ifBairro}
+				<Bairro>{@Bairro}</Bairro>
+				{@endifBairro}
+				{@ifCodigoMunicipio}
+				<CodigoMunicipio>{@CodigoMunicipio}</CodigoMunicipio>
+				{@endifCodigoMunicipio}
+				{@ifUf}
+				<Uf>{@Uf}</Uf>
+				{@endifUf}
+				{@ifCep}
+				<Cep>{@Cep}</Cep>
+				{@endifCep} -->
+			</Endereco>
+		</DadosPrestador>
+
+		<!-- 4. Detalhamento do Tomador (Cliente) -->
+		<Tomador>
+			<IdentificacaoTomador>
+				<CpfCnpj>
+					{@ifCpfTomadorServico}
+					<CPF>{@CpfTomadorServico}</CPF>
+					{@endifCpfTomadorServico}
+
+					{@ifCnpjTomadorServico}
+					<CNPJ>{@CnpjTomadorServico}</CNPJ>
+					{@endifCnpjTomadorServico}
+				</CpfCnpj>
+				{@ifInscricaoMunicipalTomadorServico}
+				<InscricaoMunicipal>{@InscricaoMunicipalTomadorServico}</InscricaoMunicipal>
+				{@endifInscricaoMunicipalTomadorServico}
+			</IdentificacaoTomador>
+		</Tomador>
+
+		<Intermediario>
+			<IdentificacaoIntermediario>
+				<CpfCnpj>
+					{@ifCpfIntermediario}
+					<CPF>{@CpfIntermediario}</CPF>
+					{@endifCpfIntermediario}
+					{@ifCnpjIntermediario}
+					<CNPJ>{@CnpjIntermediario}</CNPJ>
+					{@endifCnpjIntermediario}
+				</CpfCnpj>
+				<InscricaoMunicipal>{@InscricaoMunicipalIntermediario}</InscricaoMunicipal>
+			</IdentificacaoIntermediario>
+		</Intermediario>
+
+		{@ifConstrucaoCivil}
+		<ConstrucaoCivil>
+
+			{@ifCodigoObra}
+			<CodigoObra>{@CodigoObra}</CodigoObra>
+			{@endifCodigoObra}
+
+			{@ifArt}
+			<Art>{@Art}</Art>
+			{@endifArt}
+
+		</ConstrucaoCivil>
+		{@endifConstrucaoCivil}
+
+		{@ifRegimeEspecialTributacao}
+		<RegimeEspecialTributacao>{@RegimeEspecialTributacao}</RegimeEspecialTributacao>
+		{@endifRegimeEspecialTributacao}
+
+		<IncentivoFiscal>{@IncentivoFiscal}</IncentivoFiscal>
+	</InfDeclaracaoPrestacaoServico>
+</Rps>
