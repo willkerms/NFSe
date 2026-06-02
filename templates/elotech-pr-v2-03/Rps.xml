@@ -1,9 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
-<Rps>
-	<InfDeclaracaoPrestacaoServico{@ifIdInfDeclaracaoPrestacaoServico} Id="{@idInfDeclaracaoPrestacaoServico}"{@endifIdInfDeclaracaoPrestacaoServico}>
 
-		<!-- Identificação e Status do RPS -->
-		<Rps{@ifIdRps} Id="{@idRps}"{@endifIdRps}>
+<DeclaracaoPrestacaoServico>
+	<InfDeclaracaoPrestacaoServico {@ifIdInfDeclaracaoPrestacaoServico} Id="{@idInfDeclaracaoPrestacaoServico}"{@endifIdInfDeclaracaoPrestacaoServico}>
+		<Rps {@ifIdRps} Id="{@idRps}"{@endifIdRps}>
 			<IdentificacaoRps>
 				<Numero>{@NumeroRps}</Numero>
 				<Serie>{@SerieRps}</Serie>
@@ -58,11 +57,11 @@
 			<IdentificacaoPrestador>
 				<CpfCnpj>
 					{@ifCpfPrestador}
-					<CPF>{@CpfPrestador}</CPF>
+					<Cpf>{@CpfPrestador}</Cpf>
 					{@endifCpfPrestador}
 
 					{@ifCnpjPrestador}
-					<CNPJ>{@CnpjPrestador}</CNPJ>
+					<Cnpj>{@CnpjPrestador}</Cnpj>
 					{@endifCnpjPrestador}
 				</CpfCnpj>
 				<InscricaoMunicipal>{@InscricaoMunicipalPrestador}</InscricaoMunicipal>
@@ -100,11 +99,11 @@
 			<IdentificacaoTomador>
 				<CpfCnpj>
 					{@ifCpfTomadorServico}
-					<CPF>{@CpfTomadorServico}</CPF>
+					<Cpf>{@CpfTomadorServico}</Cpf>
 					{@endifCpfTomadorServico}
 
 					{@ifCnpjTomadorServico}
-					<CNPJ>{@CnpjTomadorServico}</CNPJ>
+					<Cnpj>{@CnpjTomadorServico}</Cnpj>
 					{@endifCnpjTomadorServico}
 				</CpfCnpj>
 				{@ifInscricaoMunicipalTomadorServico}
@@ -113,19 +112,21 @@
 			</IdentificacaoTomador>
 		</Tomador>
 
+		{@ifIntermediario}
 		<Intermediario>
 			<IdentificacaoIntermediario>
 				<CpfCnpj>
 					{@ifCpfIntermediario}
-					<CPF>{@CpfIntermediario}</CPF>
+					<Cpf>{@CpfIntermediario}</Cpf>
 					{@endifCpfIntermediario}
 					{@ifCnpjIntermediario}
-					<CNPJ>{@CnpjIntermediario}</CNPJ>
+					<Cnpj>{@CnpjIntermediario}</Cnpj>
 					{@endifCnpjIntermediario}
 				</CpfCnpj>
 				<InscricaoMunicipal>{@InscricaoMunicipalIntermediario}</InscricaoMunicipal>
 			</IdentificacaoIntermediario>
 		</Intermediario>
+		{@endifIntermediario}
 
 		{@ifConstrucaoCivil}
 		<ConstrucaoCivil>
@@ -147,4 +148,4 @@
 
 		<IncentivoFiscal>{@IncentivoFiscal}</IncentivoFiscal>
 	</InfDeclaracaoPrestacaoServico>
-</Rps>
+</DeclaracaoPrestacaoServico>

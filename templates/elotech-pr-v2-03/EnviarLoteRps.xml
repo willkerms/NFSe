@@ -5,29 +5,25 @@
 	<IdentificacaoRequerente>
 		<CpfCnpj>
 			{@ifCpfPrestador}
-			<CPF>{@CpfPrestador}</CPF>
+			<Cpf>{@CpfPrestador}</Cpf>
 			{@endifCpfPrestador}
 
 			{@ifCnpjPrestador}
-			<CNPJ>{@CnpjPrestador}</CNPJ>
+			<Cnpj>{@CnpjPrestador}</Cnpj>
 			{@endifCnpjPrestador}
 		</CpfCnpj>
-		{@ifInscricaoMunicipal}
 		<InscricaoMunicipal>{@InscricaoMunicipalPrestador}</InscricaoMunicipal>
-		{@endifInscricaoMunicipal}
 		<Senha>{@Senha}</Senha>
 		<Homologa>{@Homologa}</Homologa>
 	</IdentificacaoRequerente>
 
 	<!-- 2. Lote contendo a Lista de RPS -->
-	<LoteRps>
-		<NumeroLote>1</NumeroLote>
-		<QuantidadeRps>1</QuantidadeRps>
+	<LoteRps Id="lote-{@idLote}">
+		<NumeroLote>{@NumeroLote}</NumeroLote>
+		<QuantidadeRps>{@QuantidadeRps}</QuantidadeRps>
 		<ListaRps>
-			{@Rps}
+			{@ListaRps}
 		</ListaRps>
-		<DeclaracaoPrestacaoServico>
-		</DeclaracaoPrestacaoServico>
 	</LoteRps>
 
 </EnviarLoteRpsSincronoEnvio>
