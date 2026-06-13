@@ -40,9 +40,13 @@ class NFSeGenerico extends NFSe {
 			'insMunicipal' => '',
 			'curl' => array(
 				'header' => array(
-					'Content-Type: text/xml'
-				), 
-				'port' => 443 //Quando porta 443 envia faz autenticação SSL na conexão
+					// 'Content-Type: text/xml',
+					'Content-Type: application/json',
+					'Accept: application/json'
+				),
+				'options'=> array(),
+				'port' => 443, //Quando porta 443 envia faz autenticação SSL na conexão
+				'sslProtocol' => 0 //0 - CURL_SSLVERSION_DEFAULT; 1 - CURL_SSLVERSION_TLSv1; 2 - CURL_SSLVERSION_SSLv2; 3 - CURL_SSLVERSION_SSLv3; 4 - CURL_SSLVERSION_TLSv1_0; 5 - CURL_SSLVERSION_TLSv1_1; 6 - CURL_SSLVERSION_TLSv1_2; 7 - CURL_SSLVERSION_TLSv1_3; 8 - CURL_SSLVERSION_LAST
 			),
 			'soap' => array(
 				'version' => '1.1'
@@ -82,6 +86,7 @@ class NFSeGenerico extends NFSe {
 				'folder' => 'abrasf-v2.4',
 				'rps' => 'Rps.xml',
 				'dps' => 'DPS.xml',
+				'json' => 'Json.json',
 				'enviarLoteRps' => 'EnviarLoteRps.xml',
 				'deducao' => 'Deducao.xml',
 				'gerarNfse' => 'GerarNfseEnvio.xml',
@@ -97,7 +102,10 @@ class NFSeGenerico extends NFSe {
 					//'typeCommunication' => 'soap',
 					//'typeCommunication' => 'curl',
 					'action' => 'gerarNfse',
+					'payloadType' => 'xml',
+					// 'payloadType' => 'gzipbase64',
 					//'returnType' => 'string',
+					//'httpMethod' => 'POST',
 					'nameSpace' => '',
 					'tagSign' => 'InfDeclaracaoPrestacaoServico', 
 					'tagAppend' => 'Rps',
@@ -185,10 +193,10 @@ class NFSeGenerico extends NFSe {
 		$aConfig['cpfCnpj'] = isset($aConfig['cnpj']) && !empty($aConfig['cnpj']) && empty($aConfig['cpfCnpj']) ? $aConfig['cnpj'] : $aConfig['cpfCnpj'];
 		$aConfig['insMunicipal'] = isset($aConfig['inscMunicipal']) && !empty($aConfig['inscMunicipal']) && empty($aConfig['insMunicipal']) ? $aConfig['inscMunicipal'] : $aConfig['insMunicipal'];
 
-		if($isHomologacao && empty($aConfig['homologacao']['wsdl']))
+		if($isHomologacao && empty($aConfig['homologacao']['wsdl']) && empty($aConfig['homologacao']['url']))
 			throw new \Exception("URL do WebService de homologação não configurado!");
 
-		if(!$isHomologacao && empty($aConfig['producao']['wsdl']))
+		if(!$isHomologacao && empty($aConfig['producao']['wsdl']) && empty($aConfig['producao']['url']))
 			throw new \Exception("URL do WebService de produção não configurado!");
 
 		$this->aConfig = $aConfig;
@@ -436,6 +444,11 @@ class NFSeGenerico extends NFSe {
 		if($this->isHomologacao)
 			$this->saveXML($xml, $metodo . '-rps-' . $fileName);
 
+		$payloadType = PQDUtil::retDefault($this->aConfig['metodos'][$metodo], 'payloadType', 'xml');
+
+		if($payloadType == 'gzipbase64')
+			return $this->procReturn($this->makeCURLRequest($metodo, $xml, $fileName), $metodo);
+
 		//Gerar NFSe
 		$tpl = $this->getTemplate($metodo);
 
@@ -664,6 +677,19 @@ class NFSeGenerico extends NFSe {
 	}
 
 	/**
+	 * Salva o JSON em um arquivo, caso tenha sido configurado o caminho para ser salvo 'pathSaveXMLs'
+	 * 
+	 * @param string $json
+	 * @param string $name
+	 * 
+	 */
+	private function saveJSON($json, $name){
+
+		if(isset($this->aConfig['pathSaveXMLs']) && is_dir($this->aConfig['pathSaveXMLs']))
+			file_put_contents($this->aConfig['pathSaveXMLs'] . $name, $json);
+	}
+
+	/**
 	 * Retorna a string de um template
 	 * 
 	 * @param string $template
@@ -703,6 +729,30 @@ class NFSeGenerico extends NFSe {
 	}
 
 	/**
+	 * Faz uma requisição CURL que passa um XML encodado em Gzip e Base64
+	 *
+	 * @return string
+	 */
+	private function makeCURLRequest($metodo, $xml, $fileName){
+
+		$aReplaces = $this->aConfig['metodos'][$metodo]['replaceXmlREST'] ?? [];
+
+		$json = $this->retJSON($xml, $aReplaces);
+		$jsonFileName = preg_replace('/\.xml$/i', '.json', $fileName);
+
+		if($this->isHomologacao){
+			$this->saveXML($xml, $metodo . '-rest-' . $fileName);
+			$this->saveJSON($json, $metodo . '-rest-' . $jsonFileName);
+		}
+
+		$restReturn = $this->sendRequest($metodo, $json);
+
+		$this->saveJSON($restReturn, $metodo . '-rest-return-' . $jsonFileName);
+
+		return $restReturn;
+	}
+
+	/**
 	 * Envia uma requisição de acordo com o metodo e tipo de comunicação no metodo
 	 * 
 	 * @param string $metodo
@@ -711,9 +761,6 @@ class NFSeGenerico extends NFSe {
 	 * @return string
 	 */
 	private function sendRequest($metodo, $xml){
-
-		$action = PQDUtil::retDefault($this->aConfig['metodos'][$metodo], 'actionSoapHeader', $this->aConfig['metodos'][$metodo]['action']);
-
 
 		$wsdl = $this->isHomologacao ? $this->aConfig['homologacao']['wsdl'] : $this->aConfig['producao']['wsdl'];
 		$url = $this->isHomologacao ? PQDUtil::retDefault($this->aConfig['homologacao'], 'url', $wsdl) : PQDUtil::retDefault($this->aConfig['producao'], 'url', $wsdl);
@@ -729,19 +776,27 @@ class NFSeGenerico extends NFSe {
 				foreach(PQDUtil::retDefault($curl, 'header', array() ) as $header)
 					$headers[] = $header; 
 				foreach(PQDUtil::retDefault($this->aConfig['metodos'][$metodo], 'header', array() ) as $header)
-					$headers[] = $header; 
+					$headers[] = $header;
+
+				$httpMethod = strtoupper(PQDUtil::retDefault($this->aConfig['metodos'][$metodo], 'httpMethod', 'POST'));
+				if($httpMethod != 'POST')
+					throw new \Exception("Comunicação REST do NFSeGenerico suporta apenas POST no helper curl atual.");
+
+				$this->setSslProtocol(PQDUtil::retDefault($curl, 'sslProtocol', 0));
 
 				return $this->curl(
 					$url, 
 					$xml, 
 					count($headers) == 0 ? null : $headers, 
 					PQDUtil::retDefault($curl, 'port', 443), 
-					PQDUtil::retDefault($this->aConfig, 'proxy', null)
+					PQDUtil::retDefault($this->aConfig, 'proxy', null),
+					PQDUtil::retDefault($curl, 'options', array())
 				);
 
 			break;
 			case 'soap':
 
+				$action = PQDUtil::retDefault($this->aConfig['metodos'][$metodo], 'actionSoapHeader', $this->aConfig['metodos'][$metodo]['action']);
 				$soap = PQDUtil::retDefault($this->aConfig, 'soap', array());
 
 				return $this->soap($wsdl, $url, $action, $xml, PQDUtil::retDefault($soap, 'version', '1.1'));
@@ -1391,6 +1446,8 @@ class NFSeGenerico extends NFSe {
 
 			['begin' => '{@ifCLocPrestacao}', 'end' => '{@endifCLocPrestacao}', 'bool' => !empty($oDPS->serv->locPrest->cLocPrestacao)],
 			['begin' => '{@ifCPaisPrestacao}', 'end' => '{@endifCPaisPrestacao}', 'bool' => !empty($oDPS->serv->locPrest->cPaisPrestacao)],
+			['begin' => '{@ifCTribMun}', 'end' => '{@endifCTribMun}', 'bool' => !empty($oDPS->serv->cServ->cTribMun)],
+			['begin' => '{@ifCNBS}', 'end' => '{@endifCNBS}', 'bool' => !empty($oDPS->serv->cServ->cNBS)],
 			['begin' => '{@ifCIntContrib}', 'end' => '{@endifCIntContrib}', 'bool' => !empty($oDPS->serv->cServ->cIntContrib)],
 			['begin' => '{@ifComExt}', 'end' => '{@endifComExt}', 'bool' => !empty($oDPS->serv->comExt->mdPrestacao)],
 			['begin' => '{@ifNDI}', 'end' => '{@endifNDI}', 'bool' => !empty($oDPS->serv->comExt->nDI)],
@@ -1751,6 +1808,34 @@ class NFSeGenerico extends NFSe {
 			$aRep['replace']['{@' . $k . '}'] = $v;
 
 		return $this->retXML(PQDUtil::procTplText($tpl, $aRep['replace'], $aRep['ifs']), false);
+	}
+
+	/**
+	 * Retorna o JSON da requisição REST de acordo com o template 'json'
+	 * 
+	 * @return string
+	 */
+	private function retJSON($xml, array $aReplaces = []) {
+
+		$tpl = $this->getTemplate('json');
+
+		$aRep = $this->retReplaceUsuarios('rest');
+
+		$xml = ltrim($xml);
+
+		if(strpos($xml, '<?xml') !== 0)
+			$xml = '<?xml version="1.0" encoding="UTF-8"?>' . $xml;
+
+		$xmlGZip = gzencode($xml, 9);
+		if($xmlGZip === false)
+			throw new \Exception("Não foi possível compactar o XML da DPS em gzip.");
+
+		$aRep['replace']['{@DPS}'] = base64_encode($xmlGZip);
+
+		foreach($aReplaces as $k => $v)
+			$aRep['replace']['{@' . $k . '}'] = $v;
+
+		return trim(PQDUtil::procTplText($tpl, $aRep['replace'], $aRep['ifs']));
 	}
 	
 	private function procReturn($return, $metodo){

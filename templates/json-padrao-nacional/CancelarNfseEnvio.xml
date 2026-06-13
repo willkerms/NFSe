@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<pedRegEvento versao="1.01" xmlns="http://www.sped.fazenda.gov.br/nfse">
+    <infPedReg Id="PRE35489062206887505000104000000000019226013986396200101101">
+        <tpAmb>2</tpAmb>
+        <verAplic>Hadron2.0</verAplic>
+        <dhEvento>2026-02-04T10:56:12-03:00</dhEvento>
+        <CNPJAutor>05687512000104</CNPJAutor>
+        <chNFSe>35489062205687512000104000000000019226013986396200</chNFSe>
+        <e101101>
+            <xDesc>Cancelamento de NFS-e</xDesc>
+            <cMotivo>9</cMotivo>
+            <xMotivo>ERRO NOS DADOS EMITIDOS</xMotivo>
+        </e101101>
+    </infPedReg>
+    <Signature xmlns="http://www.w3.org/2000/09/xmldsig#">
+        <SignedInfo>
+            <CanonicalizationMethod Algorithm="http://www.w3.org/TR/2001/REC-xml-c14n-20010315"/>
+            <SignatureMethod Algorithm="http://www.w3.org/2000/09/xmldsig#rsa-sha1"/>
+            <Reference URI="#PRE35489062206887505000104000000000019226013986396200101101">
+                <Transforms>
+                    <Transform Algorithm="http://www.w3.org/2000/09/xmldsig#enveloped-signature"/>
+                    <Transform Algorithm="http://www.w3.org/TR/2001/REC-xml-c14n-20010315"/>
+                </Transforms>
+                <DigestMethod Algorithm="http://www.w3.org/2000/09/xmldsig#sha1"/>
+                <DigestValue>XXXXXXXXX</DigestValue>
+            </Reference>
+        </SignedInfo>
+        <SignatureValue>XXXXXXXXXXXXXXX</SignatureValue>
+        <KeyInfo>
+            <X509Data>
+                <X509Certificate>XXXXXXXXXXXX</X509Certificate>
+            </X509Data>
+        </KeyInfo>
+    </Signature>
+</pedRegEvento>

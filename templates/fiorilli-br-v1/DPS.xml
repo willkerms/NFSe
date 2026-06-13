@@ -419,7 +419,7 @@
 						<!-- IF CHOICE nfse1:-->
 						{@ifChNFe}
 						<nfse1:chNFe>{@chNFe}</nfse1:chNFe>
-						{@endifChNFe}r-unexpected-elementr-unexpected-element
+						{@endifChNFe}
 						<!-- IF CHOICE nfse1:-->
 						{@ifNFSeMun}
 						<nfse1:NFSeMun>

@@ -339,7 +339,7 @@ class NFSe {
 	 * @param number $port
 	 * @param array $proxy
 	 */
-	public function curl($url, $data = '', array $parametros = null, $port = 443, array $proxy = null) {
+	public function curl($url, $data = '', array $parametros = null, $port = 443, array $proxy = null, array $options = array()) {
 
 		// incializa cURL
 		$oCurl = curl_init();
@@ -399,6 +399,9 @@ class NFSe {
 
 		if (! is_null($parametros))
 			curl_setopt($oCurl, CURLOPT_HTTPHEADER, $parametros);
+
+		if(! empty($options))
+			curl_setopt_array($oCurl, $options);
 
 			// inicia a conexão
 		$resposta = curl_exec($oCurl);
