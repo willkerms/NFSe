@@ -3,6 +3,7 @@ namespace NFSe\generico;
 
 use NFSe\NFSeReturn;
 use NFSe\NFSeDocument;
+use NFSe\NFSeJson;
 use PQD\PQDUtil;
 use NFSe\generico\nfseNacional\NFSeGenericoInfNFSe as NFSeGenericoInfNFSeNacional;
 
@@ -415,12 +416,13 @@ class NFSeGenericoReturn extends NFSeReturn {
 	/**
 	 *
 	 * @param string $return
-	 * @param string $action
+	 * @param string $metodo
+	 * @param string $typeCommunication
 	 * @throws \Exception
 	 *
-	 * @return NFSeDocument
+	 * @return NFSeDocument|array
 	 */
-	public function getReturn($return, $metodo) {
+	public function getReturn($return, $metodo, $typeCommunication = 'soap') {
 
 		$oReturn = new NFSeDocument();
 
@@ -429,6 +431,11 @@ class NFSeGenericoReturn extends NFSeReturn {
 			$encoding = mb_detect_encoding($return, array('UTF-8', 'ISO-8859-1', 'WINDOWS-1252'), false);
 			if($encoding == 'ISO-8859-1' || $encoding == 'WINDOWS-1252')
 				$return = iconv($encoding, 'UTF-8', $return);
+
+			$isJsonReturn = $typeCommunication == 'curl' && $this->isJson($return);
+
+			if($isJsonReturn)
+				$return = (new NFSeJson($return, $metodo, $this->oGenerico))->toXML();
 
 			$dom = new NFSeDocument();
 			$dom->loadXML(trim($return), LIBXML_NOERROR | LIBXML_NOWARNING);
@@ -448,8 +455,9 @@ class NFSeGenericoReturn extends NFSeReturn {
 
 			}
 
-			$oDocument = $this->retDocReturn($dom, $metodo);
+			$oDocument = $isJsonReturn ? $dom : $this->retDocReturn($dom, $metodo);
 			switch ($metodo) {
+				
 
 				case "cancelarNfse":
 					return $this->cancelarNfseResposta($oDocument);
@@ -571,6 +579,25 @@ class NFSeGenericoReturn extends NFSeReturn {
 
 		return $oReturn;
 
+	}
+
+	/**
+	 * Verifica se uma string representa um JSON de objeto ou lista.
+	 *
+	 * Foi implementada para decidir quando o retorno REST deve passar pelo
+	 * normalizador NFSeJson antes de seguir o fluxo XML tradicional.
+	 *
+	 * @param string $string Retorno bruto recebido do webservice.
+	 * @return bool True quando a string e um JSON valido iniciado por objeto ou lista.
+	 */
+	private function isJson($string) {
+		$string = trim($string);
+
+		if($string == '' || ($string[0] != '{' && $string[0] != '['))
+			return false;
+
+		json_decode($string, true);
+		return json_last_error() == JSON_ERROR_NONE;
 	}
 
 	/**

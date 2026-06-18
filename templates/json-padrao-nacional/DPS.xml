@@ -45,11 +45,11 @@
 			{@ifIMPrestador}
 			<IM>{@IMPrestador}</IM>
 			{@endifIMPrestador}
-			{@ifXNomePrestador}
+			<!-- {@ifXNomePrestador}
 			<xNome>{@xNomePrestador}</xNome>
-			{@endifXNomePrestador}
+			{@endifXNomePrestador} -->
 			<!-- IF OPCIONAL END DPS PRESTADOR -->
-			{@ifEndPrestador}
+			<!-- {@ifEndPrestador}
 			<end>
 				{@ifEndNacPrestador}
 				<endNac>
@@ -72,7 +72,7 @@
 				{@endifXCplPrestador}
 				<xBairro>{@xBairroPrestador}</xBairro>
 			</end>
-			{@endifEndPrestador}
+			{@endifEndPrestador} -->
 			{@ifFonePrestador}
 			<fone>{@fonePrestador}</fone>
 			{@endifFonePrestador}
@@ -463,9 +463,9 @@
 					{@ifTpImunidade}
 					<tpImunidade>{@tpImunidade}</tpImunidade>
 					{@endifTpImunidade}
-					{@ifPAliqISSQN}
+					<!-- {@ifPAliqISSQN}
 					<pAliq>{@pAliq}</pAliq>
-					{@endifPAliqISSQN}
+					{@endifPAliqISSQN} -->
 					<tpRetISSQN>{@tpRetISSQN}</tpRetISSQN>
 				</tribMun>
 				{@ifTribFed}
