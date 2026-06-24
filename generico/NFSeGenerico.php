@@ -185,14 +185,25 @@ class NFSeGenerico extends NFSe {
 		$aConfig['cpfCnpj'] = isset($aConfig['cnpj']) && !empty($aConfig['cnpj']) && empty($aConfig['cpfCnpj']) ? $aConfig['cnpj'] : $aConfig['cpfCnpj'];
 		$aConfig['insMunicipal'] = isset($aConfig['inscMunicipal']) && !empty($aConfig['inscMunicipal']) && empty($aConfig['insMunicipal']) ? $aConfig['inscMunicipal'] : $aConfig['insMunicipal'];
 
-		if($isHomologacao && empty($aConfig['homologacao']['wsdl']))
+		if($isHomologacao && empty($aConfig['homologacao']['wsdl']) && !$this->hasRestJsonEndpoint($aConfig, 'homologacao'))
 			throw new \Exception("URL do WebService de homologação não configurado!");
 
-		if(!$isHomologacao && empty($aConfig['producao']['wsdl']))
+		if(!$isHomologacao && empty($aConfig['producao']['wsdl']) && !$this->hasRestJsonEndpoint($aConfig, 'producao'))
 			throw new \Exception("URL do WebService de produção não configurado!");
 
 		$this->aConfig = $aConfig;
 		$this->isHomologacao = $isHomologacao;
+	}
+
+	private function hasRestJsonEndpoint(array $aConfig, $ambiente){
+		if(empty($aConfig[$ambiente]['url']))
+			return false;
+
+		foreach(PQDUtil::retDefault($aConfig, 'metodos', array()) as $metodo)
+			if(PQDUtil::retDefault($metodo, 'typeCommunication', 'soap') == 'rest-json')
+				return true;
+
+		return false;
 	}
 
 	public function cancelarNfse(NFSeGenericoCancelarNfseEnvio $oCancelar) {
@@ -404,17 +415,20 @@ class NFSeGenerico extends NFSe {
 	public function gerarNfse(NFSeGenericoInfRps | NFSeGenericoInfDPS $oRps) {
 		
 		$metodo = 'gerarNfse';
+		$typeCommunication = PQDUtil::retDefault($this->aConfig['metodos'][$metodo], 'typeCommunication', 'soap');
 		
 		// Determinar o nome do arquivo baseado no tipo de entrada
 		if($oRps instanceof NFSeGenericoInfRps){
 			//RPS
 			$fileName = $oRps->IdentificacaoRps->Numero . "-" . $oRps->IdentificacaoRps->Serie . ".xml";
 			$xml = $this->retXMLRps($oRps);
+			$docType = 'rps';
 		}
 		else{
 			//DPS
 			$fileName = $oRps->nDPS . "-" . $oRps->serie . ".xml";
 			$xml = $this->retXMLDPS($oRps);
+			$docType = 'dps';
 		}
 		
 		$search = PQDUtil::retDefault($this->aConfig['metodos'][$metodo], 'search', null);
@@ -434,7 +448,14 @@ class NFSeGenerico extends NFSe {
 		);
 
 		if($this->isHomologacao)
-			$this->saveXML($xml, $metodo . '-rps-' . $fileName);
+			$this->saveXML($xml, $metodo . '-' . $docType . '-' . $fileName);
+
+		if($typeCommunication == 'rest-json'){
+			if(!($oRps instanceof NFSeGenericoInfDPS))
+				throw new \Exception("A comunicacao REST JSON do Emissor Nacional aceita apenas DPS.");
+
+			return $this->procReturn($this->makeRestJsonRequest($metodo, $xml, $fileName), $metodo);
+		}
 
 		//Gerar NFSe
 		$tpl = $this->getTemplate($metodo);
@@ -700,6 +721,143 @@ class NFSeGenerico extends NFSe {
 		$this->saveXML($soapReturn, $metodo . '-soap-return-' . $fileName);
 		
 		return $soapReturn;
+	}
+
+	private function makeRestJsonRequest($metodo, $xml, $fileName){
+		$jsonFileName = preg_replace('/\.xml$/', '.json', $fileName);
+		$payload = $this->retRestJsonPayload($metodo, $xml);
+
+		$this->saveXML($payload, $metodo . '-rest-' . $jsonFileName);
+
+		$return = $this->sendRestJsonRequest($metodo, $payload);
+
+		$this->saveXML($return, $metodo . '-rest-return-' . $jsonFileName);
+
+		return $return;
+	}
+
+	private function retRestJsonPayload($metodo, $xml){
+		$metodoConfig = PQDUtil::retDefault($this->aConfig['metodos'], $metodo, array());
+		$payloadKey = PQDUtil::retDefault($metodoConfig, 'payloadKey', 'dpsXmlGZipB64');
+		$gzip = gzencode($xml);
+
+		if($gzip === false)
+			throw new \Exception("Erro ao compactar XML para envio REST JSON.");
+
+		$payload = json_encode(array(
+			$payloadKey => base64_encode($gzip)
+		), JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE);
+
+		if($payload === false)
+			throw new \Exception("Erro ao gerar JSON para envio REST.");
+
+		return $payload;
+	}
+
+	private function sendRestJsonRequest($metodo, $payload){
+		if(!function_exists('curl_init'))
+			throw new \Exception("Extensao cURL nao disponivel.");
+
+		$url = $this->retRestUrl($metodo);
+		$metodoConfig = PQDUtil::retDefault($this->aConfig['metodos'], $metodo, array());
+		$httpMethod = strtoupper(PQDUtil::retDefault($metodoConfig, 'httpMethod', 'POST'));
+
+		$oCurl = curl_init();
+
+		$proxy = PQDUtil::retDefault($this->aConfig, 'proxy', null);
+		if(!is_null($proxy)){
+			curl_setopt($oCurl, CURLOPT_HTTPPROXYTUNNEL, 1);
+			curl_setopt($oCurl, CURLOPT_PROXYTYPE, CURLPROXY_HTTP);
+			curl_setopt($oCurl, CURLOPT_PROXY, $proxy['ip'] . ':' . $proxy['port']);
+			if(isset($proxy['pass'])){
+				curl_setopt($oCurl, CURLOPT_PROXYUSERPWD, $proxy['user'] . ':' . $proxy['pass']);
+				curl_setopt($oCurl, CURLOPT_PROXYAUTH, CURLAUTH_BASIC);
+			}
+		}
+
+		curl_setopt($oCurl, CURLOPT_IPRESOLVE, CURL_IPRESOLVE_V4);
+		curl_setopt($oCurl, CURLOPT_CONNECTTIMEOUT, 10);
+		curl_setopt($oCurl, CURLOPT_URL, $url);
+		curl_setopt($oCurl, CURLOPT_SSL_VERIFYHOST, 2);
+		curl_setopt($oCurl, CURLOPT_SSL_VERIFYPEER, 0);
+		curl_setopt($oCurl, CURLOPT_SSLCERT, $this->getCertPubKey());
+		curl_setopt($oCurl, CURLOPT_SSLKEY, $this->getCertPrivKey());
+		curl_setopt($oCurl, CURLOPT_RETURNTRANSFER, 1);
+		curl_setopt($oCurl, CURLOPT_CUSTOMREQUEST, $httpMethod);
+
+		if($this->getSslProtocol() !== 0)
+			curl_setopt($oCurl, CURLOPT_SSLVERSION, $this->getSslProtocol());
+
+		if($payload != '')
+			curl_setopt($oCurl, CURLOPT_POSTFIELDS, $payload);
+
+		curl_setopt($oCurl, CURLOPT_HTTPHEADER, $this->retRestHeaders($metodo));
+
+		$response = curl_exec($oCurl);
+		$httpCode = curl_getinfo($oCurl, CURLINFO_HTTP_CODE);
+		$error = curl_error($oCurl);
+		curl_close($oCurl);
+
+		if(!empty($error))
+			return $this->retRestJsonErrorReturn('CURL', $error, 'HTTP ' . $httpCode);
+
+		$successStatus = PQDUtil::retDefault(PQDUtil::retDefault($metodoConfig, 'httpStatus', array()), 'success', array(200, 201));
+		if(!in_array($httpCode, $successStatus) && empty($response))
+			return $this->retRestJsonErrorReturn('HTTP' . $httpCode, 'Retorno HTTP sem corpo.', $url);
+
+		return $response;
+	}
+
+	private function retRestUrl($metodo){
+		$ambiente = $this->isHomologacao ? 'homologacao' : 'producao';
+		$ambienteConfig = PQDUtil::retDefault($this->aConfig, $ambiente, array());
+		$metodoConfig = PQDUtil::retDefault($this->aConfig['metodos'], $metodo, array());
+		$baseUrl = PQDUtil::retDefault($ambienteConfig, 'url', PQDUtil::retDefault($ambienteConfig, 'wsdl', ''));
+		$path = PQDUtil::retDefault($metodoConfig, 'url', '');
+
+		if(empty($baseUrl) && empty($path))
+			throw new \Exception("URL REST nao configurada.");
+
+		if(substr($path, 0, 7) == 'http://' || substr($path, 0, 8) == 'https://')
+			return $path;
+
+		if(empty($path))
+			return $baseUrl;
+
+		return rtrim($baseUrl, '/') . '/' . ltrim($path, '/');
+	}
+
+	private function retRestHeaders($metodo){
+		$metodoConfig = PQDUtil::retDefault($this->aConfig['metodos'], $metodo, array());
+		$headers = array(
+			'content-type' => 'Content-Type: application/json',
+			'accept' => 'Accept: application/json'
+		);
+
+		$aHeaders = array_merge(
+			PQDUtil::retDefault($metodoConfig, 'header', array()),
+			PQDUtil::retDefault($metodoConfig, 'headers', array())
+		);
+
+		foreach($aHeaders as $header){
+			$pos = strpos($header, ':');
+			if($pos === false)
+				continue;
+
+			$headers[strtolower(trim(substr($header, 0, $pos)))] = $header;
+		}
+
+		return array_values($headers);
+	}
+
+	private function retRestJsonErrorReturn($codigo, $mensagem, $complemento = null){
+		return json_encode(array(
+			'erro' => array(
+				'codigo' => $codigo,
+				'descricao' => $mensagem,
+				'complemento' => $complemento
+			)
+		), JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE);
 	}
 
 	/**
@@ -1391,6 +1549,8 @@ class NFSeGenerico extends NFSe {
 
 			['begin' => '{@ifCLocPrestacao}', 'end' => '{@endifCLocPrestacao}', 'bool' => !empty($oDPS->serv->locPrest->cLocPrestacao)],
 			['begin' => '{@ifCPaisPrestacao}', 'end' => '{@endifCPaisPrestacao}', 'bool' => !empty($oDPS->serv->locPrest->cPaisPrestacao)],
+			['begin' => '{@ifCTribMun}', 'end' => '{@endifCTribMun}', 'bool' => !empty($oDPS->serv->cServ->cTribMun)],
+			['begin' => '{@ifCNBS}', 'end' => '{@endifCNBS}', 'bool' => !empty($oDPS->serv->cServ->cNBS)],
 			['begin' => '{@ifCIntContrib}', 'end' => '{@endifCIntContrib}', 'bool' => !empty($oDPS->serv->cServ->cIntContrib)],
 			['begin' => '{@ifComExt}', 'end' => '{@endifComExt}', 'bool' => !empty($oDPS->serv->comExt->mdPrestacao)],
 			['begin' => '{@ifNDI}', 'end' => '{@endifNDI}', 'bool' => !empty($oDPS->serv->comExt->nDI)],

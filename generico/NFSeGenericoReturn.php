@@ -64,6 +64,168 @@ class NFSeGenericoReturn extends NFSeReturn {
 
 	}
 
+	private function isRestJson($metodo){
+		$aConfig = $this->oGenerico->getConfig('metodos', array());
+		$metodoConfig = PQDUtil::retDefault($aConfig, $metodo, array());
+
+		return PQDUtil::retDefault($metodoConfig, 'typeCommunication', 'soap') == 'rest-json';
+	}
+
+	private function retJsonValue(array $json, array $keys, $default = null){
+		foreach($keys as $key)
+			if(array_key_exists($key, $json) && !is_null($json[$key]))
+				return $json[$key];
+
+		return $default;
+	}
+
+	private function isMensagemJson(array $mensagem){
+		foreach(array('codigo', 'Codigo', 'descricao', 'Descricao', 'mensagem', 'Mensagem') as $key)
+			if(array_key_exists($key, $mensagem))
+				return true;
+
+		return false;
+	}
+
+	private function retMensagemJson($mensagem){
+		$oMensagem = new NFSeGenericoMensagemRetorno();
+
+		if(is_array($mensagem)){
+			$oMensagem->Codigo = $this->retJsonValue($mensagem, array('Codigo', 'codigo'), '');
+			$oMensagem->Mensagem = $this->retJsonValue($mensagem, array('Descricao', 'descricao', 'Mensagem', 'mensagem'), '');
+			$oMensagem->Correcao = $this->retJsonValue($mensagem, array('Correcao', 'correcao', 'Complemento', 'complemento'), '');
+
+			$idDps = $this->retJsonValue($mensagem, array('idDPS', 'idDps', 'IdDPS', 'IdDps'));
+			if(!is_null($idDps))
+				$oMensagem->IdDPS = $idDps;
+		}
+		else{
+			$oMensagem->Mensagem = (string)$mensagem;
+		}
+
+		return $oMensagem;
+	}
+
+	private function retListaMensagemJson(array $json, $key){
+		$return = array();
+
+		if(!isset($json[$key]))
+			return $return;
+
+		$mensagens = $json[$key];
+
+		if(!is_array($mensagens) || $this->isMensagemJson($mensagens))
+			$mensagens = array($mensagens);
+
+		foreach($mensagens as $mensagem)
+			$return[] = $this->retMensagemJson($mensagem);
+
+		return $return;
+	}
+
+	private function retErrosJson(array $json){
+		$return = array_merge(
+			$this->retListaMensagemJson($json, 'erros'),
+			$this->retListaMensagemJson($json, 'erro')
+		);
+
+		return $return;
+	}
+
+	private function decodeXmlGZipB64($value){
+		$gz = base64_decode($value, true);
+		if($gz === false)
+			$gz = base64_decode($value);
+
+		if($gz === false)
+			return false;
+
+		if(function_exists('gzdecode'))
+			return gzdecode($gz);
+
+		return gzinflate(substr($gz, 10, -8));
+	}
+
+	private function retListNFSeNacionalJson(NFSeDocument $oDocument, array $alertas){
+		$xpath = new \DOMXPath($oDocument);
+		$nodes = $xpath->query('//*[local-name()="NFSe"]');
+
+		if($nodes->length == 0)
+			return false;
+
+		$oWrapper = new NFSeDocument();
+		$oWrapper->loadXML('<CompNfse></CompNfse>');
+		$oWrapper->documentElement->appendChild($oWrapper->importNode($nodes->item(0), true));
+
+		return array(
+			'CompNfse' => array($this->retInfNFSe($oWrapper->documentElement, $oWrapper)),
+			'ListaMensagemAlertaRetorno' => $alertas
+		);
+	}
+
+	private function gerarNfseJsonRetorno(array $json){
+		$aErros = $this->retErrosJson($json);
+		if(count($aErros) > 0){
+			$idDps = $this->retJsonValue($json, array('idDPS', 'idDps', 'IdDPS', 'IdDps'));
+			if(!is_null($idDps)){
+				foreach($aErros as $oErro)
+					if(empty($oErro->IdDPS))
+						$oErro->IdDPS = $idDps;
+			}
+
+			return array('ListaMensagemRetorno' => $aErros);
+		}
+
+		if(empty($json['nfseXmlGZipB64']))
+			return array('ListaMensagemRetorno' => array($this->retMsgForaEsperado()));
+
+		$xml = $this->decodeXmlGZipB64($json['nfseXmlGZipB64']);
+		if($xml === false)
+			return array('ListaMensagemRetorno' => array($this->retMensagemJson(array(
+				'codigo' => 'GZIP',
+				'descricao' => 'Nao foi possivel decodificar nfseXmlGZipB64.',
+				'complemento' => 'Verificar retorno JSON do Emissor Nacional.'
+			))));
+
+		$oDocument = new NFSeDocument();
+		$oDocument->loadXML(trim($xml), LIBXML_NOERROR | LIBXML_NOWARNING);
+
+		if(is_null($oDocument->documentElement))
+			return array('ListaMensagemRetorno' => array($this->retMsgForaEsperado()));
+
+		$alertas = $this->retListaMensagemJson($json, 'alertas');
+		$listaNfse = $this->retListNFSeNacionalJson($oDocument, $alertas);
+
+		if($listaNfse === false)
+			return array('ListaMensagemRetorno' => array($this->retMsgForaEsperado()));
+
+		return array(
+			'ListaMensagemRetorno' => array(),
+			'ListaNfse' => $listaNfse,
+			'idDps' => PQDUtil::retDefault($json, 'idDps', null),
+			'chaveAcesso' => PQDUtil::retDefault($json, 'chaveAcesso', null)
+		);
+	}
+
+	private function getJsonReturn($return, $metodo){
+		$json = json_decode(trim($return), true);
+
+		if(!is_array($json))
+			return array('ListaMensagemRetorno' => array($this->retMensagemJson(array(
+				'codigo' => 'JSON',
+				'descricao' => 'Retorno JSON invalido.',
+				'complemento' => json_last_error_msg()
+			))));
+
+		switch($metodo){
+			case 'gerarNfse':
+				return $this->gerarNfseJsonRetorno($json);
+			break;
+		}
+
+		return array('ListaMensagemRetorno' => array($this->retMsgForaEsperado()));
+	}
+
 	private function retInfNFSeNacional(\DOMElement $oCompNfse, NFSeDocument $oDocument) {
 
 		$aConfig = $this->oGenerico->getConfig($this->oGenerico->getIsHomologacao() ? 'homologacao': 'producao', []);
@@ -429,6 +591,9 @@ class NFSeGenericoReturn extends NFSeReturn {
 			$encoding = mb_detect_encoding($return, array('UTF-8', 'ISO-8859-1', 'WINDOWS-1252'), false);
 			if($encoding == 'ISO-8859-1' || $encoding == 'WINDOWS-1252')
 				$return = iconv($encoding, 'UTF-8', $return);
+
+			if($this->isRestJson($metodo))
+				return $this->getJsonReturn($return, $metodo);
 
 			$dom = new NFSeDocument();
 			$dom->loadXML(trim($return), LIBXML_NOERROR | LIBXML_NOWARNING);
