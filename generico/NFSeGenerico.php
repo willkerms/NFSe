@@ -194,6 +194,7 @@ class NFSeGenerico extends NFSe {
 				)
 			)*/
 		));
+		$aConfig = $this->setDefaultContract($aConfig);
 
 		//Compatibilidade com outras versões
 		$aConfig['cpfCnpj'] = isset($aConfig['cnpj']) && !empty($aConfig['cnpj']) && empty($aConfig['cpfCnpj']) ? $aConfig['cnpj'] : $aConfig['cpfCnpj'];
@@ -207,6 +208,149 @@ class NFSeGenerico extends NFSe {
 
 		$this->aConfig = $aConfig;
 		$this->isHomologacao = $isHomologacao;
+	}
+	private function setDefaultContract(array $aConfig){
+
+		if(!isset($aConfig['metodos']) || !is_array($aConfig['metodos']))
+			return $aConfig;
+
+		foreach($aConfig['metodos'] as $metodo => $aMetodo){
+			$aMetodo = is_array($aMetodo) ? $aMetodo : array();
+
+			$aMetodo = PQDUtil::setDefault($aMetodo, array(
+				'typeCommunication' => 'soap', // soap keeps the legacy flow; curl/rest enable the REST flow.
+				'httpMethod' => 'POST', // HTTP method used by REST requests: GET, HEAD, POST, PUT, PATCH or DELETE.
+				'url' => null, // Relative path or absolute URL; null uses homologacao/producao url.
+				'pathParams' => array(), // Values used to replace placeholders like {chaveAcesso} in the URL.
+				'queryParams' => array(), // Query string parameters for REST requests.
+				'header' => array(), // Legacy per-method headers kept for compatibility.
+				'headers' => array(), // Per-method headers added to curl.header.
+				'sign' => array(
+					'enabled' => $this->isSignEnabledByDefault($aMetodo), // Signs the fiscal document before payload assembly.
+					'tagSign' => null, // XML tag that receives/defines the digital signature target.
+					'tagAppend' => null, // XML tag where the Signature node is appended.
+					'nameSpace' => '', // Optional namespace prefix used by the signer.
+					'search' => array("\r\n", "\n", "\r", "\t"), // Text replaced before signing.
+					'replace' => '' // Replacement for sign.search.
+				),
+				'payload' => array(
+					'type' => 'xml', // Payload format: json, xml, raw or none.
+					'document' => $this->getDefaultPayloadDocument($metodo), // Document used by the new payload contract: rps, dps, cancelamento, evento, raw or none.
+					'template' => null, // Optional request template.
+					'contentType' => 'text/xml', // Content-Type used when the transport builds headers.
+					'fields' => array() // JSON/body fields and their source/encode pipeline.
+				),
+				'response' => array(
+					'type' => 'xml', // Expected response format: xml, json, raw or none.
+					'decode' => array(), // Optional decode pipeline, for example base64/gzip/removeXmlHeader.
+					'successKeys' => array(), // JSON keys or paths that identify success payloads.
+					'errorKeys' => array(), // JSON keys or paths that contain errors.
+					'alertKeys' => array() // JSON keys or paths that contain non-blocking alerts.
+				),
+				'jsonReturn' => array(
+					'successKeys' => array(), // Legacy JSON success keys used by NFSeJson.
+					'errorKeys' => array('erros', 'errors', 'erro', 'Erro', 'Mensagens'), // Legacy JSON error keys.
+					'alertKeys' => array('alertas', 'alerts', 'warnings') // Legacy JSON alert keys.
+				),
+				'returnWrap' => array(
+					'before' => null, // XML prefix used when a REST JSON payload must be wrapped for the legacy parser.
+					'after' => null // XML suffix used when a REST JSON payload must be wrapped for the legacy parser.
+				),
+				'httpStatus' => array(
+					'success' => array(200, 201), // HTTP status codes treated as successful.
+					'emptySuccess' => array(200, 204), // Success codes that may not return a body.
+					'error' => array(400, 401, 403, 404, 409, 422, 500) // Known error codes whose body should be normalized.
+				)
+			));
+
+			$aMetodo = $this->applyLegacyConfig($aMetodo);
+			$aConfig['metodos'][$metodo] = $aMetodo;
+		}
+
+		return $aConfig;
+	}
+
+	private function applyLegacyConfig(array $aMetodo){
+
+		if(isset($aMetodo['tagSign']) && empty($aMetodo['sign']['tagSign']))
+			$aMetodo['sign']['tagSign'] = $aMetodo['tagSign'];
+		if(isset($aMetodo['tagAppend']) && empty($aMetodo['sign']['tagAppend']))
+			$aMetodo['sign']['tagAppend'] = $aMetodo['tagAppend'];
+		if(isset($aMetodo['nameSpace']) && empty($aMetodo['sign']['nameSpace']))
+			$aMetodo['sign']['nameSpace'] = $aMetodo['nameSpace'];
+		if(isset($aMetodo['search']) && empty($aMetodo['sign']['search']))
+			$aMetodo['sign']['search'] = $aMetodo['search'];
+		if(isset($aMetodo['replace']) && empty($aMetodo['sign']['replace']))
+			$aMetodo['sign']['replace'] = $aMetodo['replace'];
+
+		if(!isset($aMetodo['tagSign']) && !empty($aMetodo['sign']['tagSign']))
+			$aMetodo['tagSign'] = $aMetodo['sign']['tagSign'];
+		if(!isset($aMetodo['tagAppend']) && !empty($aMetodo['sign']['tagAppend']))
+			$aMetodo['tagAppend'] = $aMetodo['sign']['tagAppend'];
+		if(!isset($aMetodo['nameSpace']) && isset($aMetodo['sign']['nameSpace']))
+			$aMetodo['nameSpace'] = $aMetodo['sign']['nameSpace'];
+		if(!isset($aMetodo['search']) && isset($aMetodo['sign']['search']))
+			$aMetodo['search'] = $aMetodo['sign']['search'];
+		if(!isset($aMetodo['replace']) && isset($aMetodo['sign']['replace']))
+			$aMetodo['replace'] = $aMetodo['sign']['replace'];
+
+		return $aMetodo;
+	}
+
+	private function isSignEnabledByDefault(array $aMetodo){
+		if(isset($aMetodo['signConsulta']))
+			return $aMetodo['signConsulta'] !== false;
+
+		if(isset($aMetodo['signRps']))
+			return $aMetodo['signRps'] !== false;
+
+		return !empty($aMetodo['tagSign']);
+	}
+
+	private function getDefaultPayloadDocument($metodo){
+
+		switch($metodo){
+			case 'gerarNfse':
+				return 'rps';
+			break;
+			case 'cancelarNfse':
+			case 'cancelarNFSeEnvio':
+				return 'cancelamento';
+			break;
+			case 'consultarNFSePorRps':
+			case 'consultarNFSePorDps':
+			case 'consultarLoteRps':
+			case 'consultarUrlNfse':
+			case 'consultarLoteDpsEnvio':
+			case 'consultarNfseDpsEnvio':
+				return 'none';
+			break;
+			default:
+				return 'raw';
+			break;
+		}
+	}
+
+	private function getMetodoConfig($metodo, $key = null, $default = null){
+
+		$aMetodos = PQDUtil::retDefault($this->aConfig, 'metodos', array());
+		$aMetodo = PQDUtil::retDefault($aMetodos, $metodo, array());
+
+		if(!is_null($key))
+			return PQDUtil::retDefault($aMetodo, $key, $default);
+
+		return $aMetodo;
+	}
+
+	private function getMetodoTypeCommunication($metodo){
+
+		$typeCommunication = strtolower((string) $this->getMetodoConfig($metodo, 'typeCommunication', 'soap'));
+
+		return $typeCommunication == 'rest' ? 'curl' : $typeCommunication;
+	}
+
+	private function isRestMethod($metodo){
+		return $this->getMetodoTypeCommunication($metodo) == 'curl';
 	}
 
 	public function cancelarNfse(NFSeGenericoCancelarNfseEnvio $oCancelar) {
@@ -375,10 +519,10 @@ class NFSeGenerico extends NFSe {
 
 		$xml = PQDUtil::procTplText($tpl, $aReplaces['replace'], $aReplaces['ifs']);
 
-		if(PQDUtil::retDefault($this->aConfig['metodos'][$metodo], 'payloadType', 'xml') == 'xml')
+		if($this->getMetodoConfig($metodo, 'payloadType', 'xml') == 'xml')
 			$xml = $this->retXML($xml);
 
-		if(PQDUtil::retDefault($this->aConfig['metodos'][$metodo], 'typeCommunication', 'soap') == 'curl')
+		if($this->isRestMethod($metodo))
 			return $this->procReturn($this->makeCURLRequest($metodo, $xml, $fileName), $metodo);
 		
 		if( $this->aConfig['metodos'][$metodo]['signConsulta'] ){
@@ -423,9 +567,12 @@ class NFSeGenerico extends NFSe {
 	*/
 	public function gerarNfse(NFSeGenericoInfRps | NFSeGenericoInfDPS $oRps) {
 		
+		PQDUtil::print_pre($this->aConfig);
+		die();
+	
 		$metodo = 'gerarNfse';
 
-		if(PQDUtil::retDefault($this->aConfig['metodos'][$metodo], 'typeCommunication', 'soap') == 'soap')
+		if(!$this->isRestMethod($metodo))
 			return $this->gerarNfseSoap($oRps, $metodo);
 		else
 			return $this->gerarNfseCurl($oRps, $metodo);
@@ -532,7 +679,7 @@ class NFSeGenerico extends NFSe {
 		$xml = $this->retXML(PQDUtil::procTplText($tpl, $aReplaces['replace'], $aReplaces['ifs']));
 		$this->saveXML($xml, $metodo . '-' . $fileName);
 
-		return $this->procReturn($this->makeSOAPRequest($metodo, $xml, $fileName), $metodo);
+		return $this->procReturn($this->makeCURLRequest($metodo, $xml, $fileName), $metodo);
 	}
 
 	/**
@@ -813,7 +960,7 @@ class NFSeGenerico extends NFSe {
 
 		$aReplaces = $this->aConfig['metodos'][$metodo]['replaceXmlREST'] ?? [];
 
-		if(strtoupper(PQDUtil::retDefault($this->aConfig['metodos'][$metodo], 'httpMethod', 'POST')) !== 'GET')
+		if(strtoupper($this->getMetodoConfig($metodo, 'httpMethod', 'POST')) !== 'GET')
 			$json = $this->retPayloadJSON($xml, $action, $aReplaces);
 		else
 			$json = $xml;
@@ -825,7 +972,7 @@ class NFSeGenerico extends NFSe {
 			$this->saveJSON($json, $metodo . '-rest-' . $jsonFileName);
 		}
 
-		$restReturn = $this->sendRequest($metodo, $json, PQDUtil::retDefault($this->aConfig['metodos'][$metodo], 'url', null));
+		$restReturn = $this->sendRequest($metodo, $json, $this->getMetodoConfig($metodo, 'url', null));
 
 		$this->saveJSON($restReturn, $metodo . '-rest-return-' . $jsonFileName);
 
@@ -845,7 +992,7 @@ class NFSeGenerico extends NFSe {
 		$wsdl = $this->isHomologacao ? $this->aConfig['homologacao']['wsdl'] : $this->aConfig['producao']['wsdl'];
 		$url = $url ?? ($this->isHomologacao ? PQDUtil::retDefault($this->aConfig['homologacao'], 'url', $wsdl) : PQDUtil::retDefault($this->aConfig['producao'], 'url', $wsdl));
 
-		$typeCommunication = PQDUtil::retDefault($this->aConfig['metodos'][$metodo], 'typeCommunication', 'soap');
+		$typeCommunication = $this->getMetodoTypeCommunication($metodo);
 
 		switch($typeCommunication){
 			case 'curl':
@@ -855,10 +1002,12 @@ class NFSeGenerico extends NFSe {
 				$headers = array();
 				foreach(PQDUtil::retDefault($curl, 'header', array() ) as $header)
 					$headers[] = $header; 
-				foreach(PQDUtil::retDefault($this->aConfig['metodos'][$metodo], 'header', array() ) as $header)
+				foreach($this->getMetodoConfig($metodo, 'header', array() ) as $header)
+					$headers[] = $header;
+				foreach($this->getMetodoConfig($metodo, 'headers', array() ) as $header)
 					$headers[] = $header;
 
-				$httpMethod = strtoupper(PQDUtil::retDefault($this->aConfig['metodos'][$metodo], 'httpMethod', 'POST'));
+				$httpMethod = strtoupper($this->getMetodoConfig($metodo, 'httpMethod', 'POST'));
 
 				if($httpMethod == 'GET'){
 					$url = $url . http_build_query( json_decode($xml, true) );
@@ -885,7 +1034,7 @@ class NFSeGenerico extends NFSe {
 			break;
 			case 'soap':
 
-				$action = PQDUtil::retDefault($this->aConfig['metodos'][$metodo], 'actionSoapHeader', $this->aConfig['metodos'][$metodo]['action']);
+				$action = $this->getMetodoConfig($metodo, 'actionSoapHeader', $this->aConfig['metodos'][$metodo]['action']);
 				$soap = PQDUtil::retDefault($this->aConfig, 'soap', array());
 
 				return $this->soap($wsdl, $url, $action, $xml, PQDUtil::retDefault($soap, 'version', '1.1'));
@@ -1935,7 +2084,7 @@ class NFSeGenerico extends NFSe {
 		if(is_null($this->oReturn))
 			$this->oReturn = new NFSeGenericoReturn($this);
 
-		return $this->oReturn->getReturn($return, $metodo, PQDUtil::retDefault($this->aConfig['metodos'][$metodo], 'typeCommunication', 'soap'));
+		return $this->oReturn->getReturn($return, $metodo, $this->getMetodoTypeCommunication($metodo));
 	}
 	
 	public function getIsHomologacao(){
