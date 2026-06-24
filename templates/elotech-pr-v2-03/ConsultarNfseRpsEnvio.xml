@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ConsultarNfseRpsEnvio xmlns="http://www.abrasf.org.br/nfse.xsd" xsi:schemaLocation="http://www.abrasf.org.br/nfse.xsd schema.xsd" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+	<IdentificacaoRps>
+		<Numero>{@Numero}</Numero>
+		<Serie>{@Serie}</Serie>
+		<Tipo>{@Tipo}</Tipo>
+	</IdentificacaoRps>
+	<IdentificacaoRequerente>
+		<CpfCnpj>
+			{@ifCpfPrestador}
+			<CPF>{@CpfPrestador}</CPF>
+			{@endifCpfPrestador}
+
+			{@ifCnpjPrestador}
+			<CNPJ>{@CnpjPrestador}</CNPJ>
+			{@endifCnpjPrestador}
+		</CpfCnpj>
+		{@ifInscricaoMunicipal}
+		<InscricaoMunicipal>{@InscricaoMunicipalPrestador}</InscricaoMunicipal>
+		{@endifInscricaoMunicipal}
+		<Senha>{@Senha}</Senha>
+		<Homologa>{@Homologa}</Homologa>
+	</IdentificacaoRequerente>
+</ConsultarNfseRpsEnvio>

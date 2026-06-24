@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="utf-8"?>
+<CancelarNfseEnvio>
+	<!-- 1. Identificação do Emissor/Requerente -->
+	<IdentificacaoRequerente>
+		<CpfCnpj>
+			{@ifCpfPrestador}
+			<CPF>{@CpfPrestador}</CPF>
+			{@endifCpfPrestador}
+
+			{@ifCnpjPrestador}
+			<CNPJ>{@CnpjPrestador}</CNPJ>
+			{@endifCnpjPrestador}
+		</CpfCnpj>
+		{@ifInscricaoMunicipal}
+		<InscricaoMunicipal>{@InscricaoMunicipalPrestador}</InscricaoMunicipal>
+		{@endifInscricaoMunicipal}
+		<Senha>{@Senha}</Senha>
+		<Homologa>{@Homologa}</Homologa>
+	</IdentificacaoRequerente>
+	<Pedido>
+		<InfPedidoCancelamento Id="cancelamento-{@Numero}">
+			<IdentificacaoNfse>
+				<Numero>{@Numero}</Numero>
+				<CpfCnpj>
+					{@ifCnpj}
+					<Cnpj>{@Cnpj}</Cnpj>
+					{@endifCnpj}
+					{@ifCpf}
+					<Cpf>{@Cpf}</Cpf>
+					{@endifCpf}
+				</CpfCnpj>
+				
+				{@ifInscricaoMunicipal}
+				<InscricaoMunicipal>{@InscricaoMunicipal}</InscricaoMunicipal>
+				{@endifInscricaoMunicipal}
+				
+				<CodigoMunicipio>{@CodigoMunicipio}</CodigoMunicipio>
+			</IdentificacaoNfse>
+			<nfse:ChaveAcesso>{@CodigoVerificacao}</nfse:ChaveAcesso>
+			{@ifCodigoCancelamento}
+			<CodigoCancelamento>{@CodigoCancelamento}</CodigoCancelamento>
+			{@endifCodigoCancelamento}
+		</InfPedidoCancelamento>
+		<!--Signature>string</Signature-->
+	</Pedido>
+</CancelarNfseEnvio>
+
