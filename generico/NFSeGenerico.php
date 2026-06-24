@@ -36,147 +36,147 @@ class NFSeGenerico extends NFSe {
 				'pass' => 'pass'
 			),
 			*/
-			'cpfCnpj' => '',
-			'insMunicipal' => '',
-			'curl' => array(
-				'header' => array(
+			'cpfCnpj' => '', //CPF (11 dígitos) ou CNPJ (14 dígitos) do prestador/emissor. Preenche os placeholders {@CpfPrestador}/{@CnpjPrestador} e decide, pelo tamanho, entre os blocos {@ifCpf...}/{@ifCnpj...}. (compatibilidade: aceita também a chave 'cnpj')
+			'insMunicipal' => '', //Inscrição Municipal do prestador. Preenche {@InscricaoMunicipal} e ativa o bloco {@ifInscricaoMunicipal}. (compatibilidade: aceita também a chave 'inscMunicipal')
+			'curl' => array( //Usado quando o método tiver 'typeCommunication' => 'curl' (POST HTTP puro, sem SoapClient)
+				'header' => array( //Cabeçalhos HTTP da requisição cURL (concatenados com o 'header' definido no método)
 					'Content-Type: text/xml'
-				), 
-				'port' => 443 //Quando porta 443 envia faz autenticação SSL na conexão
+				),
+				'port' => 443 //Quando porta 443 envia faz autenticação SSL na conexão (anexa o certificado do cliente via CURLOPT_SSLCERT/SSLKEY)
 			),
-			'soap' => array(
-				'version' => '1.1'
+			'soap' => array( //Usado quando 'typeCommunication' => 'soap' (padrão), via SoapClient::__doRequest
+				'version' => '1.1' //Versão do protocolo SOAP: '1.1' (SOAP_1_1) ou '1.2' (SOAP_1_2)
 			),
-			'escapeAsHTML' => false,
+			'escapeAsHTML' => false, //true: escapa o texto dos objetos com PQDUtil::escapeHTML (entidades HTML nomeadas); false: usa htmlspecialchars
 			'retirarAcentos' => false,//Somente funciona a remoção dos acentos se também escapar o HTML, ou seja para retirar os acentos escapeAsHTML tem que ser true
-			'tagMensagensRetorno' => [
-				'tagListaMensagens' => 'ListaMensagemRetorno',
-				'tagMensagem' => 'MensagemRetorno'
+			'tagMensagensRetorno' => [ //Nomes das tags de mensagens lidas pelo NFSeGenericoReturn ao montar a lista de erros/alertas do retorno
+				'tagListaMensagens' => 'ListaMensagemRetorno', //Tag que envolve a lista de mensagens no XML de resposta
+				'tagMensagem' => 'MensagemRetorno' //Tag de cada mensagem individual (contém Codigo/Mensagem/Correcao)
 			],
-			'autenticacao' => array(
-				'type' => 'none',
+			'autenticacao' => array( //Define se/onde as credenciais (usuário, senha, chave) são injetadas na requisição
+				'type' => 'none', //Onde injetar as credenciais: 'none' = não injeta; 'xml' = injeta no corpo XML do RPS/consulta; 'soap' = injeta no envelope SOAP (Soap.xml)
 				//'type' => 'xml',
 				//'type' => 'soap',
 
-				'tagUsuario' => 'username',
-				'tagPassword' => 'password',
-				'tagChavePrivada' => 'chavePrivada'
+				'tagUsuario' => 'username', //Nome do placeholder do usuário no template: vira {@username} (e o condicional {@ifUsername})
+				'tagPassword' => 'password', //Nome do placeholder da senha no template: vira {@password}
+				'tagChavePrivada' => 'chavePrivada' //Nome do placeholder da chave privada/token no template: vira {@chavePrivada}
 			),
-			'homologacao' => array(
-				'wsdl' => '',
-				'usuario' => '',
-				'senha' => '',
-				'chavePrivada' => ''
+			'homologacao' => array( //Parâmetros do ambiente de homologação/testes (usado quando $isHomologacao = true)
+				'wsdl' => '', //URL do WSDL/endpoint de homologação (obrigatório em homologação). Chaves opcionais aceitas: 'url' (endpoint POST distinto do WSDL) e 'urlNfse' (template da URL pública da NFS-e, com {@cpfCnpj}, {@numeroNFSe}, {@codigoVerificacao}, etc.)
+				'usuario' => '', //Usuário injetado quando autenticacao.type for 'xml' ou 'soap'
+				'senha' => '', //Senha injetada quando autenticacao.type for 'xml' ou 'soap'
+				'chavePrivada' => '' //Chave privada/token injetado quando autenticacao.type for 'xml' ou 'soap'
 			),
 
-			'producao' => array(
-				'wsdl' => '',
+			'producao' => array( //Mesmos parâmetros de 'homologacao', porém para o ambiente de produção (usado quando $isHomologacao = false)
+				'wsdl' => '', //URL do WSDL/endpoint de produção (obrigatório em produção)
 				'usuario' => '',
 				'senha' => '',
 				'chavePrivada' => ''
 			),
-			'hasConsultaUrlNfse' => false,
-			'pathSaveXMLs' => realpath(dirname(__FILE__) . '/../xml') . '/',
-			'templates' => array(
-				'path' => realpath(dirname(__FILE__) . '/../templates/') . '/',
-				'folder' => 'abrasf-v2.4',
-				'rps' => 'Rps.xml',
-				'dps' => 'DPS.xml',
-				'enviarLoteRps' => 'EnviarLoteRps.xml',
-				'deducao' => 'Deducao.xml',
-				'gerarNfse' => 'GerarNfseEnvio.xml',
-				'consultarNFSePorRps' => 'ConsultarNfseRpsEnvio.xml',
-				'consultarNFSePorDps' => 'ConsultarNfseDpsEnvio.xml',
-				'consultarLoteRps' => 'ConsultarLoteRpsEnvio.xml',
-				'consultarUrlNfse' => 'ConsultarUrlNfseEnvio.xml',
-				'cancelarNfse' => 'CancelarNfseEnvio.xml',
-				'soap' => 'Soap.xml'
+			'hasConsultaUrlNfse' => false, //Indica se a prefeitura disponibiliza serviço de consulta da URL pública da NFS-e (operação consultarUrlNfse)
+			'pathSaveXMLs' => realpath(dirname(__FILE__) . '/../xml') . '/', //Diretório onde os XMLs enviados e os retornos são gravados (arquivo/depuração). Se não for um diretório válido, nada é salvo
+			'templates' => array( //Mapeia cada operação para o arquivo de template XML correspondente, resolvido em path/folder/<arquivo>
+				'path' => realpath(dirname(__FILE__) . '/../templates/') . '/', //Diretório raiz onde ficam as pastas de templates
+				'folder' => 'abrasf-v2.4', //Pacote de templates = pasta da prefeitura/padrão (ex.: abrasf-v2.4, prefGoiania-v1, notacontrol-br-v1). Trocar a pasta = trocar de prefeitura sem mexer no código
+				'rps' => 'Rps.xml', //Template do RPS (Recibo Provisório de Serviços) - padrão ABRASF
+				'dps' => 'DPS.xml', //Template do DPS (Declaração de Prestação de Serviços) - padrão Nacional
+				'enviarLoteRps' => 'EnviarLoteRps.xml', //Template do envelope de envio de lote de RPS
+				'deducao' => 'Deducao.xml', //Template de uma dedução (repetido para cada item de $oRps->aDeducoes)
+				'gerarNfse' => 'GerarNfseEnvio.xml', //Template do envelope de geração de NFS-e (recebe o RPS/DPS já assinado em {@Rps}/{@DPS})
+				'consultarNFSePorRps' => 'ConsultarNfseRpsEnvio.xml', //Template de consulta de NFS-e por RPS
+				'consultarNFSePorDps' => 'ConsultarNfseDpsEnvio.xml', //Template de consulta de NFS-e por DPS (padrão Nacional)
+				'consultarLoteRps' => 'ConsultarLoteRpsEnvio.xml', //Template de consulta de lote de RPS pelo protocolo
+				'consultarUrlNfse' => 'ConsultarUrlNfseEnvio.xml', //Template de consulta da URL pública da NFS-e
+				'cancelarNfse' => 'CancelarNfseEnvio.xml', //Template de cancelamento de NFS-e
+				'soap' => 'Soap.xml' //Template do envelope SOAP que "embrulha" o conteúdo em {@xml} e injeta a {@action}. Os métodos do padrão Nacional ainda esperam chaves extras nesta lista (ex.: cancelarNFSeEnvio, consultarLoteDpsEnvio, consultarNfseDpsEnvio, enviarLoteDpsEnvio) e os parciais usados na montagem do DPS (documentoDocDedRed, itemPed, refNfse, documentoReeRepRes)
 			),
-			'metodos' => array(
-				'gerarNfse' => array(
-					//'typeCommunication' => 'soap',
+			'metodos' => array( //Configuração por operação. Chaves comuns: 'action' (nome da operação/SOAPAction); 'typeCommunication' ('soap'|'curl', default 'soap'); 'nameSpace' (prefixo de namespace da assinatura); 'tagSign'/'tagAppend' (tag assinada e tag onde a <Signature> é pendurada); 'tagMap' (tags usadas para localizar o nó de retorno)
+				'gerarNfse' => array( //Geração de NFS-e a partir de um RPS (ABRASF) ou DPS (Nacional)
+					//'typeCommunication' => 'soap', //Forma de transporte: 'soap' usa SoapClient; 'curl' faz POST HTTP puro. Quando omitido, default 'soap'
 					//'typeCommunication' => 'curl',
-					'action' => 'gerarNfse',
-					//'returnType' => 'string',
-					'nameSpace' => '',
-					'tagSign' => 'InfDeclaracaoPrestacaoServico', 
-					'tagAppend' => 'Rps',
-					'tagMap' => array(
-						'return' => 'gerarNfseResponse',
-						'tagResposta' => 'GerarNfseResposta'
+					'action' => 'gerarNfse', //Nome da operação/SOAPAction chamada no WebService
+					//'returnType' => 'string', //Como extrair o payload do retorno: 'child' (default, pega o nó filho) ou 'string' (vem como texto/CDATA e é reparseado). Use 'returnReplace' => ['search'=>..,'replace'=>..] para limpar o texto antes de reparsear
+					'nameSpace' => '', //Prefixo de namespace usado na tag <Signature> (ex.: 'ds:'); vazio = sem prefixo
+					'tagSign' => 'InfDeclaracaoPrestacaoServico', //Tag cujo conteúdo é assinado digitalmente (alvo da referência da assinatura)
+					'tagAppend' => 'Rps', //Tag sob a qual a <Signature> gerada é anexada
+					'tagMap' => array( //Nomes de tags usados pelo NFSeGenericoReturn para localizar o retorno
+						'return' => 'gerarNfseResponse', //Tag externa da resposta de onde o XML de retorno é extraído
+						'tagResposta' => 'GerarNfseResposta' //Tag que confirma a resposta de geração (default GerarNfseResposta)
 					),
 					//'replaceXmlSOAP' => ['action2' => 'GerarNfse'],//Para replaces no do XML SOAP, quando a prefeitura tem mais de um action
-					'search' => array("\r\n", "\n", "\r", "\t"),
-					'replace' => ""
+					'search' => array("\r\n", "\n", "\r", "\t"), //Strings removidas/normalizadas do XML do RPS antes de assinar (evita invalidar a assinatura)
+					'replace' => "" //Substituto correspondente a cada item de 'search'
 				),
-				'enviarLoteRps' => array(
-					'typeCommunication' => 'soap',
-					'action' => 'RecepcionarLoteRps',
-					'actionSoapHeader' => 'RecepcionarLoteRps',
-					'nameSpace' => '',
+				'enviarLoteRps' => array( //Envio de lote de RPS (ABRASF)
+					'typeCommunication' => 'soap', //Transporte: SOAP
+					'action' => 'RecepcionarLoteRps', //Operação chamada no WebService
+					'actionSoapHeader' => 'RecepcionarLoteRps', //SOAPAction enviado no cabeçalho da chamada SOAP (usado quando difere de 'action')
+					'nameSpace' => '', //Prefixo de namespace da assinatura
 					'signRps' => false,//true irá assinar os RPS, utilizando as tags informadas no metodo gerarNfse (tagSign, tagAppend, nameSpace)
-					'tagSign' => 'LoteRps', 
-					'tagAppend' => 'EnviarLoteRpsEnvio',
+					'tagSign' => 'LoteRps', //Tag do lote que é assinada
+					'tagAppend' => 'EnviarLoteRpsEnvio', //Tag onde a <Signature> do lote é anexada
 					'tagMap' => array(
-						'return' => 'RecepcionarLoteRpsResponse',
-						'respostaLote' => 'EnviarLoteRpsResposta'
+						'return' => 'RecepcionarLoteRpsResponse', //Tag externa da resposta
+						'respostaLote' => 'EnviarLoteRpsResposta' //Tag com os dados do protocolo do lote (NumeroLote/DataRecebimento/Protocolo)
 					),
 				),
-				'consultarNFSePorRps' => array(
-					'action' => 'consultarNfseRps',
-					'signConsulta' => false,
-					'nameSpace' => '',
+				'consultarNFSePorRps' => array( //Consulta de NFS-e a partir de um RPS
+					'action' => 'consultarNfseRps', //Operação chamada no WebService
+					'signConsulta' => false, //true assina o XML de consulta antes de enviar (algumas prefeituras exigem)
+					'nameSpace' => '', //Prefixo de namespace da assinatura (quando signConsulta = true)
 					//'replaceXmlSOAP' => ['action2' => 'GerarNfse'],
-					'tagSign' => 'Pedido', 
-					'tagAppend' => 'ConsultarNfseRpsEnvio',
+					'tagSign' => 'Pedido', //Tag assinada (quando signConsulta = true)
+					'tagAppend' => 'ConsultarNfseRpsEnvio', //Tag onde a <Signature> é anexada
 					'tagMap' => array(
-						'return' => 'consultarNfseRpsResponse'
+						'return' => 'consultarNfseRpsResponse' //Tag externa da resposta
 					)
 				),
-				'consultarNFSePorDps' => array(
-					'action' => 'consultarNfseDps',
-					'signConsulta' => false,
-					'nameSpace' => '',
-					'tagSign' => 'Pedido', 
-					'tagAppend' => 'ConsultarNfseDpsEnvio',
+				'consultarNFSePorDps' => array( //Consulta de NFS-e a partir de um DPS (padrão Nacional)
+					'action' => 'consultarNfseDps', //Operação chamada no WebService
+					'signConsulta' => false, //true assina o XML de consulta antes de enviar
+					'nameSpace' => '', //Prefixo de namespace da assinatura
+					'tagSign' => 'Pedido', //Tag assinada (quando signConsulta = true)
+					'tagAppend' => 'ConsultarNfseDpsEnvio', //Tag onde a <Signature> é anexada
 					'tagMap' => array(
-						'return' => 'consultarNfseDpsResponse'
+						'return' => 'consultarNfseDpsResponse' //Tag externa da resposta
 					)
 				),
-				'consultarLoteRps' => array(
-					'action' => 'ConsultarLoteRps',
+				'consultarLoteRps' => array( //Consulta de um lote de RPS pelo protocolo
+					'action' => 'ConsultarLoteRps', //Operação chamada no WebService
 					'tagMap' => array(
-						'return' => 'ConsultarLoteRpsResponse',
-						'respostaConsultaLote' => 'ConsultarLoteRpsResposta'
+						'return' => 'ConsultarLoteRpsResponse', //Tag externa da resposta
+						'respostaConsultaLote' => 'ConsultarLoteRpsResposta' //Tag com a situação do lote e a lista de NFS-e
 					)
 				),
-				'consultarUrlNfse' => array(
-					'action' => 'ConsultarUrlNfse',
-					'signConsulta' => false,
-					'nameSpace' => '',
-					'tagSign' => 'Pedido', 
-					'tagAppend' => 'ConsultarUrlNfseEnvio',
+				'consultarUrlNfse' => array( //Consulta da URL pública/links da NFS-e
+					'action' => 'ConsultarUrlNfse', //Operação chamada no WebService
+					'signConsulta' => false, //true assina o XML de consulta antes de enviar
+					'nameSpace' => '', //Prefixo de namespace da assinatura
+					'tagSign' => 'Pedido', //Tag assinada (quando signConsulta = true)
+					'tagAppend' => 'ConsultarUrlNfseEnvio', //Tag onde a <Signature> é anexada
 					'tagMap' => array(
-						'return' => 'ConsultarUrlNfseResposta'
+						'return' => 'ConsultarUrlNfseResposta' //Tag externa da resposta
 					)
 				),
-				'cancelarNfse' => array(
+				'cancelarNfse' => array( //Cancelamento de NFS-e
 					'allowCancel' => true,//Tem prefeituras que não permitem cancelamento pelo WebService, deste modo o sistema nem transmite somente retorna que foi cancelado
-					'action' => 'cancelarNfse',
-					'nameSpace' => '',
+					'action' => 'cancelarNfse', //Operação chamada no WebService
+					'nameSpace' => '', //Prefixo de namespace da assinatura
 					//'replaceXmlSOAP' => ['action2' => 'GerarNfse'],
-					'tagSign' => 'InfPedidoCancelamento', 
-					'tagAppend' => 'Pedido',
+					'tagSign' => 'InfPedidoCancelamento', //Tag do pedido de cancelamento que é assinada
+					'tagAppend' => 'Pedido', //Tag onde a <Signature> é anexada
 					'codCancelamento' => '1',//1 - Erro na emissao
 					'tagMap' => array(
-						'return' => 'cancelarNfseResponse'
+						'return' => 'cancelarNfseResponse' //Tag externa da resposta
 					)
 				)
 			)/*,
-			'fields' => array(
+			'fields' => array( //(opcional) Funções de transformação aplicadas a cada campo antes de ir para o template, via applyFnField. A chave é o nome do campo em camelCase (o placeholder {@DataEmissao} corresponde a 'dataEmissao')
 				'dataEmissao' => array(
-					'fn' => 'substr',
-					'args' => array(0, 10)
+					'fn' => 'substr', //Função PHP a ser chamada sobre o valor do campo
+					'args' => array(0, 10) //Argumentos extras (o valor do campo é sempre passado como 1º argumento)
 				)
 			)*/
 		));
