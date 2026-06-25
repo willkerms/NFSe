@@ -1985,7 +1985,6 @@ class NFSeGenerico extends NFSe {
 
 		$cpfCnpj = is_null($oCancelar->CpfCnpj) ? $this->aConfig['cpfCnpj'] : $oCancelar->CpfCnpj;
 		$chNFSe = $oCancelar->CodigoVerificacao;
-		$nPedRegEvento = '001';
 		$tpEvento = '101101';
 		$cMotivo = is_null($oCancelar->CodigoCancelamento) ? PQDUtil::retDefault($this->aConfig['metodos'][$metodo], 'codCancelamento', '1') : $oCancelar->CodigoCancelamento;
 		$xMotivo = $oCancelar->DescricaoCancelamento;
@@ -2000,9 +1999,8 @@ class NFSeGenerico extends NFSe {
 		$aReplaces['replace']['{@CNPJAutor}'] = $cpfCnpj;
 		$aReplaces['replace']['{@CPFAutor}'] = $cpfCnpj;
 		$aReplaces['replace']['{@chNFSe}'] = $chNFSe;
-		$aReplaces['replace']['{@nPedRegEvento}'] = $nPedRegEvento;
 		$aReplaces['replace']['{@tpEvento}'] = $tpEvento;
-		$aReplaces['replace']['{@IdPedidoRegistroEvento}'] = 'PRE' . $chNFSe . $tpEvento . $nPedRegEvento;
+		$aReplaces['replace']['{@IdPedidoRegistroEvento}'] = 'PRE' . $chNFSe . $tpEvento;
 		$aReplaces['replace']['{@xMotivo}'] = $xMotivo;
 		$aReplaces['replace']['{@cMotivo}'] = $cMotivo;
 
