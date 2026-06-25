@@ -1,6 +1,8 @@
 <?php
 namespace NFSe;
 
+use PQD\PQDUtil;
+
 /**
  *
  * @since 2016-01-18
@@ -113,17 +115,8 @@ class NFSe {
 		$hashValue = hash('sha1', $dados, true);
 		// converte o valor para base64 para serem colocados no xml
 		$digValue = base64_encode($hashValue);
-		$xmlDsigNS = "http://www.w3.org/2000/09/xmldsig#";
-		$createSignatureElement = function($name, $value = null) use ($xmldoc, $ns, $createNS, $xmlDsigNS) {
-			$qualifiedName = $ns . $name;
-			if($createNS)
-				return is_null($value) ? $xmldoc->createElementNS($xmlDsigNS, $qualifiedName) : $xmldoc->createElementNS($xmlDsigNS, $qualifiedName, $value);
-
-			return is_null($value) ? $xmldoc->createElement($qualifiedName) : $xmldoc->createElement($qualifiedName, $value);
-		};
-
 		// monta a tag da assinatura digital
-		$Signature = $createSignatureElement('Signature');
+		$Signature = $createNS ? $xmldoc->createElementNS("http://www.w3.org/2000/09/xmldsig#", 'Signature') : $xmldoc->createElement($ns . 'Signature');
 		if (! $appendTag) {
 			$root->appendChild($Signature);
 		}
@@ -131,18 +124,18 @@ class NFSe {
 			$appendNode = $xmldoc->getElementsByTagName($appendTag)->item(0);
 			$appendNode->appendChild($Signature);
 		}
-		$SignedInfo = $createSignatureElement('SignedInfo');
+		$SignedInfo = $xmldoc->createElement($ns . 'SignedInfo');
 		$Signature->appendChild($SignedInfo);
 		// Cannocalization
-		$newNode = $createSignatureElement('CanonicalizationMethod');
+		$newNode = $xmldoc->createElement($ns . 'CanonicalizationMethod');
 		$SignedInfo->appendChild($newNode);
 		$newNode->setAttribute('Algorithm', "http://www.w3.org/TR/2001/REC-xml-c14n-20010315");
 		// SignatureMethod
-		$newNode = $createSignatureElement('SignatureMethod');
+		$newNode = $xmldoc->createElement($ns . 'SignatureMethod');
 		$SignedInfo->appendChild($newNode);
 		$newNode->setAttribute('Algorithm', "http://www.w3.org/2000/09/xmldsig#rsa-sha1");
 		// Reference
-		$Reference = $createSignatureElement('Reference');
+		$Reference = $xmldoc->createElement($ns . 'Reference');
 		$SignedInfo->appendChild($Reference);
 		if (empty($id)) {
 			$Reference->setAttribute('URI', '');//Quando o ID é empty, quer dizer que a TAG de assinatura não possui o atributo, ou seja não possui o ID, portanto não tem como ser referenciada por ele
@@ -151,22 +144,22 @@ class NFSe {
 			$Reference->setAttribute('URI', '#' . $id);
 		}
 		// Transforms
-		$Transforms = $createSignatureElement('Transforms');
+		$Transforms = $xmldoc->createElement($ns . 'Transforms');
 		$Reference->appendChild($Transforms);
 		// Transform
-		$newNode = $createSignatureElement('Transform');
+		$newNode = $xmldoc->createElement($ns . 'Transform');
 		$Transforms->appendChild($newNode);
 		$newNode->setAttribute('Algorithm', "http://www.w3.org/2000/09/xmldsig#enveloped-signature");
 		// Transform
-		$newNode = $createSignatureElement('Transform');
+		$newNode = $xmldoc->createElement($ns . 'Transform');
 		$Transforms->appendChild($newNode);
 		$newNode->setAttribute('Algorithm', "http://www.w3.org/TR/2001/REC-xml-c14n-20010315");
 		// DigestMethod
-		$newNode = $createSignatureElement('DigestMethod');
+		$newNode = $xmldoc->createElement($ns . 'DigestMethod');
 		$Reference->appendChild($newNode);
 		$newNode->setAttribute('Algorithm', "http://www.w3.org/2000/09/xmldsig#sha1");
 		// DigestValue
-		$newNode = $createSignatureElement('DigestValue', $digValue);
+		$newNode = $xmldoc->createElement($ns . 'DigestValue', $digValue);
 		$Reference->appendChild($newNode);
 		// extrai os dados a serem assinados para uma string
 		$dados = $SignedInfo->C14N(false, false, NULL, NULL);
@@ -177,18 +170,18 @@ class NFSe {
 		// codifica assinatura para o padrao base64
 		$signatureValue = base64_encode($signature);
 		// SignatureValue
-		$newNode = $createSignatureElement('SignatureValue', $signatureValue);
+		$newNode = $xmldoc->createElement($ns . 'SignatureValue', $signatureValue);
 		$Signature->appendChild($newNode);
 		// KeyInfo
-		$KeyInfo = $createSignatureElement('KeyInfo');
+		$KeyInfo = $xmldoc->createElement($ns . 'KeyInfo');
 		$Signature->appendChild($KeyInfo);
 		// X509Data
-		$X509Data = $createSignatureElement('X509Data');
+		$X509Data = $xmldoc->createElement($ns . 'X509Data');
 		$KeyInfo->appendChild($X509Data);
 		// carrega o certificado sem as tags de inicio e fim
 		$cert = $this->cleanCerts(file_get_contents($this->certPubKey));
 		// X509Certificate
-		$newNode = $createSignatureElement('X509Certificate', $cert);
+		$newNode = $xmldoc->createElement($ns . 'X509Certificate', $cert);
 		$X509Data->appendChild($newNode);
 		// grava na string o objeto DOM
 		$docxml = $xmldoc->saveXML($firstChild ? $xmldoc->firstChild : null);

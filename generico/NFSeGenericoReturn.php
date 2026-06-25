@@ -68,7 +68,15 @@ class NFSeGenericoReturn extends NFSeReturn {
 		$aConfig = $this->oGenerico->getConfig('metodos', array());
 		$metodoConfig = PQDUtil::retDefault($aConfig, $metodo, array());
 
-		return PQDUtil::retDefault($metodoConfig, 'typeCommunication', 'soap') == 'rest-json';
+		if(PQDUtil::retDefault($metodoConfig, 'typeCommunication', 'soap') == 'rest-json')
+			return true;
+
+		if($metodo == 'cancelarNFSeEnvio'){
+			$metodoConfigLegado = PQDUtil::retDefault($aConfig, 'cancelarNfse', array());
+			return PQDUtil::retDefault($metodoConfigLegado, 'typeCommunication', 'soap') == 'rest-json';
+		}
+
+		return false;
 	}
 
 	private function retJsonValue(array $json, array $keys, $default = null){
@@ -207,6 +215,20 @@ class NFSeGenericoReturn extends NFSeReturn {
 		);
 	}
 
+	private function cancelarNFSeEnvioJsonRetorno(array $json){
+		$aErros = $this->retErrosJson($json);
+		if(count($aErros) > 0)
+			return array('ListaMensagemRetorno' => $aErros);
+
+		if(!empty($json['eventoXmlGZipB64']))
+			return array(
+				'ListaMensagemRetorno' => array(),
+				'eventoXmlGZipB64' => $json['eventoXmlGZipB64']
+			);
+
+		return array('ListaMensagemRetorno' => array($this->retMsgForaEsperado()));
+	}
+
 	private function getJsonReturn($return, $metodo){
 		$json = json_decode(trim($return), true);
 
@@ -220,6 +242,9 @@ class NFSeGenericoReturn extends NFSeReturn {
 		switch($metodo){
 			case 'gerarNfse':
 				return $this->gerarNfseJsonRetorno($json);
+			break;
+			case 'cancelarNFSeEnvio':
+				return $this->cancelarNFSeEnvioJsonRetorno($json);
 			break;
 		}
 
