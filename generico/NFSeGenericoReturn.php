@@ -215,6 +215,54 @@ class NFSeGenericoReturn extends NFSeReturn {
 		);
 	}
 
+	private function consultarNFSePorDpsJsonRetorno(array $json){
+		$aErros = $this->retErrosJson($json);
+		if(count($aErros) > 0){
+			foreach($aErros as $oErro){
+				if($oErro->Codigo == 'HTTP404'){
+					$oErro->Mensagem = 'NFS-e ainda nao gerada no Emissor Nacional para o DPS informado.';
+					$oErro->Correcao = 'Aguarde o processamento ou verifique se o identificador do DPS esta correto.';
+				}
+			}
+
+			return array('ListaMensagemRetorno' => $aErros);
+		}
+
+		if(!empty($json['chaveAcesso']) && empty($json['nfseXmlGZipB64']))
+			return array(
+				'ListaMensagemRetorno' => array(),
+				'chaveAcesso' => $json['chaveAcesso'],
+				'idDps' => PQDUtil::retDefault($json, 'idDps', PQDUtil::retDefault($json, 'idDPS', null))
+			);
+
+		if(empty($json['nfseXmlGZipB64']))
+			return array('ListaMensagemRetorno' => array($this->retMsgForaEsperado()));
+
+		$xml = $this->decodeXmlGZipB64($json['nfseXmlGZipB64']);
+		if($xml === false)
+			return array('ListaMensagemRetorno' => array($this->retMensagemJson(array(
+				'codigo' => 'GZIP',
+				'descricao' => 'Nao foi possivel decodificar nfseXmlGZipB64.',
+				'complemento' => 'Verificar retorno JSON do Emissor Nacional.'
+			))));
+
+		$oDocument = new NFSeDocument();
+		$oDocument->loadXML(trim($xml), LIBXML_NOERROR | LIBXML_NOWARNING);
+
+		if(is_null($oDocument->documentElement))
+			return array('ListaMensagemRetorno' => array($this->retMsgForaEsperado()));
+
+		$listaNfse = $this->retListNFSeNacionalJson($oDocument, array());
+		if($listaNfse === false || empty($listaNfse['CompNfse']))
+			return array('ListaMensagemRetorno' => array($this->retMsgForaEsperado()));
+
+		return array(
+			'ListaMensagemRetorno' => array(),
+			'CompNfse' => $listaNfse['CompNfse'][0],
+			'chaveAcesso' => PQDUtil::retDefault($json, 'chaveAcesso', null)
+		);
+	}
+
 	private function cancelarNFSeEnvioJsonRetorno(array $json){
 		$aErros = $this->retErrosJson($json);
 		if(count($aErros) > 0)
@@ -242,6 +290,9 @@ class NFSeGenericoReturn extends NFSeReturn {
 		switch($metodo){
 			case 'gerarNfse':
 				return $this->gerarNfseJsonRetorno($json);
+			break;
+			case 'consultarNFSePorDps':
+				return $this->consultarNFSePorDpsJsonRetorno($json);
 			break;
 			case 'cancelarNFSeEnvio':
 				return $this->cancelarNFSeEnvioJsonRetorno($json);

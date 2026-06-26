@@ -140,6 +140,12 @@ class NFSeGenerico extends NFSe {
 					'nameSpace' => '', //Prefixo de namespace da assinatura
 					'tagSign' => 'Pedido', //Tag assinada (quando signConsulta = true)
 					'tagAppend' => 'ConsultarNfseDpsEnvio', //Tag onde a <Signature> é anexada
+					'httpMethod' => 'GET', //Quando typeCommunication = rest-json, consulta a chave por DPS
+					'url' => '/dps/{@IdentificacaoDPS}', //Endpoint REST do Emissor Nacional para obter a chave de acesso
+					'consultaPorChave' => array(
+						'httpMethod' => 'GET',
+						'url' => '/nfse/{@chaveAcesso}'
+					),
 					'tagMap' => array(
 						'return' => 'consultarNfseDpsResponse' //Tag externa da resposta
 					)
@@ -360,6 +366,44 @@ class NFSeGenerico extends NFSe {
 
 		$fileName = $oConsultarNfseDps->IdentificacaoDps . ".xml";
 		$metodo = 'consultarNFSePorDps';
+		$typeCommunication = PQDUtil::retDefault($this->aConfig['metodos'][$metodo], 'typeCommunication', 'soap');
+
+		if($typeCommunication == 'rest-json'){
+			$returnDps = $this->makeRestJsonEmptyRequest($metodo, $fileName, array(
+				'IdentificacaoDPS' => $oConsultarNfseDps->IdentificacaoDps,
+				'id' => $oConsultarNfseDps->IdentificacaoDps
+			));
+
+			$aReturnDps = $this->procReturn($returnDps, $metodo);
+			if(count(PQDUtil::retDefault($aReturnDps, 'ListaMensagemRetorno', array())) > 0)
+				return $aReturnDps;
+
+			$chaveAcesso = PQDUtil::retDefault($aReturnDps, 'chaveAcesso', null);
+			if(empty($chaveAcesso))
+				return $this->procReturn($this->retRestJsonErrorReturn(
+					'DPS',
+					'Consulta do DPS nao retornou chave de acesso.',
+					'Verificar retorno JSON do Emissor Nacional.'
+				), $metodo);
+
+			$metodoConfig = PQDUtil::retDefault($this->aConfig['metodos'][$metodo], 'consultaPorChave', array());
+			$metodoConfig = PQDUtil::setDefault($metodoConfig, array(
+				'httpMethod' => 'GET',
+				'url' => '/nfse/{@chaveAcesso}',
+				'httpStatus' => array(
+					'success' => array(200)
+				)
+			));
+
+			$returnNfse = $this->makeRestJsonEmptyRequestConfig(
+				'consultarNFSePorChave',
+				$chaveAcesso . ".xml",
+				array('chaveAcesso' => $chaveAcesso),
+				$metodoConfig
+			);
+
+			return $this->procReturn($returnNfse, $metodo);
+		}
 
 		//Gerar NFSe
 		$tpl = $this->getTemplate($metodo);
@@ -747,6 +791,21 @@ class NFSeGenerico extends NFSe {
 		return $return;
 	}
 
+	private function makeRestJsonEmptyRequest($metodo, $fileName, array $urlReplaces = array()){
+		$metodoConfig = PQDUtil::retDefault($this->aConfig['metodos'], $metodo, array());
+
+		return $this->makeRestJsonEmptyRequestConfig($metodo, $fileName, $urlReplaces, $metodoConfig);
+	}
+
+	private function makeRestJsonEmptyRequestConfig($metodo, $fileName, array $urlReplaces, array $metodoConfig){
+		$jsonFileName = preg_replace('/\.xml$/', '.json', $fileName);
+		$return = $this->sendRestJsonRequestConfig($metodo, '', $urlReplaces, $metodoConfig);
+
+		$this->saveXML($return, $metodo . '-rest-return-' . $jsonFileName);
+
+		return $return;
+	}
+
 	private function retRestJsonPayload($metodo, $xml){
 		$metodoConfig = PQDUtil::retDefault($this->aConfig['metodos'], $metodo, array());
 		$payloadKey = PQDUtil::retDefault($metodoConfig, 'payloadKey', 'dpsXmlGZipB64');
@@ -770,11 +829,16 @@ class NFSeGenerico extends NFSe {
 	}
 
 	private function sendRestJsonRequest($metodo, $payload, array $urlReplaces = array()){
+		$metodoConfig = PQDUtil::retDefault($this->aConfig['metodos'], $metodo, array());
+
+		return $this->sendRestJsonRequestConfig($metodo, $payload, $urlReplaces, $metodoConfig);
+	}
+
+	private function sendRestJsonRequestConfig($metodo, $payload, array $urlReplaces, array $metodoConfig){
 		if(!function_exists('curl_init'))
 			throw new \Exception("Extensao cURL nao disponivel.");
 
-		$url = $this->retRestUrl($metodo, $urlReplaces);
-		$metodoConfig = PQDUtil::retDefault($this->aConfig['metodos'], $metodo, array());
+		$url = $this->retRestUrlConfig($metodoConfig, $urlReplaces);
 		$httpMethod = strtoupper(PQDUtil::retDefault($metodoConfig, 'httpMethod', 'POST'));
 
 		$oCurl = curl_init();
@@ -806,7 +870,7 @@ class NFSeGenerico extends NFSe {
 		if($payload != '')
 			curl_setopt($oCurl, CURLOPT_POSTFIELDS, $payload);
 
-		curl_setopt($oCurl, CURLOPT_HTTPHEADER, $this->retRestHeaders($metodo));
+		curl_setopt($oCurl, CURLOPT_HTTPHEADER, $this->retRestHeadersConfig($metodoConfig));
 
 		$response = curl_exec($oCurl);
 		$httpCode = curl_getinfo($oCurl, CURLINFO_HTTP_CODE);
@@ -824,9 +888,14 @@ class NFSeGenerico extends NFSe {
 	}
 
 	private function retRestUrl($metodo, array $replaces = array()){
+		$metodoConfig = PQDUtil::retDefault($this->aConfig['metodos'], $metodo, array());
+
+		return $this->retRestUrlConfig($metodoConfig, $replaces);
+	}
+
+	private function retRestUrlConfig(array $metodoConfig, array $replaces = array()){
 		$ambiente = $this->isHomologacao ? 'homologacao' : 'producao';
 		$ambienteConfig = PQDUtil::retDefault($this->aConfig, $ambiente, array());
-		$metodoConfig = PQDUtil::retDefault($this->aConfig['metodos'], $metodo, array());
 		$baseUrl = PQDUtil::retDefault($ambienteConfig, 'url', PQDUtil::retDefault($ambienteConfig, 'wsdl', ''));
 		$path = PQDUtil::retDefault($metodoConfig, 'url', '');
 
@@ -849,6 +918,11 @@ class NFSeGenerico extends NFSe {
 
 	private function retRestHeaders($metodo){
 		$metodoConfig = PQDUtil::retDefault($this->aConfig['metodos'], $metodo, array());
+
+		return $this->retRestHeadersConfig($metodoConfig);
+	}
+
+	private function retRestHeadersConfig(array $metodoConfig){
 		$headers = array(
 			'content-type' => 'Content-Type: application/json',
 			'accept' => 'Accept: application/json'
