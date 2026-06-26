@@ -18,7 +18,7 @@ class NFSeGenericoReturn extends NFSeReturn {
 	 * @param NFSeDocument $oDocument
 	 * @return array[NFSeGenericoMensagemRetorno]
 	 */
-	private function retListaMensagem(NFSeDocument $oDocument, $listaMensagem = 'ListaMensagemRetorno') {
+	private function retListaMensagem(NFSeDocument $oDocument, $contextNode = null, $listaMensagem = 'ListaMensagemRetorno') {
 		
 		$return = array();
 
@@ -597,7 +597,7 @@ class NFSeGenericoReturn extends NFSeReturn {
 
 		$ListaNfse = $ListaNfse->item(0);
 
-		$return = array('CompNfse' => array(), 'ListaMensagemAlertaRetorno' => $this->retListaMensagem($oDocument, 'ListaMensagemAlertaRetorno'));
+		$return = array('CompNfse' => array(), 'ListaMensagemAlertaRetorno' => $this->retListaMensagem($oDocument, $ListaNfse, 'ListaMensagemAlertaRetorno'));
 		$aCompNfse = $ListaNfse->getElementsByTagName('CompNfse');
 		
 		for ($i = 0; $i < $aCompNfse->length; $i++) {
@@ -922,7 +922,7 @@ class NFSeGenericoReturn extends NFSeReturn {
 		if ($oGerarNfseRetorno->getElementsByTagName($tagResposta)->length == 1) {
 
 			$return = array(
-				'ListaMensagemRetorno' => $this->retListaMensagem($oGerarNfseRetorno, $this->oGenerico->getConfig('tagMensagensReturn', 'ListaMensagemRetorno')),
+				'ListaMensagemRetorno' => $this->retListaMensagem($oGerarNfseRetorno, null, $this->oGenerico->getConfig('tagMensagensReturn', 'ListaMensagemRetorno')),
 				'ListaNfse' => $this->retListNFSe($oGerarNfseRetorno)
 			);
 
@@ -951,7 +951,7 @@ class NFSeGenericoReturn extends NFSeReturn {
 				'Protocolo' => $oDocument->getValue($oEnviarLoteRpsSincronoResposta, "Protocolo"),
 				'ListaNfse' => $this->retListNFSe($oDocument),
 				'ListaMensagemRetorno' => $this->retListaMensagem($oDocument),
-				'ListaMensagemRetornoLote' => $this->retListaMensagem($oDocument, 'ListaMensagemRetornoLote')
+				'ListaMensagemRetornoLote' => $this->retListaMensagem($oDocument, null, 'ListaMensagemRetornoLote')
 			);
 
 		} 
@@ -971,7 +971,7 @@ class NFSeGenericoReturn extends NFSeReturn {
 				'Situacao' => $oDocument->getValue($oConsultarLoteRpsResposta, "Situacao"),
 				'ListaNfse' => $this->retListNFSe($oDocument),
 				'ListaMensagemRetorno' => $this->retListaMensagem($oDocument),
-				'ListaMensagemRetornoLote' => $this->retListaMensagem($oDocument, 'ListaMensagemRetornoLote')
+				'ListaMensagemRetornoLote' => $this->retListaMensagem($oDocument, null, 'ListaMensagemRetornoLote')
 			);
 
 		} 
