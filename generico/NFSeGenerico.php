@@ -140,6 +140,7 @@ class NFSeGenerico extends NFSe {
 					'nameSpace' => '', //Prefixo de namespace da assinatura
 					'tagSign' => 'Pedido', //Tag assinada (quando signConsulta = true)
 					'tagAppend' => 'ConsultarNfseDpsEnvio', //Tag onde a <Signature> é anexada
+					'typeCommunication' => 'soap',//Forma de transporte: 'soap' usa SoapClient; 'curl' faz POST HTTP puro. Quando omitido, default 'soap'
 					'httpMethod' => 'GET', //Quando typeCommunication = rest-json, consulta a chave por DPS
 					'url' => '/dps/{@IdentificacaoDPS}', //Endpoint REST do Emissor Nacional para obter a chave de acesso
 					'consultaPorChave' => array(
