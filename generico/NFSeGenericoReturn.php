@@ -18,7 +18,7 @@ class NFSeGenericoReturn extends NFSeReturn {
 	 * @param NFSeDocument $oDocument
 	 * @return array[NFSeGenericoMensagemRetorno]
 	 */
-	private function retListaMensagem(NFSeDocument $oDocument, $contextNode = null, $listaMensagem = 'ListaMensagemRetorno') {
+	private function retListaMensagem(NFSeDocument $oDocument, $listaMensagem = 'ListaMensagemRetorno') {
 		
 		$return = array();
 
@@ -171,7 +171,7 @@ class NFSeGenericoReturn extends NFSeReturn {
 		);
 	}
 
-	private function gerarNfseJsonRetorno(array $json){
+	private function retErrosJsonComIdDps(array $json){
 		$aErros = $this->retErrosJson($json);
 		if(count($aErros) > 0){
 			$idDps = $this->retJsonValue($json, array('idDPS', 'idDps', 'IdDPS', 'IdDps'));
@@ -180,10 +180,12 @@ class NFSeGenericoReturn extends NFSeReturn {
 					if(empty($oErro->IdDPS))
 						$oErro->IdDPS = $idDps;
 			}
-
-			return array('ListaMensagemRetorno' => $aErros);
 		}
 
+		return $aErros;
+	}
+
+	private function retNfseXmlGZipB64Json(array $json, array $alertas = array()){
 		if(empty($json['nfseXmlGZipB64']))
 			return array('ListaMensagemRetorno' => array($this->retMsgForaEsperado()));
 
@@ -201,7 +203,6 @@ class NFSeGenericoReturn extends NFSeReturn {
 		if(is_null($oDocument->documentElement))
 			return array('ListaMensagemRetorno' => array($this->retMsgForaEsperado()));
 
-		$alertas = $this->retListaMensagemJson($json, 'alertas');
 		$listaNfse = $this->retListNFSeNacionalJson($oDocument, $alertas);
 
 		if($listaNfse === false)
@@ -209,7 +210,22 @@ class NFSeGenericoReturn extends NFSeReturn {
 
 		return array(
 			'ListaMensagemRetorno' => array(),
-			'ListaNfse' => $listaNfse,
+			'ListaNfse' => $listaNfse
+		);
+	}
+
+	private function gerarNfseJsonRetorno(array $json){
+		$aErros = $this->retErrosJsonComIdDps($json);
+		if(count($aErros) > 0)
+			return array('ListaMensagemRetorno' => $aErros);
+
+		$return = $this->retNfseXmlGZipB64Json($json, $this->retListaMensagemJson($json, 'alertas'));
+		if(count($return['ListaMensagemRetorno']) > 0)
+			return $return;
+
+		return array(
+			'ListaMensagemRetorno' => array(),
+			'ListaNfse' => $return['ListaNfse'],
 			'idDps' => PQDUtil::retDefault($json, 'idDps', null),
 			'chaveAcesso' => PQDUtil::retDefault($json, 'chaveAcesso', null)
 		);
@@ -235,30 +251,16 @@ class NFSeGenericoReturn extends NFSeReturn {
 				'idDps' => PQDUtil::retDefault($json, 'idDps', PQDUtil::retDefault($json, 'idDPS', null))
 			);
 
-		if(empty($json['nfseXmlGZipB64']))
-			return array('ListaMensagemRetorno' => array($this->retMsgForaEsperado()));
+		$return = $this->retNfseXmlGZipB64Json($json);
+		if(count($return['ListaMensagemRetorno']) > 0)
+			return $return;
 
-		$xml = $this->decodeXmlGZipB64($json['nfseXmlGZipB64']);
-		if($xml === false)
-			return array('ListaMensagemRetorno' => array($this->retMensagemJson(array(
-				'codigo' => 'GZIP',
-				'descricao' => 'Nao foi possivel decodificar nfseXmlGZipB64.',
-				'complemento' => 'Verificar retorno JSON do Emissor Nacional.'
-			))));
-
-		$oDocument = new NFSeDocument();
-		$oDocument->loadXML(trim($xml), LIBXML_NOERROR | LIBXML_NOWARNING);
-
-		if(is_null($oDocument->documentElement))
-			return array('ListaMensagemRetorno' => array($this->retMsgForaEsperado()));
-
-		$listaNfse = $this->retListNFSeNacionalJson($oDocument, array());
-		if($listaNfse === false || empty($listaNfse['CompNfse']))
+		if(empty($return['ListaNfse']['CompNfse']))
 			return array('ListaMensagemRetorno' => array($this->retMsgForaEsperado()));
 
 		return array(
 			'ListaMensagemRetorno' => array(),
-			'CompNfse' => $listaNfse['CompNfse'][0],
+			'CompNfse' => $return['ListaNfse']['CompNfse'][0],
 			'chaveAcesso' => PQDUtil::retDefault($json, 'chaveAcesso', null)
 		);
 	}
@@ -595,7 +597,7 @@ class NFSeGenericoReturn extends NFSeReturn {
 
 		$ListaNfse = $ListaNfse->item(0);
 
-		$return = array('CompNfse' => array(), 'ListaMensagemAlertaRetorno' => $this->retListaMensagem($oDocument, $ListaNfse, 'ListaMensagemAlertaRetorno'));
+		$return = array('CompNfse' => array(), 'ListaMensagemAlertaRetorno' => $this->retListaMensagem($oDocument, 'ListaMensagemAlertaRetorno'));
 		$aCompNfse = $ListaNfse->getElementsByTagName('CompNfse');
 		
 		for ($i = 0; $i < $aCompNfse->length; $i++) {
@@ -920,7 +922,7 @@ class NFSeGenericoReturn extends NFSeReturn {
 		if ($oGerarNfseRetorno->getElementsByTagName($tagResposta)->length == 1) {
 
 			$return = array(
-				'ListaMensagemRetorno' => $this->retListaMensagem($oGerarNfseRetorno, null, $this->oGenerico->getConfig('tagMensagensReturn', 'ListaMensagemRetorno')),
+				'ListaMensagemRetorno' => $this->retListaMensagem($oGerarNfseRetorno, $this->oGenerico->getConfig('tagMensagensReturn', 'ListaMensagemRetorno')),
 				'ListaNfse' => $this->retListNFSe($oGerarNfseRetorno)
 			);
 
@@ -949,7 +951,7 @@ class NFSeGenericoReturn extends NFSeReturn {
 				'Protocolo' => $oDocument->getValue($oEnviarLoteRpsSincronoResposta, "Protocolo"),
 				'ListaNfse' => $this->retListNFSe($oDocument),
 				'ListaMensagemRetorno' => $this->retListaMensagem($oDocument),
-				'ListaMensagemRetornoLote' => $this->retListaMensagem($oDocument, null, 'ListaMensagemRetornoLote')
+				'ListaMensagemRetornoLote' => $this->retListaMensagem($oDocument, 'ListaMensagemRetornoLote')
 			);
 
 		} 
@@ -969,7 +971,7 @@ class NFSeGenericoReturn extends NFSeReturn {
 				'Situacao' => $oDocument->getValue($oConsultarLoteRpsResposta, "Situacao"),
 				'ListaNfse' => $this->retListNFSe($oDocument),
 				'ListaMensagemRetorno' => $this->retListaMensagem($oDocument),
-				'ListaMensagemRetornoLote' => $this->retListaMensagem($oDocument, null, 'ListaMensagemRetornoLote')
+				'ListaMensagemRetornoLote' => $this->retListaMensagem($oDocument, 'ListaMensagemRetornoLote')
 			);
 
 		} 

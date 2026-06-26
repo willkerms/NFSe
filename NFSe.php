@@ -429,8 +429,6 @@ class NFSe {
 		// $this->zDebug($info, $data, $resposta);
 		// $this->errorCurl = curl_error($oCurl);
 		$error = curl_error($oCurl);
-		if(!PQDUtil::retDefault($options, 'returnInfo', false))
-			echo $error;
 		// fecha a conexão
 		curl_close($oCurl);
 		if(PQDUtil::retDefault($options, 'returnInfo', false))

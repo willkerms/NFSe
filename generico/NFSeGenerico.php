@@ -210,6 +210,7 @@ class NFSeGenerico extends NFSe {
 
 		$this->aConfig = $aConfig;
 		$this->isHomologacao = $isHomologacao;
+		$this->setSslProtocol(PQDUtil::retDefault(PQDUtil::retDefault($aConfig, 'curl', array()), 'sslProtocol', 0));
 	}
 
 	private function hasRestJsonEndpoint(array $aConfig, $ambiente){
