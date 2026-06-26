@@ -352,8 +352,9 @@ class NFSe {
 	 * @param array $parametros
 	 * @param number $port
 	 * @param array $proxy
+	 * @param array $options
 	 */
-	public function curl($url, $data = '', array $parametros = null, $port = 443, array $proxy = null) {
+	public function curl($url, $data = '', array $parametros = null, $port = 443, array $proxy = null, array $options = array()) {
 
 		// incializa cURL
 		$oCurl = curl_init();
@@ -406,8 +407,13 @@ class NFSe {
 		}
 		curl_setopt($oCurl, CURLOPT_RETURNTRANSFER, 1);
 
+		$httpMethod = strtoupper(PQDUtil::retDefault($options, 'httpMethod', $data != '' ? 'POST' : 'GET'));
+		if(!in_array($httpMethod, array('GET', 'POST')) || PQDUtil::retDefault($options, 'customRequest', false))
+			curl_setopt($oCurl, CURLOPT_CUSTOMREQUEST, $httpMethod);
+
 		if ($data != '') {
-			curl_setopt($oCurl, CURLOPT_POST, 1);
+			if($httpMethod == 'POST')
+				curl_setopt($oCurl, CURLOPT_POST, 1);
 			curl_setopt($oCurl, CURLOPT_POSTFIELDS, $data);
 		}
 
@@ -422,9 +428,19 @@ class NFSe {
 		// carrega os dados para debug
 		// $this->zDebug($info, $data, $resposta);
 		// $this->errorCurl = curl_error($oCurl);
-		echo curl_error($oCurl);
+		$error = curl_error($oCurl);
+		if(!PQDUtil::retDefault($options, 'returnInfo', false))
+			echo $error;
 		// fecha a conexão
 		curl_close($oCurl);
+		if(PQDUtil::retDefault($options, 'returnInfo', false))
+			return array(
+				'body' => $resposta,
+				'httpCode' => PQDUtil::retDefault($info, 'http_code', null),
+				'error' => $error,
+				'url' => $url,
+				'info' => $info
+			);
 		// retorna resposta
 		return $resposta;
 	}
