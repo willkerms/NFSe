@@ -1416,13 +1416,13 @@ class NFSeGenerico extends NFSe {
 			['begin' => '{@ifGItemPed}', 'end' => '{@endifGItemPed}', 'bool' => !empty($oDPS->serv->infoCompl->gItemPed->xItemPed)],
 			['begin' => '{@ifXInfComp}', 'end' => '{@endifXInfComp}', 'bool' => !empty($oDPS->serv->infoCompl->xInfComp)],
 
-			['begin' => '{@ifVReceb}', 'end' => '{@endifVReceb}', 'bool' => !empty($oDPS->valores->vServPrest->vReceb)],
+			['begin' => '{@ifVReceb}', 'end' => '{@endifVReceb}', 'bool' => $oDPS->valores->vServPrest->vReceb > 0],
 			['begin' => '{@ifVDescCondIncond}', 'end' => '{@endifVDescCondIncond}', 'bool' => !empty($oDPS->valores->vDescCondIncond->vDescIncond) || !empty($oDPS->valores->vDescCondIncond->vDescCond)],
-			['begin' => '{@ifVDescIncond}', 'end' => '{@endifVDescIncond}', 'bool' => !empty($oDPS->valores->vDescCondIncond->vDescIncond)],
-			['begin' => '{@ifVDescCond}', 'end' => '{@endifVDescCond}', 'bool' => !empty($oDPS->valores->vDescCondIncond->vDescCond)],
+			['begin' => '{@ifVDescIncond}', 'end' => '{@endifVDescIncond}', 'bool' => $oDPS->valores->vDescCondIncond->vDescIncond > 0],
+			['begin' => '{@ifVDescCond}', 'end' => '{@endifVDescCond}', 'bool' => $oDPS->valores->vDescCondIncond->vDescCond > 0],
 			['begin' => '{@ifVDedRed}', 'end' => '{@endifVDedRed}', 'bool' => !empty($oDPS->valores->vDedRed->pDR) || !empty($oDPS->valores->vDedRed->vDR) || count($oDPS->valores->vDedRed->documentos) > 0],
-			['begin' => '{@ifPDR}', 'end' => '{@endifPDR}', 'bool' => !empty($oDPS->valores->vDedRed->pDR)],
-			['begin' => '{@ifVDR}', 'end' => '{@endifVDR}', 'bool' => !empty($oDPS->valores->vDedRed->vDR)],
+			['begin' => '{@ifPDR}', 'end' => '{@endifPDR}', 'bool' => $oDPS->valores->vDedRed->pDR > 0],
+			['begin' => '{@ifVDR}', 'end' => '{@endifVDR}', 'bool' => $oDPS->valores->vDedRed->vDR > 0],
 			['begin' => '{@ifDocumentos}', 'end' => '{@endifDocumentos}', 'bool' => count($oDPS->valores->vDedRed->documentos) > 0],
 
 			// Tributação Municipal
