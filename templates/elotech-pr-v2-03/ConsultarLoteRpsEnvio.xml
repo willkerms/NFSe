@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ConsultarLoteRpsEnvio  xmlns="http://www.abrasf.org.br/nfse.xsd">
+	<IdentificacaoRequerente>
+		<CpfCnpj>
+			{@ifCpfPrestador}<Cpf>{@CpfPrestador}</Cpf>{@endifCpfPrestador}
+			{@ifCnpjPrestador}<Cnpj>{@CnpjPrestador}</Cnpj>{@endifCnpjPrestador}
+		</CpfCnpj>
+		<InscricaoMunicipal>{@InscricaoMunicipalPrestador}</InscricaoMunicipal>
+		<Senha>{@Senha}</Senha>
+		<Homologa>{@Homologa}</Homologa>
+	</IdentificacaoRequerente>
+	<NumeroLote>{@NumeroLote}</NumeroLote>
+</ConsultarLoteRpsEnvio>

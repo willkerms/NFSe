@@ -1,13 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
-<EnviarLoteRpsSincronoEnvio>
-
-	<!-- 1. Identificação do Emissor/Requerente -->
+<EnviarLoteRpsSincronoEnvio xmlns="http://shad.elotech.com.br/schemas/iss/nfse_v2_03.xsd">
 	<IdentificacaoRequerente>
 		<CpfCnpj>
 			{@ifCpfPrestador}
 			<Cpf>{@CpfPrestador}</Cpf>
 			{@endifCpfPrestador}
-
 			{@ifCnpjPrestador}
 			<Cnpj>{@CnpjPrestador}</Cnpj>
 			{@endifCnpjPrestador}
@@ -18,8 +15,17 @@
 	</IdentificacaoRequerente>
 
 	<!-- 2. Lote contendo a Lista de RPS -->
-	<LoteRps Id="lote-{@idLote}">
+	<LoteRps Id="lote-{@idLote}" versao="2.03" >
 		<NumeroLote>{@NumeroLote}</NumeroLote>
+		<CpfCnpj>
+			{@ifCpfPrestador}
+			<Cpf>{@CpfPrestador}</Cpf>
+			{@endifCpfPrestador}
+			{@ifCnpjPrestador}
+			<Cnpj>{@CnpjPrestador}</Cnpj>
+			{@endifCnpjPrestador}
+		</CpfCnpj>
+		<InscricaoMunicipal>{@InscricaoMunicipalPrestador}</InscricaoMunicipal>
 		<QuantidadeRps>{@QuantidadeRps}</QuantidadeRps>
 		<ListaRps>
 			{@ListaRps}
