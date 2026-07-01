@@ -1,0 +1,1 @@
+/NotaNacional/ConsultarDPS/{@documento}/{@serie}/{@numero}

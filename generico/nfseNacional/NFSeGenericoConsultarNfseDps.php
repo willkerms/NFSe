@@ -17,6 +17,14 @@ class NFSeGenericoConsultarNfseDps{
 	*/
 	public $IdentificacaoDps;
 
+	public $Documento;
+
+	public $InscricaoMunicipal;
+
+	public $Serie;
+
+	public $Numero;
+
 	/**
 	 * 
 	 * @var NFSeGenericoPrestadorConsultarNfseDps

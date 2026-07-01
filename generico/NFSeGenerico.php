@@ -85,12 +85,15 @@ class NFSeGenerico extends NFSe {
 				'enviarLoteRps' => 'EnviarLoteRps.xml', //Template do envelope de envio de lote de RPS
 				'deducao' => 'Deducao.xml', //Template de uma dedução (repetido para cada item de $oRps->aDeducoes)
 				'gerarNfse' => 'GerarNfseEnvio.xml', //Template do envelope de geração de NFS-e (recebe o RPS/DPS já assinado em {@Rps}/{@DPS})
+				'gerarNfseRest' => 'GerarNfseRest.json', //Template JSON opcional para payload REST (recebe {@DPSGZipB64}/{@XMLGZipB64})
 				'consultarNFSePorRps' => 'ConsultarNfseRpsEnvio.xml', //Template de consulta de NFS-e por RPS
 				'consultarNFSePorDps' => 'ConsultarNfseDpsEnvio.xml', //Template de consulta de NFS-e por DPS (padrão Nacional)
+				'consultarNFSePorDpsRest' => 'ConsultarNfseDpsRest.txt',
 				'consultarLoteRps' => 'ConsultarLoteRpsEnvio.xml', //Template de consulta de lote de RPS pelo protocolo
 				'consultarUrlNfse' => 'ConsultarUrlNfseEnvio.xml', //Template de consulta da URL pública da NFS-e
 				'cancelarNfse' => 'CancelarNfseEnvio.xml', //Template de cancelamento de NFS-e
 				'cancelarNFSeEnvio' => 'CancelarNfseEnvio.xml',
+				'cancelarNFSeEnvioRest' => 'CancelarNfseEnvioRest.json',
 				'soap' => 'Soap.xml' //Template do envelope SOAP que "embrulha" o conteúdo em {@xml} e injeta a {@action}. Os métodos do padrão Nacional ainda esperam chaves extras nesta lista (ex.: cancelarNFSeEnvio, consultarLoteDpsEnvio, consultarNfseDpsEnvio, enviarLoteDpsEnvio) e os parciais usados na montagem do DPS (documentoDocDedRed, itemPed, refNfse, documentoReeRepRes)
 			),
 			'metodos' => array( //Configuração por operação. Chaves comuns: 'action' (nome da operação/SOAPAction); 'typeCommunication' ('soap'|'curl', default 'soap'); 'nameSpace' (prefixo de namespace da assinatura); 'tagSign'/'tagAppend' (tag assinada e tag onde a <Signature> é pendurada); 'tagMap' (tags usadas para localizar o nó de retorno)
@@ -371,14 +374,45 @@ class NFSeGenerico extends NFSe {
 		$typeCommunication = PQDUtil::retDefault($this->aConfig['metodos'][$metodo], 'typeCommunication', 'soap');
 
 		if($typeCommunication == 'rest-json'){
-			$returnDps = $this->makeRestJsonRequest($metodo, $fileName, '', array(
+			$documento = $oConsultarNfseDps->Documento ?? $oConsultarNfseDps->Prestador->CNPJ ?? $oConsultarNfseDps->Prestador->CPF ?? $this->aConfig['cpfCnpj'];
+			$inscricaoMunicipal = $oConsultarNfseDps->InscricaoMunicipal ?? $oConsultarNfseDps->Prestador->IM ?? $this->aConfig['insMunicipal'];
+			$serie = $oConsultarNfseDps->Serie ?? null;
+			$numero = $oConsultarNfseDps->Numero ?? null;
+
+			$aUrlReplaces = array(
 				'IdentificacaoDPS' => $oConsultarNfseDps->IdentificacaoDps,
-				'id' => $oConsultarNfseDps->IdentificacaoDps
-			));
+				'id' => $oConsultarNfseDps->IdentificacaoDps,
+				'documento' => $documento,
+				'Documento' => $documento,
+				'cpfCnpj' => $documento,
+				'CpfCnpj' => $documento,
+				'inscricaoMunicipal' => $inscricaoMunicipal,
+				'InscricaoMunicipal' => $inscricaoMunicipal,
+				'serie' => $serie,
+				'Serie' => $serie,
+				'numero' => $numero,
+				'Numero' => $numero
+			);
+
+			$returnDps = $this->makeRestJsonRequest($metodo, $fileName, '', $aUrlReplaces);
 
 			$aReturnDps = $this->procReturn($returnDps, $metodo);
 			if(count(PQDUtil::retDefault($aReturnDps, 'ListaMensagemRetorno', array())) > 0)
 				return $aReturnDps;
+
+			$consultaPorChave = PQDUtil::retDefault($this->aConfig['metodos'][$metodo], 'consultaPorChave', array(
+				'httpMethod' => 'GET',
+				'url' => '/nfse/{@chaveAcesso}',
+				'httpStatus' => array(
+					'success' => array(200)
+				)
+			));
+
+			if($consultaPorChave === false)
+				return $aReturnDps;
+
+			if($consultaPorChave === true)
+				$consultaPorChave = array();
 
 			$chaveAcesso = PQDUtil::retDefault($aReturnDps, 'chaveAcesso', null);
 			if(empty($chaveAcesso))
@@ -388,8 +422,7 @@ class NFSeGenerico extends NFSe {
 					'Verificar retorno JSON do Emissor Nacional.'
 				), $metodo);
 
-			$metodoConfig = PQDUtil::retDefault($this->aConfig['metodos'][$metodo], 'consultaPorChave', array());
-			$metodoConfig = PQDUtil::setDefault($metodoConfig, array(
+			$metodoConfig = PQDUtil::setDefault($consultaPorChave, array(
 				'httpMethod' => 'GET',
 				'url' => '/nfse/{@chaveAcesso}',
 				'httpStatus' => array(
@@ -807,8 +840,36 @@ class NFSeGenerico extends NFSe {
 		if($gzip === false)
 			throw new \Exception("Erro ao compactar XML para envio REST JSON.");
 
+		$xmlGZipB64 = base64_encode($gzip);
+		$restJsonTemplate = PQDUtil::retDefault($metodoConfig, 'restJsonTemplate', null);
+
+		if(!empty($restJsonTemplate)){
+			$xmlJson = json_encode($xml, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE);
+			if($xmlJson === false)
+				throw new \Exception("Erro ao preparar XML para template JSON REST.");
+
+			$payload = PQDUtil::procTplText($this->getTemplate($restJsonTemplate), array(
+				'{@DPSGZipB64}' => $xmlGZipB64,
+				'{@XMLGZipB64}' => $xmlGZipB64,
+				'{@EventoGZipB64}' => $xmlGZipB64,
+				'{@CancelamentoGZipB64}' => $xmlGZipB64,
+				'{@DPSJson}' => substr($xmlJson, 1, -1),
+				'{@XMLJson}' => substr($xmlJson, 1, -1),
+				'{@EventoJson}' => substr($xmlJson, 1, -1),
+				'{@CancelamentoJson}' => substr($xmlJson, 1, -1),
+				'{@payloadKey}' => $payloadKey,
+				'{@PayloadKey}' => $payloadKey
+			), array());
+
+			json_decode(trim($payload), true);
+			if(json_last_error() !== JSON_ERROR_NONE)
+				throw new \Exception("Template JSON REST invalido (" . $restJsonTemplate . "): " . json_last_error_msg());
+
+			return $payload;
+		}
+
 		$payload = json_encode(array(
-			$payloadKey => base64_encode($gzip)
+			$payloadKey => $xmlGZipB64
 		), JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE);
 
 		if($payload === false)
@@ -822,6 +883,15 @@ class NFSeGenerico extends NFSe {
 		$ambienteConfig = PQDUtil::retDefault($this->aConfig, $ambiente, array());
 		$baseUrl = PQDUtil::retDefault($ambienteConfig, 'url', PQDUtil::retDefault($ambienteConfig, 'wsdl', ''));
 		$path = PQDUtil::retDefault($metodoConfig, 'url', '');
+
+		$restUrlTemplate = PQDUtil::retDefault($metodoConfig, 'restUrlTemplate', null);
+		if(!empty($restUrlTemplate)){
+			$aReplaces = array();
+			foreach($replaces as $key => $value)
+				$aReplaces['{@' . $key . '}'] = $value;
+
+			$path = trim(PQDUtil::procTplText($this->getTemplate($restUrlTemplate), $aReplaces, array()));
+		}
 
 		if(empty($baseUrl) && empty($path))
 			throw new \Exception("URL REST nao configurada.");
