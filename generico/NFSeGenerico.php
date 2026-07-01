@@ -145,10 +145,7 @@ class NFSeGenerico extends NFSe {
 					'typeCommunication' => 'soap',//Forma de transporte: 'soap' usa SoapClient; 'curl' faz POST HTTP puro. Quando omitido, default 'soap'
 					'httpMethod' => 'GET', //Quando typeCommunication = rest-json, consulta a chave por DPS
 					'url' => '/dps/{@IdentificacaoDPS}', //Endpoint REST do Emissor Nacional para obter a chave de acesso
-					'consultaPorChave' => array(
-						'httpMethod' => 'GET',
-						'url' => '/nfse/{@chaveAcesso}'
-					),
+					//'consultaPorChave' NÃO tem default aqui de propósito: o setDefault faz merge recursivo e um default array quebraria (TypeError) quando o cliente configura consultaPorChave => false para desligar a 2ª consulta (ex.: Boituva). O próprio consultarNFSePorDps() já reaplica o fallback GET /nfse/{@chaveAcesso} quando a chave é omitida/true.
 					'tagMap' => array(
 						'return' => 'consultarNfseDpsResponse' //Tag externa da resposta
 					)
