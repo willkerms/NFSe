@@ -85,11 +85,14 @@ class NFSeGenerico extends NFSe {
 				'enviarLoteRps' => 'EnviarLoteRps.xml', //Template do envelope de envio de lote de RPS
 				'deducao' => 'Deducao.xml', //Template de uma dedução (repetido para cada item de $oRps->aDeducoes)
 				'gerarNfse' => 'GerarNfseEnvio.xml', //Template do envelope de geração de NFS-e (recebe o RPS/DPS já assinado em {@Rps}/{@DPS})
+				'gerarNfseRestEnvelope' => 'GerarNfseEnvio.json', //Template do envelope de geração de NFS-e (recebe o RPS/DPS já assinado em {@Rps}/{@DPS})
 				'consultarNFSePorRps' => 'ConsultarNfseRpsEnvio.xml', //Template de consulta de NFS-e por RPS
 				'consultarNFSePorDps' => 'ConsultarNfseDpsEnvio.xml', //Template de consulta de NFS-e por DPS (padrão Nacional)
 				'consultarLoteRps' => 'ConsultarLoteRpsEnvio.xml', //Template de consulta de lote de RPS pelo protocolo
 				'consultarUrlNfse' => 'ConsultarUrlNfseEnvio.xml', //Template de consulta da URL pública da NFS-e
 				'cancelarNfse' => 'CancelarNfseEnvio.xml', //Template de cancelamento de NFS-e
+				'cancelarNFSeEnvio' => 'CancelarNfseEnvio.xml',
+				'cancelarNFSeEnvioRestEnvelope' => 'CancelarNfseEnvio.json',
 				'soap' => 'Soap.xml' //Template do envelope SOAP que "embrulha" o conteúdo em {@xml} e injeta a {@action}. Os métodos do padrão Nacional ainda esperam chaves extras nesta lista (ex.: cancelarNFSeEnvio, consultarLoteDpsEnvio, consultarNfseDpsEnvio, enviarLoteDpsEnvio) e os parciais usados na montagem do DPS (documentoDocDedRed, itemPed, refNfse, documentoReeRepRes)
 			),
 			'metodos' => array( //Configuração por operação. Chaves comuns: 'action' (nome da operação/SOAPAction); 'typeCommunication' ('soap'|'curl', default 'soap'); 'nameSpace' (prefixo de namespace da assinatura); 'tagSign'/'tagAppend' (tag assinada e tag onde a <Signature> é pendurada); 'tagMap' (tags usadas para localizar o nó de retorno)
@@ -139,6 +142,10 @@ class NFSeGenerico extends NFSe {
 					'nameSpace' => '', //Prefixo de namespace da assinatura
 					'tagSign' => 'Pedido', //Tag assinada (quando signConsulta = true)
 					'tagAppend' => 'ConsultarNfseDpsEnvio', //Tag onde a <Signature> é anexada
+					'typeCommunication' => 'soap',//Forma de transporte: 'soap' usa SoapClient; 'curl' faz POST HTTP puro. Quando omitido, default 'soap'
+					'httpMethod' => 'GET', //Quando typeCommunication = rest-json, consulta a chave por DPS
+					'url' => '/dps/{@IdentificacaoDPS}', //Endpoint REST do Emissor Nacional para obter a chave de acesso
+					'consultaPorChave' => false,
 					'tagMap' => array(
 						'return' => 'consultarNfseDpsResponse' //Tag externa da resposta
 					)
@@ -171,6 +178,15 @@ class NFSeGenerico extends NFSe {
 					'tagMap' => array(
 						'return' => 'cancelarNfseResponse' //Tag externa da resposta
 					)
+				),
+				'cancelarNFSeEnvio' => array(
+					'action' => 'cancelarNFSeEnvio',
+					'typeCommunication' => 'soap',//Forma de transporte: 'soap' usa SoapClient; 'curl' faz POST HTTP puro. Quando omitido, default 'soap'
+					'nameSpace' => '',
+					'url' => '/nfse/{@chNFSe}/eventos',// URL para uso no cancelamento feito por REST HTTP
+					'tagSign' => 'infPedReg',
+					'tagAppend' => 'pedRegEvento',
+					'codCancelamento' => '1'
 				)
 			)/*,
 			'fields' => array( //(opcional) Funções de transformação aplicadas a cada campo antes de ir para o template, via applyFnField. A chave é o nome do campo em camelCase (o placeholder {@DataEmissao} corresponde a 'dataEmissao')
@@ -185,14 +201,26 @@ class NFSeGenerico extends NFSe {
 		$aConfig['cpfCnpj'] = isset($aConfig['cnpj']) && !empty($aConfig['cnpj']) && empty($aConfig['cpfCnpj']) ? $aConfig['cnpj'] : $aConfig['cpfCnpj'];
 		$aConfig['insMunicipal'] = isset($aConfig['inscMunicipal']) && !empty($aConfig['inscMunicipal']) && empty($aConfig['insMunicipal']) ? $aConfig['inscMunicipal'] : $aConfig['insMunicipal'];
 
-		if($isHomologacao && empty($aConfig['homologacao']['wsdl']))
+		if($isHomologacao && empty($aConfig['homologacao']['wsdl']) && !$this->hasRestJsonEndpoint($aConfig, 'homologacao'))
 			throw new \Exception("URL do WebService de homologação não configurado!");
 
-		if(!$isHomologacao && empty($aConfig['producao']['wsdl']))
+		if(!$isHomologacao && empty($aConfig['producao']['wsdl']) && !$this->hasRestJsonEndpoint($aConfig, 'producao'))
 			throw new \Exception("URL do WebService de produção não configurado!");
 
 		$this->aConfig = $aConfig;
 		$this->isHomologacao = $isHomologacao;
+		$this->setSslProtocol(PQDUtil::retDefault(PQDUtil::retDefault($aConfig, 'curl', array()), 'sslProtocol', 0));
+	}
+
+	private function hasRestJsonEndpoint(array $aConfig, $ambiente){
+		if(empty($aConfig[$ambiente]['url']))
+			return false;
+
+		foreach(PQDUtil::retDefault($aConfig, 'metodos', array()) as $metodo)
+			if(PQDUtil::retDefault($metodo, 'typeCommunication', 'soap') == 'rest-json')
+				return true;
+
+		return false;
 	}
 
 	public function cancelarNfse(NFSeGenericoCancelarNfseEnvio $oCancelar) {
@@ -338,6 +366,55 @@ class NFSeGenerico extends NFSe {
 
 		$fileName = $oConsultarNfseDps->IdentificacaoDps . ".xml";
 		$metodo = 'consultarNFSePorDps';
+		$typeCommunication = PQDUtil::retDefault($this->aConfig['metodos'][$metodo], 'typeCommunication', 'soap');
+
+		if($typeCommunication == 'rest-json'){
+
+			$aUrlReplaces = array(
+				'IdentificacaoDPS' => $oConsultarNfseDps->IdentificacaoDps,
+				'id' => $oConsultarNfseDps->IdentificacaoDps,
+				'Documento' => $oConsultarNfseDps->Prestador->CNPJ,
+				'Serie' => $oConsultarNfseDps->Serie,
+				'Numero' => $oConsultarNfseDps->Numero
+			);
+
+			$returnDps = $this->makeRestJsonRequest($metodo, $fileName, '', $aUrlReplaces);
+
+			$aReturnDps = $this->procReturn($returnDps, $metodo);
+			if(count(PQDUtil::retDefault($aReturnDps, 'ListaMensagemRetorno', array())) > 0)
+				return $aReturnDps;
+
+			if(PQDUtil::retDefault($this->aConfig['metodos'][$metodo], 'consultaPorChave', false) === false)
+				return $aReturnDps;
+
+			$consultaPorChave = array();
+
+			$chaveAcesso = PQDUtil::retDefault($aReturnDps, 'chaveAcesso', null);
+			if(empty($chaveAcesso))
+				return $this->procReturn($this->retRestJsonErrorReturn(
+					'DPS',
+					'Consulta do DPS nao retornou chave de acesso.',
+					'Verificar retorno JSON do Emissor Nacional.'
+				), $metodo);
+
+			$metodoConfig = PQDUtil::setDefault($consultaPorChave, array(
+				'httpMethod' => 'GET',
+				'url' => '/nfse/{@chNFSe}',
+				'httpStatus' => array(
+					'success' => array(200)
+				)
+			));
+
+			$returnNfse = $this->makeRestJsonRequest(
+				'consultarNFSePorChave',
+				$chaveAcesso . ".xml",
+				'',
+				array('chNFSe' => $chaveAcesso),
+				$metodoConfig
+			);
+
+			return $this->procReturn($returnNfse, $metodo);
+		}
 
 		//Gerar NFSe
 		$tpl = $this->getTemplate($metodo);
@@ -404,17 +481,20 @@ class NFSeGenerico extends NFSe {
 	public function gerarNfse(NFSeGenericoInfRps | NFSeGenericoInfDPS $oRps) {
 		
 		$metodo = 'gerarNfse';
+		$typeCommunication = PQDUtil::retDefault($this->aConfig['metodos'][$metodo], 'typeCommunication', 'soap');
 		
 		// Determinar o nome do arquivo baseado no tipo de entrada
 		if($oRps instanceof NFSeGenericoInfRps){
 			//RPS
 			$fileName = $oRps->IdentificacaoRps->Numero . "-" . $oRps->IdentificacaoRps->Serie . ".xml";
 			$xml = $this->retXMLRps($oRps);
+			$docType = 'rps';
 		}
 		else{
 			//DPS
 			$fileName = $oRps->nDPS . "-" . $oRps->serie . ".xml";
 			$xml = $this->retXMLDPS($oRps);
+			$docType = 'dps';
 		}
 		
 		$search = PQDUtil::retDefault($this->aConfig['metodos'][$metodo], 'search', null);
@@ -434,7 +514,14 @@ class NFSeGenerico extends NFSe {
 		);
 
 		if($this->isHomologacao)
-			$this->saveXML($xml, $metodo . '-rps-' . $fileName);
+			$this->saveXML($xml, $metodo . '-' . $docType . '-' . $fileName);
+
+		if($typeCommunication == 'rest-json'){
+			if(!($oRps instanceof NFSeGenericoInfDPS))
+				throw new \Exception("A comunicacao REST JSON do Emissor Nacional aceita apenas DPS.");
+
+			return $this->procReturn($this->makeRestJsonRequest($metodo, $fileName, $xml), $metodo);
+		}
 
 		//Gerar NFSe
 		$tpl = $this->getTemplate($metodo);
@@ -702,6 +789,99 @@ class NFSeGenerico extends NFSe {
 		return $soapReturn;
 	}
 
+	private function makeRestJsonRequest($metodo, $fileName, $xml = '', array $urlReplaces = array(), array $metodoConfig = null){
+		$jsonFileName = preg_replace('/\.xml$/', '.json', $fileName);
+		$payload = $xml == '' ? '' : $this->retRestJsonPayload($metodo, $xml);
+
+		if($payload != '')
+			$this->saveXML($payload, $metodo . '-rest-' . $jsonFileName);
+
+		$return = $this->sendRequest($metodo, $payload, $urlReplaces, $metodoConfig);
+
+		$this->saveXML($return, $metodo . '-rest-return-' . $jsonFileName);
+
+		return $return;
+	}
+
+	private function retRestJsonPayload($metodo, $xml){
+		$metodoConfig = PQDUtil::retDefault($this->aConfig['metodos'], $metodo, array());
+
+		if(strpos($xml, '<?xml') !== 0)
+			$xml = '<?xml version="1.0" encoding="UTF-8"?>' . $xml;
+
+		$gzip = gzencode($xml);
+
+		if($gzip === false)
+			throw new \Exception("Erro ao compactar XML para envio REST JSON.");
+
+		$xmlGZipB64 = base64_encode($gzip);
+
+		$payload = PQDUtil::procTplText($this->getTemplate($metodo . 'RestEnvelope'), array(
+			'{@xml}' => $xmlGZipB64,
+		), array());
+
+		json_decode(trim($payload), true);
+		if(json_last_error() !== JSON_ERROR_NONE)
+			throw new \Exception("Template JSON REST invalido (" . $metodo . "): " . json_last_error_msg());
+
+		return $payload;
+	}
+
+	private function retRestUrlConfig(array $metodoConfig, array $replaces = array()){
+		$ambiente = $this->isHomologacao ? 'homologacao' : 'producao';
+		$ambienteConfig = PQDUtil::retDefault($this->aConfig, $ambiente, array());
+		$baseUrl = PQDUtil::retDefault($ambienteConfig, 'url', PQDUtil::retDefault($ambienteConfig, 'wsdl', ''));
+		$path = PQDUtil::retDefault($metodoConfig, 'url', '');
+
+		if(empty($baseUrl) && empty($path))
+			throw new \Exception("URL REST nao configurada.");
+
+		foreach($replaces as $key => $value){
+			$baseUrl = str_replace('{@' . $key . '}', $value, $baseUrl);
+			$path = str_replace('{@' . $key . '}', $value, $path);
+		}
+
+		if(substr($path, 0, 7) == 'http://' || substr($path, 0, 8) == 'https://')
+			return $path;
+
+		if(empty($path))
+			return $baseUrl;
+
+		return rtrim($baseUrl, '/') . '/' . ltrim($path, '/');
+	}
+
+	private function retRestHeadersConfig(array $metodoConfig){
+		$headers = array(
+			'content-type' => 'Content-Type: application/json',
+			'accept' => 'Accept: application/json'
+		);
+
+		$aHeaders = array_merge(
+			PQDUtil::retDefault($metodoConfig, 'header', array()),
+			PQDUtil::retDefault($metodoConfig, 'headers', array())
+		);
+
+		foreach($aHeaders as $header){
+			$pos = strpos($header, ':');
+			if($pos === false)
+				continue;
+
+			$headers[strtolower(trim(substr($header, 0, $pos)))] = $header;
+		}
+
+		return array_values($headers);
+	}
+
+	private function retRestJsonErrorReturn($codigo, $mensagem, $complemento = null){
+		return json_encode(array(
+			'erro' => array(
+				'codigo' => $codigo,
+				'descricao' => $mensagem,
+				'complemento' => $complemento
+			)
+		), JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE);
+	}
+
 	/**
 	 * Envia uma requisição de acordo com o metodo e tipo de comunicação no metodo
 	 * 
@@ -710,15 +890,16 @@ class NFSeGenerico extends NFSe {
 	 * 
 	 * @return string
 	 */
-	private function sendRequest($metodo, $xml){
+	private function sendRequest($metodo, $xml, array $urlReplaces = array(), array $metodoConfigOverride = null){
 
-		$action = PQDUtil::retDefault($this->aConfig['metodos'][$metodo], 'actionSoapHeader', $this->aConfig['metodos'][$metodo]['action']);
+		$baseMetodoConfig = PQDUtil::retDefault($this->aConfig['metodos'], $metodo, array());
+		$metodoConfig = is_null($metodoConfigOverride) ? $baseMetodoConfig : PQDUtil::setDefault($metodoConfigOverride, $baseMetodoConfig);
+		$typeCommunication = PQDUtil::retDefault($metodoConfig, 'typeCommunication', is_null($metodoConfigOverride) ? 'soap' : 'rest-json');
+		$action = PQDUtil::retDefault($metodoConfig, 'actionSoapHeader', PQDUtil::retDefault($metodoConfig, 'action', ''));
 
 
 		$wsdl = $this->isHomologacao ? $this->aConfig['homologacao']['wsdl'] : $this->aConfig['producao']['wsdl'];
 		$url = $this->isHomologacao ? PQDUtil::retDefault($this->aConfig['homologacao'], 'url', $wsdl) : PQDUtil::retDefault($this->aConfig['producao'], 'url', $wsdl);
-
-		$typeCommunication = PQDUtil::retDefault($this->aConfig['metodos'][$metodo], 'typeCommunication', 'soap');
 
 		switch($typeCommunication){
 			case 'curl':
@@ -728,7 +909,7 @@ class NFSeGenerico extends NFSe {
 				$headers = array();
 				foreach(PQDUtil::retDefault($curl, 'header', array() ) as $header)
 					$headers[] = $header; 
-				foreach(PQDUtil::retDefault($this->aConfig['metodos'][$metodo], 'header', array() ) as $header)
+				foreach(PQDUtil::retDefault($metodoConfig, 'header', array() ) as $header)
 					$headers[] = $header; 
 
 				return $this->curl(
@@ -738,6 +919,35 @@ class NFSeGenerico extends NFSe {
 					PQDUtil::retDefault($curl, 'port', 443), 
 					PQDUtil::retDefault($this->aConfig, 'proxy', null)
 				);
+
+			break;
+			case 'rest-json':
+
+				$curl = PQDUtil::retDefault($this->aConfig, 'curl', array());
+				$url = $this->retRestUrlConfig($metodoConfig, $urlReplaces);
+				$httpMethod = strtoupper(PQDUtil::retDefault($metodoConfig, 'httpMethod', $xml != '' ? 'POST' : 'GET'));
+
+				$retCurl = $this->curl(
+					$url,
+					$xml,
+					$this->retRestHeadersConfig($metodoConfig),
+					PQDUtil::retDefault($curl, 'port', 443),
+					PQDUtil::retDefault($this->aConfig, 'proxy', null),
+					array(
+						'httpMethod' => $httpMethod,
+						'customRequest' => true,
+						'returnInfo' => true
+					)
+				);
+
+				if(!empty($retCurl['error']))
+					return $this->retRestJsonErrorReturn('CURL', $retCurl['error'], 'HTTP ' . $retCurl['httpCode']);
+
+				$successStatus = PQDUtil::retDefault(PQDUtil::retDefault($metodoConfig, 'httpStatus', array()), 'success', array(200, 201));
+				if(!in_array($retCurl['httpCode'], $successStatus) && empty($retCurl['body']))
+					return $this->retRestJsonErrorReturn('HTTP' . $retCurl['httpCode'], 'Retorno HTTP sem corpo.', $retCurl['url']);
+
+				return $retCurl['body'];
 
 			break;
 			case 'soap':
@@ -1391,6 +1601,8 @@ class NFSeGenerico extends NFSe {
 
 			['begin' => '{@ifCLocPrestacao}', 'end' => '{@endifCLocPrestacao}', 'bool' => !empty($oDPS->serv->locPrest->cLocPrestacao)],
 			['begin' => '{@ifCPaisPrestacao}', 'end' => '{@endifCPaisPrestacao}', 'bool' => !empty($oDPS->serv->locPrest->cPaisPrestacao)],
+			['begin' => '{@ifCTribMun}', 'end' => '{@endifCTribMun}', 'bool' => !empty($oDPS->serv->cServ->cTribMun)],
+			['begin' => '{@ifCNBS}', 'end' => '{@endifCNBS}', 'bool' => !empty($oDPS->serv->cServ->cNBS)],
 			['begin' => '{@ifCIntContrib}', 'end' => '{@endifCIntContrib}', 'bool' => !empty($oDPS->serv->cServ->cIntContrib)],
 			['begin' => '{@ifComExt}', 'end' => '{@endifComExt}', 'bool' => !empty($oDPS->serv->comExt->mdPrestacao)],
 			['begin' => '{@ifNDI}', 'end' => '{@endifNDI}', 'bool' => !empty($oDPS->serv->comExt->nDI)],
@@ -1417,7 +1629,7 @@ class NFSeGenerico extends NFSe {
 			['begin' => '{@ifXInfComp}', 'end' => '{@endifXInfComp}', 'bool' => !empty($oDPS->serv->infoCompl->xInfComp)],
 
 			['begin' => '{@ifVReceb}', 'end' => '{@endifVReceb}', 'bool' => !empty($oDPS->valores->vServPrest->vReceb)],
-			['begin' => '{@ifVDescCondIncond}', 'end' => '{@endifVDescCondIncond}', 'bool' => !empty($oDPS->valores->vDescCondIncond->vDescIncond) || !empty($oDPS->valores->vDescCondIncond->vDescCond)],
+			['begin' => '{@ifVDescCondIncond}', 'end' => '{@endifVDescCondIncond}', 'bool' => (!empty($oDPS->valores->vDescCondIncond->vDescIncond) && $oDPS->valores->vDescCondIncond->vDescIncond > 0) || (!empty($oDPS->valores->vDescCondIncond->vDescCond) && $oDPS->valores->vDescCondIncond->vDescCond > 0)],
 			['begin' => '{@ifVDescIncond}', 'end' => '{@endifVDescIncond}', 'bool' => !empty($oDPS->valores->vDescCondIncond->vDescIncond)],
 			['begin' => '{@ifVDescCond}', 'end' => '{@endifVDescCond}', 'bool' => !empty($oDPS->valores->vDescCondIncond->vDescCond)],
 			['begin' => '{@ifVDedRed}', 'end' => '{@endifVDedRed}', 'bool' => !empty($oDPS->valores->vDedRed->pDR) || !empty($oDPS->valores->vDedRed->vDR) || count($oDPS->valores->vDedRed->documentos) > 0],
@@ -1776,30 +1988,41 @@ class NFSeGenerico extends NFSe {
 	/**
 	 * Cancela uma NFS-e usando o padrão nacional
 	 * 
-	 * @param string $chNFSe - Chave da NFS-e
-	 * @param string $nPedRegEvento - Número do pedido de registro de evento
-	 * @param string $tpEvento - Tipo do evento (cancelamento)
+	 * @param string $oCancelar - Objeto de NFSeGenericoCancelarNfseEnvio
 	 * @param string $xMotivo - Motivo do cancelamento (opcional)
 	 * @return array
 	 */
-	public function cancelarNFSeEnvio($chNFSe, $nPedRegEvento, $tpEvento = '101101', $xMotivo = null) {
+	public function cancelarNFSeEnvio($oCancelar) {
 		
 		$metodo = 'cancelarNFSeEnvio';
-		$fileName = $chNFSe . ".xml";
+
+		$oCancelar = $this->escapeTextObj($oCancelar);
 
 		// Gerar XML de cancelamento
 		$tpl = $this->getTemplate($metodo);
 
-		$cpfCnpj = $this->aConfig['cpfCnpj'];
+		$oCancelar->CodigoCancelamento = is_null($oCancelar->CodigoCancelamento) ? $this->aConfig['metodos'][$metodo]['codCancelamento'] : $oCancelar->CodigoCancelamento;
+
+		$cpfCnpj = is_null($oCancelar->CpfCnpj) ? $this->aConfig['cpfCnpj'] : $oCancelar->CpfCnpj;
+		$chNFSe = $oCancelar->CodigoVerificacao;
+		$tpEvento = '101101';
+		$cMotivo = is_null($oCancelar->CodigoCancelamento) ? PQDUtil::retDefault($this->aConfig['metodos'][$metodo], 'codCancelamento', '1') : $oCancelar->CodigoCancelamento;
+		$xMotivo = $oCancelar->DescricaoCancelamento;
+
+		$fileName = $chNFSe . ".xml";
 		
 		$aReplaces = $this->retReplaceUsuarios('xml');
 		$aReplaces['replace']['{@tpAmb}'] = $this->isHomologacao ? '2' : '1';
 		$aReplaces['replace']['{@verAplic}'] = PQDUtil::retDefault($this->aConfig, 'verAplic', '1.01');
-		$aReplaces['replace']['{@dhEvento}'] = date('Y-m-d\TH:i:s');
+		$aReplaces['replace']['{@dhEvento}'] = date('Y-m-d\TH:i:sP');
 		$aReplaces['replace']['{@CnpjCpf}'] = $cpfCnpj;
+		$aReplaces['replace']['{@CNPJAutor}'] = $cpfCnpj;
+		$aReplaces['replace']['{@CPFAutor}'] = $cpfCnpj;
 		$aReplaces['replace']['{@chNFSe}'] = $chNFSe;
-		$aReplaces['replace']['{@nPedRegEvento}'] = $nPedRegEvento;
 		$aReplaces['replace']['{@tpEvento}'] = $tpEvento;
+		$aReplaces['replace']['{@IdPedidoRegistroEvento}'] = 'PRE' . $chNFSe . $tpEvento;
+		$aReplaces['replace']['{@xMotivo}'] = $xMotivo;
+		$aReplaces['replace']['{@cMotivo}'] = $cMotivo;
 
 		foreach($aReplaces['replace'] as $k => $v){
 			$field = str_replace(['{@', '}'], '', $k);
@@ -1808,6 +2031,8 @@ class NFSeGenerico extends NFSe {
 		}
 
 		$aReplaces['ifs'][] = array('begin' => '{@ifXMotivo}', 'end' => '{@endifXMotivo}', 'bool' => !is_null($xMotivo));
+		$aReplaces['ifs'][] = array('begin' => '{@ifCNPJAutor}', 'end' => '{@endifCNPJAutor}', 'bool' => strlen($cpfCnpj) == 14);
+		$aReplaces['ifs'][] = array('begin' => '{@ifCPFAutor}', 'end' => '{@endifCPFAutor}', 'bool' => strlen($cpfCnpj) == 11);
 		
 		if(!is_null($xMotivo)){
 			$aReplaces['replace']['{@codCancelamento}'] = '<tc:xMotivo>' . htmlspecialchars($xMotivo) . '</tc:xMotivo>';
@@ -1822,12 +2047,16 @@ class NFSeGenerico extends NFSe {
 			$xml = $this->signXML($xml, 
 				$this->aConfig['metodos'][$metodo]['tagSign'], 
 				$this->aConfig['metodos'][$metodo]['tagAppend'], 
-				$this->aConfig['metodos'][$metodo]['nameSpace'],
+				PQDUtil::retDefault($this->aConfig['metodos'][$metodo], 'nameSpace', ''),
 				true
 			);
 		}
 
 		$this->saveXML($xml, $metodo . '-' . $fileName);
+
+		$typeCommunication = PQDUtil::retDefault($this->aConfig['metodos'][$metodo], 'typeCommunication', 'soap');
+		if($typeCommunication == 'rest-json')
+			return $this->procReturn($this->makeRestJsonRequest($metodo, $fileName, $xml, array('chNFSe' => $chNFSe)), $metodo);
 
 		return $this->procReturn($this->makeSOAPRequest($metodo, $xml, $fileName), $metodo);
 	}

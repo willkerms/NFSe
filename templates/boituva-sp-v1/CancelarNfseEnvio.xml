@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<pedRegEvento versao="1.01" xmlns="http://www.sped.fazenda.gov.br/nfse">
+	<infPedReg Id="{@IdPedidoRegistroEvento}">
+		<tpAmb>{@tpAmb}</tpAmb>
+		<verAplic>{@verAplic}</verAplic>
+		<dhEvento>{@dhEvento}</dhEvento>
+		{@ifCNPJAutor}
+		<CNPJAutor>{@CNPJAutor}</CNPJAutor>
+		{@endifCNPJAutor}
+		{@ifCPFAutor}
+		<CPFAutor>{@CPFAutor}</CPFAutor>
+		{@endifCPFAutor}
+		<chNFSe>{@chNFSe}</chNFSe>
+		<e101101>
+			<xDesc>Cancelamento de NFS-e</xDesc>
+			<cMotivo>{@cMotivo}</cMotivo>
+			<xMotivo>{@xMotivo}</xMotivo>
+		</e101101>
+	</infPedReg>
+</pedRegEvento>
