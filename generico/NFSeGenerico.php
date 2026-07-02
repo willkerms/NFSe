@@ -85,12 +85,14 @@ class NFSeGenerico extends NFSe {
 				'enviarLoteRps' => 'EnviarLoteRps.xml', //Template do envelope de envio de lote de RPS
 				'deducao' => 'Deducao.xml', //Template de uma dedução (repetido para cada item de $oRps->aDeducoes)
 				'gerarNfse' => 'GerarNfseEnvio.xml', //Template do envelope de geração de NFS-e (recebe o RPS/DPS já assinado em {@Rps}/{@DPS})
+				'gerarNfseRestEnvelope' => 'GerarNfseEnvio.json', //Template do envelope de geração de NFS-e (recebe o RPS/DPS já assinado em {@Rps}/{@DPS})
 				'consultarNFSePorRps' => 'ConsultarNfseRpsEnvio.xml', //Template de consulta de NFS-e por RPS
 				'consultarNFSePorDps' => 'ConsultarNfseDpsEnvio.xml', //Template de consulta de NFS-e por DPS (padrão Nacional)
 				'consultarLoteRps' => 'ConsultarLoteRpsEnvio.xml', //Template de consulta de lote de RPS pelo protocolo
 				'consultarUrlNfse' => 'ConsultarUrlNfseEnvio.xml', //Template de consulta da URL pública da NFS-e
 				'cancelarNfse' => 'CancelarNfseEnvio.xml', //Template de cancelamento de NFS-e
 				'cancelarNFSeEnvio' => 'CancelarNfseEnvio.xml',
+				'cancelarNFSeEnvioRestEnvelope' => 'CancelarNfseEnvio.json',
 				'soap' => 'Soap.xml' //Template do envelope SOAP que "embrulha" o conteúdo em {@xml} e injeta a {@action}. Os métodos do padrão Nacional ainda esperam chaves extras nesta lista (ex.: cancelarNFSeEnvio, consultarLoteDpsEnvio, consultarNfseDpsEnvio, enviarLoteDpsEnvio) e os parciais usados na montagem do DPS (documentoDocDedRed, itemPed, refNfse, documentoReeRepRes)
 			),
 			'metodos' => array( //Configuração por operação. Chaves comuns: 'action' (nome da operação/SOAPAction); 'typeCommunication' ('soap'|'curl', default 'soap'); 'nameSpace' (prefixo de namespace da assinatura); 'tagSign'/'tagAppend' (tag assinada e tag onde a <Signature> é pendurada); 'tagMap' (tags usadas para localizar o nó de retorno)
@@ -367,23 +369,19 @@ class NFSeGenerico extends NFSe {
 		$typeCommunication = PQDUtil::retDefault($this->aConfig['metodos'][$metodo], 'typeCommunication', 'soap');
 
 		if($typeCommunication == 'rest-json'){
-			$documento = $oConsultarNfseDps->Documento ?? $oConsultarNfseDps->Prestador->CNPJ ?? $oConsultarNfseDps->Prestador->CPF ?? $this->aConfig['cpfCnpj'];
-			$inscricaoMunicipal = $oConsultarNfseDps->InscricaoMunicipal ?? $oConsultarNfseDps->Prestador->IM ?? $this->aConfig['insMunicipal'];
-			$serie = $oConsultarNfseDps->Serie ?? null;
-			$numero = $oConsultarNfseDps->Numero ?? null;
 
 			$aUrlReplaces = array(
 				'IdentificacaoDPS' => $oConsultarNfseDps->IdentificacaoDps,
 				'id' => $oConsultarNfseDps->IdentificacaoDps,
-				'Documento' => $oConsultarNfseDps->Documento,
-				'Serie' => $serie,
-				'Numero' => $numero
+				'Documento' => $oConsultarNfseDps->Prestador->CNPJ,
+				'Serie' => $oConsultarNfseDps->Serie,
+				'Numero' => $oConsultarNfseDps->Numero
 			);
 
 			$returnDps = $this->makeRestJsonRequest($metodo, $fileName, '', $aUrlReplaces);
 
 			$aReturnDps = $this->procReturn($returnDps, $metodo);
-			if(count(PQDUtil::retDefault($aReturnDps, 'ListaMensagemRetorno', array())) > 0)''
+			if(count(PQDUtil::retDefault($aReturnDps, 'ListaMensagemRetorno', array())) > 0)
 				return $aReturnDps;
 
 			if(PQDUtil::retDefault($this->aConfig['metodos'][$metodo], 'consultaPorChave', false) === false)
@@ -818,7 +816,7 @@ class NFSeGenerico extends NFSe {
 
 		$xmlGZipB64 = base64_encode($gzip);
 
-		$payload = PQDUtil::procTplText($this->getTemplate($metodo), array(
+		$payload = PQDUtil::procTplText($this->getTemplate($metodo . 'RestEnvelope'), array(
 			'{@xml}' => $xmlGZipB64,
 		), array());
 
