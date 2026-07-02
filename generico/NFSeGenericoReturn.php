@@ -174,7 +174,7 @@ class NFSeGenericoReturn extends NFSeReturn {
 	private function retErrosJsonComIdDps(array $json){
 		$aErros = $this->retErrosJson($json);
 		if(count($aErros) > 0){
-			$idDps = $this->retJsonValue($json, array('idDPS', 'idDps', 'IdDPS', 'IdDps'));
+			$idDps = $this->retJsonValue($json, array('idDPS', 'idDps', 'IdDPS', 'IdDps', 'id', 'Id'));
 			if(!is_null($idDps)){
 				foreach($aErros as $oErro)
 					if(empty($oErro->IdDPS))
@@ -214,10 +214,52 @@ class NFSeGenericoReturn extends NFSeReturn {
 		);
 	}
 
+	private function normalizaGerarNfseLoteJson(array $json){
+		if(empty($json['lote']) || !is_array($json['lote']))
+			return $json;
+
+		$lote = array_values($json['lote']);
+		if(count($lote) == 0 || !is_array($lote[0]))
+			return $json;
+
+		$item = $lote[0];
+		$aErros = $this->retErrosJsonComIdDps($item);
+		if(count($aErros) > 0)
+			return array('ListaMensagemRetorno' => $aErros);
+
+		$status = strtoupper((string)$this->retJsonValue($item, array('statusProcessamento', 'StatusProcessamento'), ''));
+		if($status != '' && $status != 'SUCESSO' && empty($item['xmlGZipB64']) && empty($item['nfseXmlGZipB64']))
+			return array('ListaMensagemRetorno' => array($this->retMensagemJson(array(
+				'codigo' => $status,
+				'descricao' => 'Processamento da NFS-e retornou status diferente de sucesso.',
+				'complemento' => 'Verificar retorno JSON do lote REST.'
+			))));
+
+		if(!empty($item['xmlGZipB64']) && empty($item['nfseXmlGZipB64']))
+			$item['nfseXmlGZipB64'] = $item['xmlGZipB64'];
+
+		$idDps = $this->retJsonValue($item, array('idDps', 'idDPS', 'IdDps', 'IdDPS', 'id', 'Id'));
+		if(!is_null($idDps) && empty($item['idDps']))
+			$item['idDps'] = $idDps;
+
+		$chaveAcesso = $this->retJsonValue($item, array('chaveAcesso', 'ChaveAcesso'));
+		if(!is_null($chaveAcesso) && empty($item['chaveAcesso']))
+			$item['chaveAcesso'] = $chaveAcesso;
+
+		if(isset($json['alertas']) && !isset($item['alertas']))
+			$item['alertas'] = $json['alertas'];
+
+		return array_merge($json, $item);
+	}
+
 	private function gerarNfseJsonRetorno(array $json){
 		$aErros = $this->retErrosJsonComIdDps($json);
 		if(count($aErros) > 0)
 			return array('ListaMensagemRetorno' => $aErros);
+
+		$json = $this->normalizaGerarNfseLoteJson($json);
+		if(isset($json['ListaMensagemRetorno']) && is_array($json['ListaMensagemRetorno']))
+			return array('ListaMensagemRetorno' => $json['ListaMensagemRetorno']);
 
 		$return = $this->retNfseXmlGZipB64Json($json, $this->retListaMensagemJson($json, 'alertas'));
 		if(count($return['ListaMensagemRetorno']) > 0)
@@ -229,6 +271,33 @@ class NFSeGenericoReturn extends NFSeReturn {
 			'idDps' => PQDUtil::retDefault($json, 'idDps', null),
 			'chaveAcesso' => PQDUtil::retDefault($json, 'chaveAcesso', null)
 		);
+	}
+
+	private function normalizaConsultarNfseDpsNotasJson(array $json){
+		if(!isset($json['notas']))
+			return $json;
+
+		if(!is_array($json['notas']) || count($json['notas']) == 0)
+			return array('ListaMensagemRetorno' => array($this->retMensagemJson(array(
+				'codigo' => 'DPS',
+				'descricao' => 'NFS-e ainda nao gerada para o DPS informado.',
+				'complemento' => 'A consulta por DPS nao retornou notas.'
+			))));
+
+		$notas = array_values($json['notas']);
+		if(!is_array($notas[0]))
+			return $json;
+
+		$nota = $notas[0];
+
+		if(!empty($nota['xmlGZipB64']) && empty($nota['nfseXmlGZipB64']))
+			$nota['nfseXmlGZipB64'] = $nota['xmlGZipB64'];
+
+		$chaveAcesso = $this->retJsonValue($nota, array('chaveAcesso', 'ChaveAcesso', 'chave', 'Chave'));
+		if(!is_null($chaveAcesso) && empty($nota['chaveAcesso']))
+			$nota['chaveAcesso'] = $chaveAcesso;
+
+		return array_merge($json, $nota);
 	}
 
 	private function consultarNFSePorDpsJsonRetorno(array $json){
@@ -243,6 +312,10 @@ class NFSeGenericoReturn extends NFSeReturn {
 
 			return array('ListaMensagemRetorno' => $aErros);
 		}
+
+		$json = $this->normalizaConsultarNfseDpsNotasJson($json);
+		if(isset($json['ListaMensagemRetorno']) && is_array($json['ListaMensagemRetorno']))
+			return array('ListaMensagemRetorno' => $json['ListaMensagemRetorno']);
 
 		if(!empty($json['chaveAcesso']) && empty($json['nfseXmlGZipB64']))
 			return array(
@@ -275,6 +348,31 @@ class NFSeGenericoReturn extends NFSeReturn {
 				'ListaMensagemRetorno' => array(),
 				'eventoXmlGZipB64' => $json['eventoXmlGZipB64']
 			);
+
+		if(!empty($json['lote']) && is_array($json['lote'])){
+			$lote = array_values($json['lote']);
+			if(count($lote) > 0 && is_array($lote[0])){
+				$item = $lote[0];
+				$aErros = $this->retErrosJsonComIdDps($item);
+				if(count($aErros) > 0)
+					return array('ListaMensagemRetorno' => $aErros);
+
+				$status = strtoupper((string)$this->retJsonValue($item, array('statusProcessamento', 'StatusProcessamento'), ''));
+				if($status == 'SUCESSO'){
+					return array(
+						'ListaMensagemRetorno' => array(),
+						'eventoXmlGZipB64' => PQDUtil::retDefault($item, 'xmlGZipB64', null)
+					);
+				}
+
+				if($status != '')
+					return array('ListaMensagemRetorno' => array($this->retMensagemJson(array(
+						'codigo' => $status,
+						'descricao' => 'Processamento do cancelamento retornou status diferente de sucesso.',
+						'complemento' => 'Verificar retorno JSON do lote REST.'
+					))));
+			}
+		}
 
 		return array('ListaMensagemRetorno' => array($this->retMsgForaEsperado()));
 	}

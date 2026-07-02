@@ -85,12 +85,14 @@ class NFSeGenerico extends NFSe {
 				'enviarLoteRps' => 'EnviarLoteRps.xml', //Template do envelope de envio de lote de RPS
 				'deducao' => 'Deducao.xml', //Template de uma dedução (repetido para cada item de $oRps->aDeducoes)
 				'gerarNfse' => 'GerarNfseEnvio.xml', //Template do envelope de geração de NFS-e (recebe o RPS/DPS já assinado em {@Rps}/{@DPS})
+				'gerarNfseRestEnvelope' => 'GerarNfseEnvio.json', //Template do envelope de geração de NFS-e (recebe o RPS/DPS já assinado em {@Rps}/{@DPS})
 				'consultarNFSePorRps' => 'ConsultarNfseRpsEnvio.xml', //Template de consulta de NFS-e por RPS
 				'consultarNFSePorDps' => 'ConsultarNfseDpsEnvio.xml', //Template de consulta de NFS-e por DPS (padrão Nacional)
 				'consultarLoteRps' => 'ConsultarLoteRpsEnvio.xml', //Template de consulta de lote de RPS pelo protocolo
 				'consultarUrlNfse' => 'ConsultarUrlNfseEnvio.xml', //Template de consulta da URL pública da NFS-e
 				'cancelarNfse' => 'CancelarNfseEnvio.xml', //Template de cancelamento de NFS-e
 				'cancelarNFSeEnvio' => 'CancelarNfseEnvio.xml',
+				'cancelarNFSeEnvioRestEnvelope' => 'CancelarNfseEnvio.json',
 				'soap' => 'Soap.xml' //Template do envelope SOAP que "embrulha" o conteúdo em {@xml} e injeta a {@action}. Os métodos do padrão Nacional ainda esperam chaves extras nesta lista (ex.: cancelarNFSeEnvio, consultarLoteDpsEnvio, consultarNfseDpsEnvio, enviarLoteDpsEnvio) e os parciais usados na montagem do DPS (documentoDocDedRed, itemPed, refNfse, documentoReeRepRes)
 			),
 			'metodos' => array( //Configuração por operação. Chaves comuns: 'action' (nome da operação/SOAPAction); 'typeCommunication' ('soap'|'curl', default 'soap'); 'nameSpace' (prefixo de namespace da assinatura); 'tagSign'/'tagAppend' (tag assinada e tag onde a <Signature> é pendurada); 'tagMap' (tags usadas para localizar o nó de retorno)
@@ -143,10 +145,7 @@ class NFSeGenerico extends NFSe {
 					'typeCommunication' => 'soap',//Forma de transporte: 'soap' usa SoapClient; 'curl' faz POST HTTP puro. Quando omitido, default 'soap'
 					'httpMethod' => 'GET', //Quando typeCommunication = rest-json, consulta a chave por DPS
 					'url' => '/dps/{@IdentificacaoDPS}', //Endpoint REST do Emissor Nacional para obter a chave de acesso
-					'consultaPorChave' => array(
-						'httpMethod' => 'GET',
-						'url' => '/nfse/{@chaveAcesso}'
-					),
+					'consultaPorChave' => false,
 					'tagMap' => array(
 						'return' => 'consultarNfseDpsResponse' //Tag externa da resposta
 					)
@@ -184,7 +183,6 @@ class NFSeGenerico extends NFSe {
 					'action' => 'cancelarNFSeEnvio',
 					'typeCommunication' => 'soap',//Forma de transporte: 'soap' usa SoapClient; 'curl' faz POST HTTP puro. Quando omitido, default 'soap'
 					'nameSpace' => '',
-					'payloadKey' => 'pedidoRegistroEventoXmlGZipB64',
 					'url' => '/nfse/{@chNFSe}/eventos',// URL para uso no cancelamento feito por REST HTTP
 					'tagSign' => 'infPedReg',
 					'tagAppend' => 'pedRegEvento',
@@ -371,14 +369,25 @@ class NFSeGenerico extends NFSe {
 		$typeCommunication = PQDUtil::retDefault($this->aConfig['metodos'][$metodo], 'typeCommunication', 'soap');
 
 		if($typeCommunication == 'rest-json'){
-			$returnDps = $this->makeRestJsonRequest($metodo, $fileName, '', array(
+
+			$aUrlReplaces = array(
 				'IdentificacaoDPS' => $oConsultarNfseDps->IdentificacaoDps,
-				'id' => $oConsultarNfseDps->IdentificacaoDps
-			));
+				'id' => $oConsultarNfseDps->IdentificacaoDps,
+				'Documento' => $oConsultarNfseDps->Prestador->CNPJ,
+				'Serie' => $oConsultarNfseDps->Serie,
+				'Numero' => $oConsultarNfseDps->Numero
+			);
+
+			$returnDps = $this->makeRestJsonRequest($metodo, $fileName, '', $aUrlReplaces);
 
 			$aReturnDps = $this->procReturn($returnDps, $metodo);
 			if(count(PQDUtil::retDefault($aReturnDps, 'ListaMensagemRetorno', array())) > 0)
 				return $aReturnDps;
+
+			if(PQDUtil::retDefault($this->aConfig['metodos'][$metodo], 'consultaPorChave', false) === false)
+				return $aReturnDps;
+
+			$consultaPorChave = array();
 
 			$chaveAcesso = PQDUtil::retDefault($aReturnDps, 'chaveAcesso', null);
 			if(empty($chaveAcesso))
@@ -388,10 +397,9 @@ class NFSeGenerico extends NFSe {
 					'Verificar retorno JSON do Emissor Nacional.'
 				), $metodo);
 
-			$metodoConfig = PQDUtil::retDefault($this->aConfig['metodos'][$metodo], 'consultaPorChave', array());
-			$metodoConfig = PQDUtil::setDefault($metodoConfig, array(
+			$metodoConfig = PQDUtil::setDefault($consultaPorChave, array(
 				'httpMethod' => 'GET',
-				'url' => '/nfse/{@chaveAcesso}',
+				'url' => '/nfse/{@chNFSe}',
 				'httpStatus' => array(
 					'success' => array(200)
 				)
@@ -401,7 +409,7 @@ class NFSeGenerico extends NFSe {
 				'consultarNFSePorChave',
 				$chaveAcesso . ".xml",
 				'',
-				array('chaveAcesso' => $chaveAcesso),
+				array('chNFSe' => $chaveAcesso),
 				$metodoConfig
 			);
 
@@ -797,7 +805,6 @@ class NFSeGenerico extends NFSe {
 
 	private function retRestJsonPayload($metodo, $xml){
 		$metodoConfig = PQDUtil::retDefault($this->aConfig['metodos'], $metodo, array());
-		$payloadKey = PQDUtil::retDefault($metodoConfig, 'payloadKey', 'dpsXmlGZipB64');
 
 		if(strpos($xml, '<?xml') !== 0)
 			$xml = '<?xml version="1.0" encoding="UTF-8"?>' . $xml;
@@ -807,12 +814,15 @@ class NFSeGenerico extends NFSe {
 		if($gzip === false)
 			throw new \Exception("Erro ao compactar XML para envio REST JSON.");
 
-		$payload = json_encode(array(
-			$payloadKey => base64_encode($gzip)
-		), JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE);
+		$xmlGZipB64 = base64_encode($gzip);
 
-		if($payload === false)
-			throw new \Exception("Erro ao gerar JSON para envio REST.");
+		$payload = PQDUtil::procTplText($this->getTemplate($metodo . 'RestEnvelope'), array(
+			'{@xml}' => $xmlGZipB64,
+		), array());
+
+		json_decode(trim($payload), true);
+		if(json_last_error() !== JSON_ERROR_NONE)
+			throw new \Exception("Template JSON REST invalido (" . $metodo . "): " . json_last_error_msg());
 
 		return $payload;
 	}
@@ -1969,20 +1979,8 @@ class NFSeGenerico extends NFSe {
 
 	public function getConfig($key = null, $default = null){
 
-		if(!is_null($key)){
-			if(strpos($key, '.') === false)
-				return PQDUtil::retDefault($this->aConfig, $key, $default);
-
-			$value = $this->aConfig;
-			foreach(explode('.', $key) as $part){
-				if(!is_array($value) || !array_key_exists($part, $value))
-					return $default;
-
-				$value = $value[$part];
-			}
-
-			return $value;
-		}
+		if(!is_null($key))
+			return PQDUtil::retDefault($this->aConfig, $key, $default);
 
 		return $this->aConfig;
 	}
