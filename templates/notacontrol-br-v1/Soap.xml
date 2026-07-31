@@ -3,7 +3,7 @@
    <soapenv:Body>
       <nfse:{@action}>
          <!--Optional:-->
-		 <nfseCabecMsg>?</nfseCabecMsg>
+		 <nfseCabecMsg><cabecalho versao="1.01" xmlns="http://www.sped.fazenda.gov.br/nfse"><versaoDados>1.01</versaoDados></cabecalho></nfseCabecMsg>
          <nfseDadosMsg><![CDATA[{@xml}]]></nfseDadosMsg>
       </nfse:{@action}>
    </soapenv:Body>
