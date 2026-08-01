@@ -1660,10 +1660,10 @@ class NFSeGenerico extends NFSe {
 			['begin' => '{@ifVRetCSLL}', 'end' => '{@endifVRetCSLL}', 'bool' => !empty($oDPS->valores->trib->tribFed->vRetCSLL)],
 
 			// Total de Tributos
-			['begin' => '{@ifVTotTrib}', 'end' => '{@endifVTotTrib}', 'bool' => !empty($oDPS->valores->trib->totTrib->vTotTrib)],
-			['begin' => '{@ifPTotTrib}', 'end' => '{@endifPTotTrib}', 'bool' => !empty($oDPS->valores->trib->totTrib->pTotTrib)],
-			['begin' => '{@ifIndTotTrib}', 'end' => '{@endifIndTotTrib}', 'bool' => !is_null($oDPS->valores->trib->totTrib->indTotTrib)],
-			['begin' => '{@ifPTotTribSN}', 'end' => '{@endifPTotTribSN}', 'bool' => !empty($oDPS->valores->trib->totTrib->pTotTribSN)],
+			['begin' => '{@ifVTotTrib}', 'end' => '{@endifVTotTrib}', 'bool' => !is_null($oDPS->valores->trib->totTrib->vTotTrib)],
+			['begin' => '{@ifPTotTrib}', 'end' => '{@endifPTotTrib}', 'bool' => !is_null($oDPS->valores->trib->totTrib->pTotTrib)],
+			['begin' => '{@ifIndTotTrib}', 'end' => '{@endifIndTotTrib}', 'bool' => !is_null($oDPS->valores->trib->totTrib->indTotTrib) && $oDPS->valores->trib->totTrib->indTotTrib == 0],
+			['begin' => '{@ifPTotTribSN}', 'end' => '{@endifPTotTribSN}', 'bool' => !is_null($oDPS->valores->trib->totTrib->pTotTribSN)],
 
 			// IBS/CBS
 			['begin' => '{@ifIBSCBS}', 'end' => '{@endifIBSCBS}', 'bool' => !empty($oDPS->IBSCBS->finNFSe)],
