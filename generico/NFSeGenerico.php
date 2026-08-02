@@ -765,6 +765,83 @@ class NFSeGenerico extends NFSe {
 	}
 
 	/**
+	 * Envia uma requisição de acordo com o metodo e tipo de comunicação no metodo
+	 * 
+	 * @param string $metodo
+	 * @param string $xml
+	 * 
+	 * @return string
+	 */
+	private function sendRequest($metodo, $xml, array $urlReplaces = array(), array $metodoConfigOverride = null){
+
+		$baseMetodoConfig = PQDUtil::retDefault($this->aConfig['metodos'], $metodo, array());
+		$metodoConfig = is_null($metodoConfigOverride) ? $baseMetodoConfig : PQDUtil::setDefault($metodoConfigOverride, $baseMetodoConfig);
+		$typeCommunication = PQDUtil::retDefault($metodoConfig, 'typeCommunication', is_null($metodoConfigOverride) ? 'soap' : 'rest-json');
+		$action = PQDUtil::retDefault($metodoConfig, 'actionSoapHeader', PQDUtil::retDefault($metodoConfig, 'action', ''));
+
+
+		$wsdl = $this->isHomologacao ? $this->aConfig['homologacao']['wsdl'] : $this->aConfig['producao']['wsdl'];
+		$url = $this->isHomologacao ? PQDUtil::retDefault($this->aConfig['homologacao'], 'url', $wsdl) : PQDUtil::retDefault($this->aConfig['producao'], 'url', $wsdl);
+
+		switch($typeCommunication){
+			case 'curl':
+
+				$curl = PQDUtil::retDefault($this->aConfig, 'curl', array());
+
+				$headers = array();
+				foreach(PQDUtil::retDefault($curl, 'header', array() ) as $header)
+					$headers[] = $header; 
+				foreach(PQDUtil::retDefault($metodoConfig, 'header', array() ) as $header)
+					$headers[] = $header; 
+
+				return $this->curl(
+					$url, 
+					$xml, 
+					count($headers) == 0 ? null : $headers, 
+					PQDUtil::retDefault($curl, 'port', 443), 
+					PQDUtil::retDefault($this->aConfig, 'proxy', null)
+				);
+
+			break;
+			case 'rest-json':
+
+				$curl = PQDUtil::retDefault($this->aConfig, 'curl', array());
+				$url = $this->retRestUrlConfig($metodoConfig, $urlReplaces);
+				$httpMethod = strtoupper(PQDUtil::retDefault($metodoConfig, 'httpMethod', $xml != '' ? 'POST' : 'GET'));
+
+				$retCurl = $this->curl(
+					$url,
+					$xml,
+					$this->retRestHeadersConfig($metodoConfig),
+					PQDUtil::retDefault($curl, 'port', 443),
+					PQDUtil::retDefault($this->aConfig, 'proxy', null),
+					array(
+						'httpMethod' => $httpMethod,
+						'customRequest' => true,
+						'returnInfo' => true
+					)
+				);
+
+				if(!empty($retCurl['error']))
+					return $this->retRestJsonErrorReturn('CURL', $retCurl['error'], 'HTTP ' . $retCurl['httpCode']);
+
+				$successStatus = PQDUtil::retDefault(PQDUtil::retDefault($metodoConfig, 'httpStatus', array()), 'success', array(200, 201));
+				if(!in_array($retCurl['httpCode'], $successStatus) && empty($retCurl['body']))
+					return $this->retRestJsonErrorReturn('HTTP' . $retCurl['httpCode'], 'Retorno HTTP sem corpo.', $retCurl['url']);
+
+				return $retCurl['body'];
+
+			break;
+			case 'soap':
+
+				$soap = PQDUtil::retDefault($this->aConfig, 'soap', array());
+
+				return $this->soap($wsdl, $url, $action, $xml, PQDUtil::retDefault($soap, 'version', '1.1'));
+			break;
+		}
+	}
+
+	/**
 	 * Faz uma requisição SOAP
 	 * 
 	 * @return string
@@ -779,7 +856,7 @@ class NFSeGenerico extends NFSe {
 
 		if($this->isHomologacao)
 			$this->saveXML($xml, $metodo . '-soap-' . $fileName);
-		
+
 		$soapReturn = $this->sendRequest($metodo, $xml);
 
 		//if($this->isHomologacao)
@@ -880,83 +957,6 @@ class NFSeGenerico extends NFSe {
 				'complemento' => $complemento
 			)
 		), JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE);
-	}
-
-	/**
-	 * Envia uma requisição de acordo com o metodo e tipo de comunicação no metodo
-	 * 
-	 * @param string $metodo
-	 * @param string $xml
-	 * 
-	 * @return string
-	 */
-	private function sendRequest($metodo, $xml, array $urlReplaces = array(), array $metodoConfigOverride = null){
-
-		$baseMetodoConfig = PQDUtil::retDefault($this->aConfig['metodos'], $metodo, array());
-		$metodoConfig = is_null($metodoConfigOverride) ? $baseMetodoConfig : PQDUtil::setDefault($metodoConfigOverride, $baseMetodoConfig);
-		$typeCommunication = PQDUtil::retDefault($metodoConfig, 'typeCommunication', is_null($metodoConfigOverride) ? 'soap' : 'rest-json');
-		$action = PQDUtil::retDefault($metodoConfig, 'actionSoapHeader', PQDUtil::retDefault($metodoConfig, 'action', ''));
-
-
-		$wsdl = $this->isHomologacao ? $this->aConfig['homologacao']['wsdl'] : $this->aConfig['producao']['wsdl'];
-		$url = $this->isHomologacao ? PQDUtil::retDefault($this->aConfig['homologacao'], 'url', $wsdl) : PQDUtil::retDefault($this->aConfig['producao'], 'url', $wsdl);
-
-		switch($typeCommunication){
-			case 'curl':
-
-				$curl = PQDUtil::retDefault($this->aConfig, 'curl', array());
-
-				$headers = array();
-				foreach(PQDUtil::retDefault($curl, 'header', array() ) as $header)
-					$headers[] = $header; 
-				foreach(PQDUtil::retDefault($metodoConfig, 'header', array() ) as $header)
-					$headers[] = $header; 
-
-				return $this->curl(
-					$url, 
-					$xml, 
-					count($headers) == 0 ? null : $headers, 
-					PQDUtil::retDefault($curl, 'port', 443), 
-					PQDUtil::retDefault($this->aConfig, 'proxy', null)
-				);
-
-			break;
-			case 'rest-json':
-
-				$curl = PQDUtil::retDefault($this->aConfig, 'curl', array());
-				$url = $this->retRestUrlConfig($metodoConfig, $urlReplaces);
-				$httpMethod = strtoupper(PQDUtil::retDefault($metodoConfig, 'httpMethod', $xml != '' ? 'POST' : 'GET'));
-
-				$retCurl = $this->curl(
-					$url,
-					$xml,
-					$this->retRestHeadersConfig($metodoConfig),
-					PQDUtil::retDefault($curl, 'port', 443),
-					PQDUtil::retDefault($this->aConfig, 'proxy', null),
-					array(
-						'httpMethod' => $httpMethod,
-						'customRequest' => true,
-						'returnInfo' => true
-					)
-				);
-
-				if(!empty($retCurl['error']))
-					return $this->retRestJsonErrorReturn('CURL', $retCurl['error'], 'HTTP ' . $retCurl['httpCode']);
-
-				$successStatus = PQDUtil::retDefault(PQDUtil::retDefault($metodoConfig, 'httpStatus', array()), 'success', array(200, 201));
-				if(!in_array($retCurl['httpCode'], $successStatus) && empty($retCurl['body']))
-					return $this->retRestJsonErrorReturn('HTTP' . $retCurl['httpCode'], 'Retorno HTTP sem corpo.', $retCurl['url']);
-
-				return $retCurl['body'];
-
-			break;
-			case 'soap':
-
-				$soap = PQDUtil::retDefault($this->aConfig, 'soap', array());
-
-				return $this->soap($wsdl, $url, $action, $xml, PQDUtil::retDefault($soap, 'version', '1.1'));
-			break;
-		}
 	}
 
 	/**
