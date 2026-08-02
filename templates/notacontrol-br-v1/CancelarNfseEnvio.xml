@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<CancelarNfseEnvio xmlns:nfse="http://www.sped.fazenda.gov.br/nfse">
+<CancelarNfseEnvio xmlns="http://www.sped.fazenda.gov.br/nfse">
 	<pedRegEvento>
 		<infPedReg>
 			<tpAmb>{@tpAmb}</tpAmb>
