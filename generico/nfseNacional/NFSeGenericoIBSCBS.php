@@ -14,7 +14,7 @@ class NFSeGenericoIBSCBS {
 	 * 
 	 * @var $finNFSe 
 	*/
-	public $finNFSe = 0;
+	public $finNFSe;
 
 	/**
 	 * Indica operação de uso ou consumo pessoal (art. 57)

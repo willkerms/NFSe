@@ -1278,6 +1278,9 @@ class NFSeGenerico extends NFSe {
 	 */
 	private function retXMLDPS(NFSeGenericoInfDPS $oDPS){
 
+		/**
+		 * @var NFSeGenericoInfDPS $oDPS
+		 */
 		$oDPS = $this->escapeTextObj($oDPS);
 
 		$tplDPS = $this->getTemplate('dps');
@@ -1647,17 +1650,17 @@ class NFSeGenerico extends NFSe {
 			['begin' => '{@ifPAliqISSQN}', 'end' => '{@endifPAliqISSQN}', 'bool' => !empty($oDPS->valores->trib->tribMun->pAliq)],
 
 			// Tributação Federal
-			['begin' => '{@ifTribFed}', 'end' => '{@endifTribFed}', 'bool' => !empty($oDPS->valores->trib->tribFed->piscofins->CST)],
-			['begin' => '{@ifPiscofins}', 'end' => '{@endifPiscofins}', 'bool' => !empty($oDPS->valores->trib->tribFed->piscofins)],
-			['begin' => '{@ifVBCPisCofins}', 'end' => '{@endifVBCPisCofins}', 'bool' => !empty($oDPS->valores->trib->tribFed->piscofins->vBCPisCofins)],
-			['begin' => '{@ifPAliqPis}', 'end' => '{@endifPAliqPis}', 'bool' => !empty($oDPS->valores->trib->tribFed->piscofins->pAliqPis)],
-			['begin' => '{@ifPAliqCofins}', 'end' => '{@endifPAliqCofins}', 'bool' => !empty($oDPS->valores->trib->tribFed->piscofins->pAliqCofins)],
-			['begin' => '{@ifVPis}', 'end' => '{@endifVPis}', 'bool' => !empty($oDPS->valores->trib->tribFed->piscofins->vPis)],
-			['begin' => '{@ifVCofins}', 'end' => '{@endifVCofins}', 'bool' => !empty($oDPS->valores->trib->tribFed->piscofins->vCofins)],
-			['begin' => '{@ifTpRetPisCofins}', 'end' => '{@endifTpRetPisCofins}', 'bool' => !empty($oDPS->valores->trib->tribFed->piscofins->tpRetPisCofins)],
-			['begin' => '{@ifVRetCP}', 'end' => '{@endifVRetCP}', 'bool' => !empty($oDPS->valores->trib->tribFed->vRetCP)],
-			['begin' => '{@ifVRetIRRF}', 'end' => '{@endifVRetIRRF}', 'bool' => !empty($oDPS->valores->trib->tribFed->vRetIRRF)],
-			['begin' => '{@ifVRetCSLL}', 'end' => '{@endifVRetCSLL}', 'bool' => !empty($oDPS->valores->trib->tribFed->vRetCSLL)],
+			['begin' => '{@ifTribFed}', 'end' => '{@endifTribFed}', 'bool' => !is_null($oDPS->valores->trib->tribFed->piscofins->CST) || !is_null($oDPS->valores->trib->tribFed->vRetCP) || !is_null($oDPS->valores->trib->tribFed->vRetIRRF) || !is_null($oDPS->valores->trib->tribFed->vRetCSLL) ],
+			['begin' => '{@ifPiscofins}', 'end' => '{@endifPiscofins}', 'bool' => !is_null($oDPS->valores->trib->tribFed->piscofins->CST)],
+			['begin' => '{@ifVBCPisCofins}', 'end' => '{@endifVBCPisCofins}', 'bool' => !is_null($oDPS->valores->trib->tribFed->piscofins->vBCPisCofins)],
+			['begin' => '{@ifPAliqPis}', 'end' => '{@endifPAliqPis}', 'bool' => !is_null($oDPS->valores->trib->tribFed->piscofins->pAliqPis)],
+			['begin' => '{@ifPAliqCofins}', 'end' => '{@endifPAliqCofins}', 'bool' => !is_null($oDPS->valores->trib->tribFed->piscofins->pAliqCofins)],
+			['begin' => '{@ifVPis}', 'end' => '{@endifVPis}', 'bool' => !is_null($oDPS->valores->trib->tribFed->piscofins->vPis)],
+			['begin' => '{@ifVCofins}', 'end' => '{@endifVCofins}', 'bool' => !is_null($oDPS->valores->trib->tribFed->piscofins->vCofins)],
+			['begin' => '{@ifTpRetPisCofins}', 'end' => '{@endifTpRetPisCofins}', 'bool' => !is_null($oDPS->valores->trib->tribFed->piscofins->tpRetPisCofins)],
+			['begin' => '{@ifVRetCP}', 'end' => '{@endifVRetCP}', 'bool' => !is_null($oDPS->valores->trib->tribFed->vRetCP)],
+			['begin' => '{@ifVRetIRRF}', 'end' => '{@endifVRetIRRF}', 'bool' => !is_null($oDPS->valores->trib->tribFed->vRetIRRF)],
+			['begin' => '{@ifVRetCSLL}', 'end' => '{@endifVRetCSLL}', 'bool' => !is_null($oDPS->valores->trib->tribFed->vRetCSLL)],
 
 			// Total de Tributos
 			['begin' => '{@ifVTotTrib}', 'end' => '{@endifVTotTrib}', 'bool' => !is_null($oDPS->valores->trib->totTrib->vTotTrib)],
@@ -1666,12 +1669,12 @@ class NFSeGenerico extends NFSe {
 			['begin' => '{@ifPTotTribSN}', 'end' => '{@endifPTotTribSN}', 'bool' => !is_null($oDPS->valores->trib->totTrib->pTotTribSN)],
 
 			// IBS/CBS
-			['begin' => '{@ifIBSCBS}', 'end' => '{@endifIBSCBS}', 'bool' => !empty($oDPS->IBSCBS->finNFSe)],
+			['begin' => '{@ifIBSCBS}', 'end' => '{@endifIBSCBS}', 'bool' => !is_null($oDPS->IBSCBS->finNFSe)],
 			['begin' => '{@ifIndFinal}', 'end' => '{@endifIndFinal}', 'bool' => !empty($oDPS->IBSCBS->indFinal)],
 			['begin' => '{@ifTpOper}', 'end' => '{@endifTpOper}', 'bool' => !empty($oDPS->IBSCBS->tpOper)],
 			['begin' => '{@ifGRefNFSe}', 'end' => '{@endifGRefNFSe}', 'bool' => !empty($oDPS->IBSCBS->gRefNFSe)],
 			['begin' => '{@ifTpEnteGov}', 'end' => '{@endifTpEnteGov}', 'bool' => !empty($oDPS->IBSCBS->tpEnteGov)],
-			['begin' => '{@ifDest}', 'end' => '{@endifDest}', 'bool' => !empty($oDPS->IBSCBS->dest)],
+			['begin' => '{@ifDest}', 'end' => '{@endifDest}', 'bool' => !is_null($oDPS->IBSCBS->dest->CPF) || !is_null($oDPS->IBSCBS->dest->CNPJ) || !is_null($oDPS->IBSCBS->dest->NIF) || !is_null($oDPS->IBSCBS->dest->cNaoNif)],
 			['begin' => '{@ifCNPJDest}', 'end' => '{@endifCNPJDest}', 'bool' => strlen($oDPS->IBSCBS->dest->CNPJ ?? '') == 14],
 			['begin' => '{@ifCPFDest}', 'end' => '{@endifCPFDest}', 'bool' => strlen($oDPS->IBSCBS->dest->CPF ?? '') == 11],
 			['begin' => '{@ifNIFDest}', 'end' => '{@endifNIFDest}', 'bool' => !empty($oDPS->IBSCBS->dest->NIF)],
@@ -1682,7 +1685,7 @@ class NFSeGenerico extends NFSe {
 			['begin' => '{@ifXCplDest}', 'end' => '{@endifXCplDest}', 'bool' => !empty($oDPS->IBSCBS->dest->end->xCpl)],
 			['begin' => '{@ifFoneDest}', 'end' => '{@endifFoneDest}', 'bool' => !empty($oDPS->IBSCBS->dest->fone)],
 			['begin' => '{@ifEmailDest}', 'end' => '{@endifEmailDest}', 'bool' => !empty($oDPS->IBSCBS->dest->email)],
-			['begin' => '{@ifImovel}', 'end' => '{@endifImovel}', 'bool' => !empty($oDPS->IBSCBS->imovel)],
+			['begin' => '{@ifImovel}', 'end' => '{@endifImovel}', 'bool' => !is_null($oDPS->IBSCBS->imovel->cCIB) || !is_null($oDPS->IBSCBS->imovel->end->xLgr)],
 			['begin' => '{@ifInscImobFiscImovel}', 'end' => '{@endifInscImobFiscImovel}', 'bool' => !empty($oDPS->IBSCBS->imovel->inscImobFisc)],
 			['begin' => '{@ifCCIBImovel}', 'end' => '{@endifCCIBImovel}', 'bool' => !empty($oDPS->IBSCBS->imovel->cCIB)],
 			['begin' => '{@ifEndImovel}', 'end' => '{@endifEndImovel}', 'bool' => !empty($oDPS->IBSCBS->imovel->end)],
@@ -1701,9 +1704,9 @@ class NFSeGenerico extends NFSe {
 			['begin' => '{@ifNIFFornecReeRepRes}', 'end' => '{@endifNIFFornecReeRepRes}', 'bool' => !empty($oDPS->IBSCBS->valores->trib->documentos->fornec->NIF)],
 			['begin' => '{@ifCNaoNIFFornecReeRepRes}', 'end' => '{@endifCNaoNIFFornecReeRepRes}', 'bool' => !empty($oDPS->IBSCBS->valores->trib->documentos->fornec->cNaoNIF)],
 			['begin' => '{@ifXTpReeRepRes}', 'end' => '{@endifXTpReeRepRes}', 'bool' => !empty($oDPS->IBSCBS->valores->trib->documentos->xTpReeRepRes)],
-			['begin' => '{@ifCCredPresIBSCBS}', 'end' => '{@endifCCredPresIBSCBS}', 'bool' => !empty($oDPS->IBSCBS->valores->trib->gIBSCBS->cCredPres)],
-			['begin' => '{@ifGTribRegularIBSCBS}', 'end' => '{@endifGTribRegularIBSCBS}', 'bool' => !empty($oDPS->IBSCBS->valores->trib->gIBSCBS->gTribRegular)],
-			['begin' => '{@ifGDif}', 'end' => '{@endifGDif}', 'bool' => !empty($oDPS->IBSCBS->valores->trib->gIBSCBS->gDif)],
+			['begin' => '{@ifCCredPresIBSCBS}', 'end' => '{@endifCCredPresIBSCBS}', 'bool' => !is_null($oDPS->IBSCBS->valores->trib->gIBSCBS->cCredPres)],
+			['begin' => '{@ifGTribRegularIBSCBS}', 'end' => '{@endifGTribRegularIBSCBS}', 'bool' => !is_null($oDPS->IBSCBS->valores->trib->gIBSCBS->gTribRegular->CSTReg)],
+			['begin' => '{@ifGDif}', 'end' => '{@endifGDif}', 'bool' => !is_null($oDPS->IBSCBS->valores->trib->gIBSCBS->gDif->pDifUF)],
 		);
 
 		return $this->retXML(PQDUtil::procTplText($tplDPS, $aReplace, $aIfs));
