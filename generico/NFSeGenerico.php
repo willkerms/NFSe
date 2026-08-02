@@ -416,11 +416,16 @@ class NFSeGenerico extends NFSe {
 			return $this->procReturn($returnNfse, $metodo);
 		}
 
-		//Gerar NFSe
+		//Consulta DPS via SOAP
 		$tpl = $this->getTemplate($metodo);
 
 		$aReplaces = $this->retReplaceUsuarios('xml');
 		$aReplaces['replace']['{@IdentificacaoDPS}'] = $oConsultarNfseDps->IdentificacaoDps;
+
+		$aReplaces['replace']['{@Numero}'] = $oConsultarNfseDps->Numero;
+		$aReplaces['replace']['{@Serie}'] = $oConsultarNfseDps->Serie;
+		$aReplaces['replace']['{@SerieRps}'] = $oConsultarNfseDps->Serie;
+		$aReplaces['replace']['{@SerieRpsAsInt}'] = (int)$oConsultarNfseDps->Serie;
 
 		$aReplaces['replace']['{@CpfPrestador}'] = $this->aConfig['cpfCnpj'];
 		$aReplaces['replace']['{@CnpjPrestador}'] = $this->aConfig['cpfCnpj'];
