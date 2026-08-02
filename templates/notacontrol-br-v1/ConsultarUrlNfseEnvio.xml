@@ -1,0 +1,77 @@
+<ConsultarUrlNfseEnvio xmlns="http://www.sped.fazenda.gov.br/nfse">
+	<Prestador>
+		<!-- Informação obrigatória. Informe CPF ou CNPJ do prestador. NÃO ENVIAR ESTAS TAGS SIMULTANEAMENTE. -->
+		 {@ifCnpjPrestador}
+		<CNPJ>{@CnpjPrestador}</CNPJ>
+		{@endifCnpjPrestador}
+		{@ifCpfPrestador}
+		<CPF>{@CpfPrestador}</CPF>
+		{@endifCpfPrestador}
+		<!-- Informação obrigatória. Número de inscrição municipal do prestador do serviço. -->
+
+		{@ifInscricaoMunicipalPrestador}
+		<IM>{@InscricaoMunicipalPrestador}</IM>
+		{@endifInscricaoMunicipalPrestador}
+	</Prestador>
+	
+	<!-- INÍCIO CHOICE. INFORME OBRIGATORIAMENTE (NumeroNfse OU PeriodoEmissao OU PeriodoCompetencia). -->
+	{@ifNumeroNfse}
+	<NumeroNfse>{@NumeroNfse}</NumeroNfse>
+	{@endifNumeroNfse}
+
+	{@ifPeriodoEmissao}
+	<PeriodoEmissao>
+		<DataInicial>{@DataInicialEmissao}</DataInicial>
+		<DataFinal>{@DataFinalEmissao}</DataFinal>
+	</PeriodoEmissao>
+	{@endifPeriodoEmissao}
+	
+	{@ifPeriodoCompetencia}
+	<PeriodoCompetencia>
+		<DataInicial>{@DataInicialCompetencia}</DataInicial>
+		<DataFinal>{@DataFinalCompetencia}</DataFinal>
+	</PeriodoCompetencia>
+	{@endifPeriodoCompetencia}
+
+	<!-- FIM CHOICE. (NumeroNfse OU PeriodoEmissao OU PeriodoCompetencia) -->
+	<!-- INFORMAÇÃO OPCIONAL. IDENTIFICAÇÃO DO TOMADOR DE SERVIÇOS. -->
+	 {@ifTomador}
+	<Tomador>
+
+		<!-- Informação obrigatória. Informe CPF ou CNPJ do tomador. NÃO ENVIAR ESTAS TAGS SIMULTANEAMENTE. -->
+		 {@ifCnpjTomador}
+		<CNPJ>{@CnpjTomador}</CNPJ>
+		{@endifCnpjTomador}
+
+		{@ifCpfTomador}
+		<CPF>{@CpfTomador}</CPF>
+		{@endifCpfTomador}
+
+		<!-- Informação opcional. Número de inscrição municipal do tomador do serviço. -->
+		<IM>{@InscricaoMunicipalTomador}</IM>
+	</Tomador>
+	{@endifTomador}
+
+	<!-- INFORMAÇÃO OPCIONAL. IDENTIFICAÇÃO DO INTERMEDIÁRIO DE SERVIÇOS. -->
+	 {@ifIntermediario}
+	<Intermediario>
+		<!-- Informação obrigatória. Informe CPF ou CNPJ do intermediário. NÃO ENVIAR ESTAS TAGS SIMULTANEAMENTE. -->
+		 {@ifCnpjIntermediario}
+		<CNPJ>{@CnpjIntermediario}</CNPJ>
+		{@endifCnpjIntermediario}
+
+
+		{@ifCpfIntermediario}
+		<CPF>{@CpfIntermediario}</CPF>
+		{@endifCpfIntermediario}
+		
+		<!-- Informação opcional. Número de inscrição municipal do intermediário do serviço. -->
+		<IM>{@InscricaoMunicipalIntermediario}</IM>
+	</Intermediario>
+	{@endifIntermediario}
+
+	<!-- O resultado da consulta será paginado em grupos de no máximo 50 notas. -->
+	<!-- Informação obrigatória. Informe a página a ser consultada. -->
+	<Pagina>{@Pagina}</Pagina>
+	
+</ConsultarUrlNfseEnvio>
