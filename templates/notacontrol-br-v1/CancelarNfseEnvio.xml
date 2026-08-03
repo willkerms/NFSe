@@ -23,7 +23,7 @@
 
 			{@ifE101101}
 			<e101101>
-				<xDesc>{@xDesc}</xDesc>
+				<xDesc>Cancelamento de NFS-e</xDesc>
 				<cMotivo>{@cMotivo}</cMotivo>
 				<xMotivo>{@xMotivo}</xMotivo>
 			</e101101>
