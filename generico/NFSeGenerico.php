@@ -2030,6 +2030,7 @@ class NFSeGenerico extends NFSe {
 		$aReplaces['replace']['{@tpEvento}'] = $tpEvento;
 		$aReplaces['replace']['{@IdPedidoRegistroEvento}'] = 'PRE' . $chNFSe . $tpEvento;
 		$aReplaces['replace']['{@xMotivo}'] = $xMotivo;
+		$aReplaces['replace']['{@xDesc}'] = $xMotivo;
 		$aReplaces['replace']['{@cMotivo}'] = $cMotivo;
 
 		foreach($aReplaces['replace'] as $k => $v){
@@ -2041,6 +2042,12 @@ class NFSeGenerico extends NFSe {
 		$aReplaces['ifs'][] = array('begin' => '{@ifXMotivo}', 'end' => '{@endifXMotivo}', 'bool' => !is_null($xMotivo));
 		$aReplaces['ifs'][] = array('begin' => '{@ifCNPJAutor}', 'end' => '{@endifCNPJAutor}', 'bool' => strlen($cpfCnpj) == 14);
 		$aReplaces['ifs'][] = array('begin' => '{@ifCPFAutor}', 'end' => '{@endifCPFAutor}', 'bool' => strlen($cpfCnpj) == 11);
+		$aReplaces['ifs'][] = array('begin' => '{@ifNPedRegEvento}', 'end' => '{@endifNPedRegEvento}', 'bool' => false);//FIXME: Implementar o NPedRegEvento se necessário
+		$aReplaces['ifs'][] = array('begin' => '{@ifE101101}', 'end' => '{@endifE101101}', 'bool' => $tpEvento == '101101');
+		$aReplaces['ifs'][] = array('begin' => '{@ifE105102}', 'end' => '{@endifE105102}', 'bool' => $tpEvento == '105102');
+		$aReplaces['ifs'][] = array('begin' => '{@ifE101103}', 'end' => '{@endifE101103}', 'bool' => $tpEvento == '101103');
+		$aReplaces['ifs'][] = array('begin' => '{@ifE105104}', 'end' => '{@endifE105104}', 'bool' => $tpEvento == '105104');
+		$aReplaces['ifs'][] = array('begin' => '{@ifE105105}', 'end' => '{@endifE105105}', 'bool' => $tpEvento == '105105');
 		
 		if(!is_null($xMotivo)){
 			$aReplaces['replace']['{@codCancelamento}'] = '<tc:xMotivo>' . htmlspecialchars($xMotivo) . '</tc:xMotivo>';
