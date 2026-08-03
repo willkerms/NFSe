@@ -17,16 +17,21 @@ class NFSeGenericoConsultarNfseDps{
 	*/
 	public $IdentificacaoDps;
 
+	public $Documento;
+
+	public $InscricaoMunicipal;
+
+	public $Serie;
+
+	public $Numero;
+
 	/**
 	 * 
 	 * @var NFSeGenericoPrestadorConsultarNfseDps
 	*/
 	public $Prestador;
 
-
-
 	public function __construct() {
 		$this->Prestador = new NFSeGenericoPrestadorConsultarNfseDps();
-	}
-	
+	}	
 }

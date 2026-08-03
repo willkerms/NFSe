@@ -30,4 +30,8 @@ class NFSeGenericoInfoImovel {
 	*/
 	public $end;
 
+	public function __construct() {
+		$this->end = new NFSeGenericoEnderecoSimples();
+	}
+
 }

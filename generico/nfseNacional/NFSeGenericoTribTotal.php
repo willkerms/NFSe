@@ -38,4 +38,22 @@ class NFSeGenericoTribTotal {
 	 * @var $pTotTribSN
 	*/
 	public $pTotTribSN;
+
+	/**
+	 * Cria um novo objeto para vTotTrib
+	 * return $this 
+	*/
+	public function newVTotTrib(){
+		$this->vTotTrib = new NFSeGenericoVTotTrib();
+		return $this;
+	}
+
+	/**
+	 * Cria um novo objeto para pTotTrib
+	 * return $this 
+	*/
+	public function newPTotTrib(){
+		$this->pTotTrib = new NFSeGenericoPTotTrib();
+		return $this;
+	}
 }
