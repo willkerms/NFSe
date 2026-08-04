@@ -290,13 +290,21 @@ class NFSeGenerico extends NFSe {
 		$aReplaces['ifs'][] = array('begin' => '{@ifCnpj}', 'end' => '{@endifCnpj}', 'bool' => strlen($cpfCnpj) == 14);
 		$aReplaces['ifs'][] = array('begin' => '{@ifInscricaoMunicipal}', 'end' => '{@endifInscricaoMunicipal}', 'bool' => !empty($inscMunicipal));
 		$aReplaces['ifs'][] = array('begin' => '{@ifCodigoCancelamento}', 'end' => '{@endifCodigoCancelamento}', 'bool' => !is_null($oCancelar->CodigoCancelamento));
+		
+		$search = PQDUtil::retDefault($this->aConfig['metodos'][$metodo], 'search', null);
+		$search = is_null($search) ? array("\r\n", "\n", "\r", "\t") : array_map('stripcslashes', $search);
+		$replace = PQDUtil::retDefault($this->aConfig['metodos'][$metodo], 'replace', null);
+		$replace = is_null($replace) ? "" : ( is_array($replace) ? array_map('stripcslashes', $replace) : $replace );
 
 		$xml = $this->retXML(PQDUtil::procTplText($tpl, $aReplaces['replace'], $aReplaces['ifs']));
 		$xml = $this->signXML($xml, 
 			$this->aConfig['metodos'][$metodo]['tagSign'], 
 			$this->aConfig['metodos'][$metodo]['tagAppend'], 
 			$this->aConfig['metodos'][$metodo]['nameSpace'],
-			true
+			true,
+			true,
+			$search,
+			$replace
 		);
 
 		$this->saveXML($xml, $metodo . '-' . $fileName);
