@@ -70,7 +70,7 @@ class NFSe {
 	 *        	: namespace utilizado, normalmente "p1"
 	 * @return mixed false se houve erro ou string com o XML assinado
 	 */
-	public function signXML($docxml, $tagid = '', $appendTag = false, $ns = '', $firstChild = false, $createNS = true, $aSerach = array("\r\n", "\n", "\r", "\t"), $aReplace = "") {
+	public function signXML($docxml, $tagid = '', $appendTag = false, $ns = '', $firstChild = false, $createNS = true, $aSearch = array("\r\n", "\n", "\r", "\t"), $aReplace = "") {
 
 		if ($tagid == '') {
 			$msg = "Uma tag deve ser indicada para que seja assinada!!";
@@ -87,7 +87,7 @@ class NFSe {
 		$pkeyid = openssl_get_privatekey($priv_key);
 
 		// limpeza do xml com a retirada dos CR, LF e TAB
-		$docxml = str_replace($aSerach, $aReplace, $docxml);
+		$docxml = str_replace($aSearch, $aReplace, $docxml);
 		// carrega o documento no DOM
 		$xmldoc = new NFSeDocument();
 		$xmldoc->preservWhiteSpace = false; // elimina espaços em branco
