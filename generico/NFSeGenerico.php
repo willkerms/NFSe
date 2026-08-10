@@ -416,11 +416,16 @@ class NFSeGenerico extends NFSe {
 			return $this->procReturn($returnNfse, $metodo);
 		}
 
-		//Gerar NFSe
+		//Consulta DPS via SOAP
 		$tpl = $this->getTemplate($metodo);
 
 		$aReplaces = $this->retReplaceUsuarios('xml');
 		$aReplaces['replace']['{@IdentificacaoDPS}'] = $oConsultarNfseDps->IdentificacaoDps;
+
+		$aReplaces['replace']['{@Numero}'] = $oConsultarNfseDps->Numero;
+		$aReplaces['replace']['{@Serie}'] = $oConsultarNfseDps->Serie;
+		$aReplaces['replace']['{@SerieRps}'] = $oConsultarNfseDps->Serie;
+		$aReplaces['replace']['{@SerieRpsAsInt}'] = (int)$oConsultarNfseDps->Serie;
 
 		$aReplaces['replace']['{@CpfPrestador}'] = $this->aConfig['cpfCnpj'];
 		$aReplaces['replace']['{@CnpjPrestador}'] = $this->aConfig['cpfCnpj'];
@@ -765,6 +770,83 @@ class NFSeGenerico extends NFSe {
 	}
 
 	/**
+	 * Envia uma requisição de acordo com o metodo e tipo de comunicação no metodo
+	 * 
+	 * @param string $metodo
+	 * @param string $xml
+	 * 
+	 * @return string
+	 */
+	private function sendRequest($metodo, $xml, array $urlReplaces = array(), array $metodoConfigOverride = null){
+
+		$baseMetodoConfig = PQDUtil::retDefault($this->aConfig['metodos'], $metodo, array());
+		$metodoConfig = is_null($metodoConfigOverride) ? $baseMetodoConfig : PQDUtil::setDefault($metodoConfigOverride, $baseMetodoConfig);
+		$typeCommunication = PQDUtil::retDefault($metodoConfig, 'typeCommunication', is_null($metodoConfigOverride) ? 'soap' : 'rest-json');
+		$action = PQDUtil::retDefault($metodoConfig, 'actionSoapHeader', PQDUtil::retDefault($metodoConfig, 'action', ''));
+
+
+		$wsdl = $this->isHomologacao ? $this->aConfig['homologacao']['wsdl'] : $this->aConfig['producao']['wsdl'];
+		$url = $this->isHomologacao ? PQDUtil::retDefault($this->aConfig['homologacao'], 'url', $wsdl) : PQDUtil::retDefault($this->aConfig['producao'], 'url', $wsdl);
+
+		switch($typeCommunication){
+			case 'curl':
+
+				$curl = PQDUtil::retDefault($this->aConfig, 'curl', array());
+
+				$headers = array();
+				foreach(PQDUtil::retDefault($curl, 'header', array() ) as $header)
+					$headers[] = $header; 
+				foreach(PQDUtil::retDefault($metodoConfig, 'header', array() ) as $header)
+					$headers[] = $header; 
+
+				return $this->curl(
+					$url, 
+					$xml, 
+					count($headers) == 0 ? null : $headers, 
+					PQDUtil::retDefault($curl, 'port', 443), 
+					PQDUtil::retDefault($this->aConfig, 'proxy', null)
+				);
+
+			break;
+			case 'rest-json':
+
+				$curl = PQDUtil::retDefault($this->aConfig, 'curl', array());
+				$url = $this->retRestUrlConfig($metodoConfig, $urlReplaces);
+				$httpMethod = strtoupper(PQDUtil::retDefault($metodoConfig, 'httpMethod', $xml != '' ? 'POST' : 'GET'));
+
+				$retCurl = $this->curl(
+					$url,
+					$xml,
+					$this->retRestHeadersConfig($metodoConfig),
+					PQDUtil::retDefault($curl, 'port', 443),
+					PQDUtil::retDefault($this->aConfig, 'proxy', null),
+					array(
+						'httpMethod' => $httpMethod,
+						'customRequest' => true,
+						'returnInfo' => true
+					)
+				);
+
+				if(!empty($retCurl['error']))
+					return $this->retRestJsonErrorReturn('CURL', $retCurl['error'], 'HTTP ' . $retCurl['httpCode']);
+
+				$successStatus = PQDUtil::retDefault(PQDUtil::retDefault($metodoConfig, 'httpStatus', array()), 'success', array(200, 201));
+				if(!in_array($retCurl['httpCode'], $successStatus) && empty($retCurl['body']))
+					return $this->retRestJsonErrorReturn('HTTP' . $retCurl['httpCode'], 'Retorno HTTP sem corpo.', $retCurl['url']);
+
+				return $retCurl['body'];
+
+			break;
+			case 'soap':
+
+				$soap = PQDUtil::retDefault($this->aConfig, 'soap', array());
+
+				return $this->soap($wsdl, $url, $action, $xml, PQDUtil::retDefault($soap, 'version', '1.1'));
+			break;
+		}
+	}
+
+	/**
 	 * Faz uma requisição SOAP
 	 * 
 	 * @return string
@@ -779,7 +861,7 @@ class NFSeGenerico extends NFSe {
 
 		if($this->isHomologacao)
 			$this->saveXML($xml, $metodo . '-soap-' . $fileName);
-		
+
 		$soapReturn = $this->sendRequest($metodo, $xml);
 
 		//if($this->isHomologacao)
@@ -880,83 +962,6 @@ class NFSeGenerico extends NFSe {
 				'complemento' => $complemento
 			)
 		), JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE);
-	}
-
-	/**
-	 * Envia uma requisição de acordo com o metodo e tipo de comunicação no metodo
-	 * 
-	 * @param string $metodo
-	 * @param string $xml
-	 * 
-	 * @return string
-	 */
-	private function sendRequest($metodo, $xml, array $urlReplaces = array(), array $metodoConfigOverride = null){
-
-		$baseMetodoConfig = PQDUtil::retDefault($this->aConfig['metodos'], $metodo, array());
-		$metodoConfig = is_null($metodoConfigOverride) ? $baseMetodoConfig : PQDUtil::setDefault($metodoConfigOverride, $baseMetodoConfig);
-		$typeCommunication = PQDUtil::retDefault($metodoConfig, 'typeCommunication', is_null($metodoConfigOverride) ? 'soap' : 'rest-json');
-		$action = PQDUtil::retDefault($metodoConfig, 'actionSoapHeader', PQDUtil::retDefault($metodoConfig, 'action', ''));
-
-
-		$wsdl = $this->isHomologacao ? $this->aConfig['homologacao']['wsdl'] : $this->aConfig['producao']['wsdl'];
-		$url = $this->isHomologacao ? PQDUtil::retDefault($this->aConfig['homologacao'], 'url', $wsdl) : PQDUtil::retDefault($this->aConfig['producao'], 'url', $wsdl);
-
-		switch($typeCommunication){
-			case 'curl':
-
-				$curl = PQDUtil::retDefault($this->aConfig, 'curl', array());
-
-				$headers = array();
-				foreach(PQDUtil::retDefault($curl, 'header', array() ) as $header)
-					$headers[] = $header; 
-				foreach(PQDUtil::retDefault($metodoConfig, 'header', array() ) as $header)
-					$headers[] = $header; 
-
-				return $this->curl(
-					$url, 
-					$xml, 
-					count($headers) == 0 ? null : $headers, 
-					PQDUtil::retDefault($curl, 'port', 443), 
-					PQDUtil::retDefault($this->aConfig, 'proxy', null)
-				);
-
-			break;
-			case 'rest-json':
-
-				$curl = PQDUtil::retDefault($this->aConfig, 'curl', array());
-				$url = $this->retRestUrlConfig($metodoConfig, $urlReplaces);
-				$httpMethod = strtoupper(PQDUtil::retDefault($metodoConfig, 'httpMethod', $xml != '' ? 'POST' : 'GET'));
-
-				$retCurl = $this->curl(
-					$url,
-					$xml,
-					$this->retRestHeadersConfig($metodoConfig),
-					PQDUtil::retDefault($curl, 'port', 443),
-					PQDUtil::retDefault($this->aConfig, 'proxy', null),
-					array(
-						'httpMethod' => $httpMethod,
-						'customRequest' => true,
-						'returnInfo' => true
-					)
-				);
-
-				if(!empty($retCurl['error']))
-					return $this->retRestJsonErrorReturn('CURL', $retCurl['error'], 'HTTP ' . $retCurl['httpCode']);
-
-				$successStatus = PQDUtil::retDefault(PQDUtil::retDefault($metodoConfig, 'httpStatus', array()), 'success', array(200, 201));
-				if(!in_array($retCurl['httpCode'], $successStatus) && empty($retCurl['body']))
-					return $this->retRestJsonErrorReturn('HTTP' . $retCurl['httpCode'], 'Retorno HTTP sem corpo.', $retCurl['url']);
-
-				return $retCurl['body'];
-
-			break;
-			case 'soap':
-
-				$soap = PQDUtil::retDefault($this->aConfig, 'soap', array());
-
-				return $this->soap($wsdl, $url, $action, $xml, PQDUtil::retDefault($soap, 'version', '1.1'));
-			break;
-		}
 	}
 
 	/**
@@ -1278,6 +1283,9 @@ class NFSeGenerico extends NFSe {
 	 */
 	private function retXMLDPS(NFSeGenericoInfDPS $oDPS){
 
+		/**
+		 * @var NFSeGenericoInfDPS $oDPS
+		 */
 		$oDPS = $this->escapeTextObj($oDPS);
 
 		$tplDPS = $this->getTemplate('dps');
@@ -1647,31 +1655,31 @@ class NFSeGenerico extends NFSe {
 			['begin' => '{@ifPAliqISSQN}', 'end' => '{@endifPAliqISSQN}', 'bool' => !empty($oDPS->valores->trib->tribMun->pAliq)],
 
 			// Tributação Federal
-			['begin' => '{@ifTribFed}', 'end' => '{@endifTribFed}', 'bool' => !empty($oDPS->valores->trib->tribFed->piscofins->CST)],
-			['begin' => '{@ifPiscofins}', 'end' => '{@endifPiscofins}', 'bool' => !empty($oDPS->valores->trib->tribFed->piscofins)],
-			['begin' => '{@ifVBCPisCofins}', 'end' => '{@endifVBCPisCofins}', 'bool' => !empty($oDPS->valores->trib->tribFed->piscofins->vBCPisCofins)],
-			['begin' => '{@ifPAliqPis}', 'end' => '{@endifPAliqPis}', 'bool' => !empty($oDPS->valores->trib->tribFed->piscofins->pAliqPis)],
-			['begin' => '{@ifPAliqCofins}', 'end' => '{@endifPAliqCofins}', 'bool' => !empty($oDPS->valores->trib->tribFed->piscofins->pAliqCofins)],
-			['begin' => '{@ifVPis}', 'end' => '{@endifVPis}', 'bool' => !empty($oDPS->valores->trib->tribFed->piscofins->vPis)],
-			['begin' => '{@ifVCofins}', 'end' => '{@endifVCofins}', 'bool' => !empty($oDPS->valores->trib->tribFed->piscofins->vCofins)],
-			['begin' => '{@ifTpRetPisCofins}', 'end' => '{@endifTpRetPisCofins}', 'bool' => !empty($oDPS->valores->trib->tribFed->piscofins->tpRetPisCofins)],
-			['begin' => '{@ifVRetCP}', 'end' => '{@endifVRetCP}', 'bool' => !empty($oDPS->valores->trib->tribFed->vRetCP)],
-			['begin' => '{@ifVRetIRRF}', 'end' => '{@endifVRetIRRF}', 'bool' => !empty($oDPS->valores->trib->tribFed->vRetIRRF)],
-			['begin' => '{@ifVRetCSLL}', 'end' => '{@endifVRetCSLL}', 'bool' => !empty($oDPS->valores->trib->tribFed->vRetCSLL)],
+			['begin' => '{@ifTribFed}', 'end' => '{@endifTribFed}', 'bool' => !is_null($oDPS->valores->trib->tribFed->piscofins->CST) || !is_null($oDPS->valores->trib->tribFed->vRetCP) || !is_null($oDPS->valores->trib->tribFed->vRetIRRF) || !is_null($oDPS->valores->trib->tribFed->vRetCSLL) ],
+			['begin' => '{@ifPiscofins}', 'end' => '{@endifPiscofins}', 'bool' => !is_null($oDPS->valores->trib->tribFed->piscofins->CST)],
+			['begin' => '{@ifVBCPisCofins}', 'end' => '{@endifVBCPisCofins}', 'bool' => !is_null($oDPS->valores->trib->tribFed->piscofins->vBCPisCofins)],
+			['begin' => '{@ifPAliqPis}', 'end' => '{@endifPAliqPis}', 'bool' => !is_null($oDPS->valores->trib->tribFed->piscofins->pAliqPis)],
+			['begin' => '{@ifPAliqCofins}', 'end' => '{@endifPAliqCofins}', 'bool' => !is_null($oDPS->valores->trib->tribFed->piscofins->pAliqCofins)],
+			['begin' => '{@ifVPis}', 'end' => '{@endifVPis}', 'bool' => !is_null($oDPS->valores->trib->tribFed->piscofins->vPis)],
+			['begin' => '{@ifVCofins}', 'end' => '{@endifVCofins}', 'bool' => !is_null($oDPS->valores->trib->tribFed->piscofins->vCofins)],
+			['begin' => '{@ifTpRetPisCofins}', 'end' => '{@endifTpRetPisCofins}', 'bool' => !is_null($oDPS->valores->trib->tribFed->piscofins->tpRetPisCofins)],
+			['begin' => '{@ifVRetCP}', 'end' => '{@endifVRetCP}', 'bool' => !is_null($oDPS->valores->trib->tribFed->vRetCP)],
+			['begin' => '{@ifVRetIRRF}', 'end' => '{@endifVRetIRRF}', 'bool' => !is_null($oDPS->valores->trib->tribFed->vRetIRRF)],
+			['begin' => '{@ifVRetCSLL}', 'end' => '{@endifVRetCSLL}', 'bool' => !is_null($oDPS->valores->trib->tribFed->vRetCSLL)],
 
 			// Total de Tributos
-			['begin' => '{@ifVTotTrib}', 'end' => '{@endifVTotTrib}', 'bool' => !empty($oDPS->valores->trib->totTrib->vTotTrib)],
-			['begin' => '{@ifPTotTrib}', 'end' => '{@endifPTotTrib}', 'bool' => !empty($oDPS->valores->trib->totTrib->pTotTrib)],
-			['begin' => '{@ifIndTotTrib}', 'end' => '{@endifIndTotTrib}', 'bool' => !is_null($oDPS->valores->trib->totTrib->indTotTrib)],
-			['begin' => '{@ifPTotTribSN}', 'end' => '{@endifPTotTribSN}', 'bool' => !empty($oDPS->valores->trib->totTrib->pTotTribSN)],
+			['begin' => '{@ifVTotTrib}', 'end' => '{@endifVTotTrib}', 'bool' => !is_null($oDPS->valores->trib->totTrib->vTotTrib)],
+			['begin' => '{@ifPTotTrib}', 'end' => '{@endifPTotTrib}', 'bool' => !is_null($oDPS->valores->trib->totTrib->pTotTrib)],
+			['begin' => '{@ifIndTotTrib}', 'end' => '{@endifIndTotTrib}', 'bool' => !is_null($oDPS->valores->trib->totTrib->indTotTrib) && $oDPS->valores->trib->totTrib->indTotTrib == 0],
+			['begin' => '{@ifPTotTribSN}', 'end' => '{@endifPTotTribSN}', 'bool' => !is_null($oDPS->valores->trib->totTrib->pTotTribSN)],
 
 			// IBS/CBS
-			['begin' => '{@ifIBSCBS}', 'end' => '{@endifIBSCBS}', 'bool' => !empty($oDPS->IBSCBS->finNFSe)],
+			['begin' => '{@ifIBSCBS}', 'end' => '{@endifIBSCBS}', 'bool' => !is_null($oDPS->IBSCBS->finNFSe)],
 			['begin' => '{@ifIndFinal}', 'end' => '{@endifIndFinal}', 'bool' => !empty($oDPS->IBSCBS->indFinal)],
 			['begin' => '{@ifTpOper}', 'end' => '{@endifTpOper}', 'bool' => !empty($oDPS->IBSCBS->tpOper)],
 			['begin' => '{@ifGRefNFSe}', 'end' => '{@endifGRefNFSe}', 'bool' => !empty($oDPS->IBSCBS->gRefNFSe)],
 			['begin' => '{@ifTpEnteGov}', 'end' => '{@endifTpEnteGov}', 'bool' => !empty($oDPS->IBSCBS->tpEnteGov)],
-			['begin' => '{@ifDest}', 'end' => '{@endifDest}', 'bool' => !empty($oDPS->IBSCBS->dest)],
+			['begin' => '{@ifDest}', 'end' => '{@endifDest}', 'bool' => !is_null($oDPS->IBSCBS->dest->CPF) || !is_null($oDPS->IBSCBS->dest->CNPJ) || !is_null($oDPS->IBSCBS->dest->NIF) || !is_null($oDPS->IBSCBS->dest->cNaoNif)],
 			['begin' => '{@ifCNPJDest}', 'end' => '{@endifCNPJDest}', 'bool' => strlen($oDPS->IBSCBS->dest->CNPJ ?? '') == 14],
 			['begin' => '{@ifCPFDest}', 'end' => '{@endifCPFDest}', 'bool' => strlen($oDPS->IBSCBS->dest->CPF ?? '') == 11],
 			['begin' => '{@ifNIFDest}', 'end' => '{@endifNIFDest}', 'bool' => !empty($oDPS->IBSCBS->dest->NIF)],
@@ -1682,7 +1690,7 @@ class NFSeGenerico extends NFSe {
 			['begin' => '{@ifXCplDest}', 'end' => '{@endifXCplDest}', 'bool' => !empty($oDPS->IBSCBS->dest->end->xCpl)],
 			['begin' => '{@ifFoneDest}', 'end' => '{@endifFoneDest}', 'bool' => !empty($oDPS->IBSCBS->dest->fone)],
 			['begin' => '{@ifEmailDest}', 'end' => '{@endifEmailDest}', 'bool' => !empty($oDPS->IBSCBS->dest->email)],
-			['begin' => '{@ifImovel}', 'end' => '{@endifImovel}', 'bool' => !empty($oDPS->IBSCBS->imovel)],
+			['begin' => '{@ifImovel}', 'end' => '{@endifImovel}', 'bool' => !is_null($oDPS->IBSCBS->imovel->cCIB) || !is_null($oDPS->IBSCBS->imovel->end->xLgr)],
 			['begin' => '{@ifInscImobFiscImovel}', 'end' => '{@endifInscImobFiscImovel}', 'bool' => !empty($oDPS->IBSCBS->imovel->inscImobFisc)],
 			['begin' => '{@ifCCIBImovel}', 'end' => '{@endifCCIBImovel}', 'bool' => !empty($oDPS->IBSCBS->imovel->cCIB)],
 			['begin' => '{@ifEndImovel}', 'end' => '{@endifEndImovel}', 'bool' => !empty($oDPS->IBSCBS->imovel->end)],
@@ -1701,9 +1709,9 @@ class NFSeGenerico extends NFSe {
 			['begin' => '{@ifNIFFornecReeRepRes}', 'end' => '{@endifNIFFornecReeRepRes}', 'bool' => !empty($oDPS->IBSCBS->valores->trib->documentos->fornec->NIF)],
 			['begin' => '{@ifCNaoNIFFornecReeRepRes}', 'end' => '{@endifCNaoNIFFornecReeRepRes}', 'bool' => !empty($oDPS->IBSCBS->valores->trib->documentos->fornec->cNaoNIF)],
 			['begin' => '{@ifXTpReeRepRes}', 'end' => '{@endifXTpReeRepRes}', 'bool' => !empty($oDPS->IBSCBS->valores->trib->documentos->xTpReeRepRes)],
-			['begin' => '{@ifCCredPresIBSCBS}', 'end' => '{@endifCCredPresIBSCBS}', 'bool' => !empty($oDPS->IBSCBS->valores->trib->gIBSCBS->cCredPres)],
-			['begin' => '{@ifGTribRegularIBSCBS}', 'end' => '{@endifGTribRegularIBSCBS}', 'bool' => !empty($oDPS->IBSCBS->valores->trib->gIBSCBS->gTribRegular)],
-			['begin' => '{@ifGDif}', 'end' => '{@endifGDif}', 'bool' => !empty($oDPS->IBSCBS->valores->trib->gIBSCBS->gDif)],
+			['begin' => '{@ifCCredPresIBSCBS}', 'end' => '{@endifCCredPresIBSCBS}', 'bool' => !is_null($oDPS->IBSCBS->valores->trib->gIBSCBS->cCredPres)],
+			['begin' => '{@ifGTribRegularIBSCBS}', 'end' => '{@endifGTribRegularIBSCBS}', 'bool' => !is_null($oDPS->IBSCBS->valores->trib->gIBSCBS->gTribRegular->CSTReg)],
+			['begin' => '{@ifGDif}', 'end' => '{@endifGDif}', 'bool' => !is_null($oDPS->IBSCBS->valores->trib->gIBSCBS->gDif->pDifUF)],
 		);
 
 		return $this->retXML(PQDUtil::procTplText($tplDPS, $aReplace, $aIfs));
@@ -2022,6 +2030,7 @@ class NFSeGenerico extends NFSe {
 		$aReplaces['replace']['{@tpEvento}'] = $tpEvento;
 		$aReplaces['replace']['{@IdPedidoRegistroEvento}'] = 'PRE' . $chNFSe . $tpEvento;
 		$aReplaces['replace']['{@xMotivo}'] = $xMotivo;
+		$aReplaces['replace']['{@xDesc}'] = $xMotivo;
 		$aReplaces['replace']['{@cMotivo}'] = $cMotivo;
 
 		foreach($aReplaces['replace'] as $k => $v){
@@ -2033,6 +2042,12 @@ class NFSeGenerico extends NFSe {
 		$aReplaces['ifs'][] = array('begin' => '{@ifXMotivo}', 'end' => '{@endifXMotivo}', 'bool' => !is_null($xMotivo));
 		$aReplaces['ifs'][] = array('begin' => '{@ifCNPJAutor}', 'end' => '{@endifCNPJAutor}', 'bool' => strlen($cpfCnpj) == 14);
 		$aReplaces['ifs'][] = array('begin' => '{@ifCPFAutor}', 'end' => '{@endifCPFAutor}', 'bool' => strlen($cpfCnpj) == 11);
+		$aReplaces['ifs'][] = array('begin' => '{@ifNPedRegEvento}', 'end' => '{@endifNPedRegEvento}', 'bool' => false);//FIXME: Implementar o NPedRegEvento se necessário
+		$aReplaces['ifs'][] = array('begin' => '{@ifE101101}', 'end' => '{@endifE101101}', 'bool' => $tpEvento == '101101');
+		$aReplaces['ifs'][] = array('begin' => '{@ifE105102}', 'end' => '{@endifE105102}', 'bool' => $tpEvento == '105102');
+		$aReplaces['ifs'][] = array('begin' => '{@ifE101103}', 'end' => '{@endifE101103}', 'bool' => $tpEvento == '101103');
+		$aReplaces['ifs'][] = array('begin' => '{@ifE105104}', 'end' => '{@endifE105104}', 'bool' => $tpEvento == '105104');
+		$aReplaces['ifs'][] = array('begin' => '{@ifE105105}', 'end' => '{@endifE105105}', 'bool' => $tpEvento == '105105');
 		
 		if(!is_null($xMotivo)){
 			$aReplaces['replace']['{@codCancelamento}'] = '<tc:xMotivo>' . htmlspecialchars($xMotivo) . '</tc:xMotivo>';

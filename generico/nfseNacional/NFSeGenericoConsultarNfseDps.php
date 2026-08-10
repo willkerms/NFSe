@@ -31,10 +31,7 @@ class NFSeGenericoConsultarNfseDps{
 	*/
 	public $Prestador;
 
-
-
 	public function __construct() {
 		$this->Prestador = new NFSeGenericoPrestadorConsultarNfseDps();
-	}
-	
+	}	
 }

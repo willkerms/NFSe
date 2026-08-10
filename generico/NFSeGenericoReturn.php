@@ -764,7 +764,15 @@ class NFSeGenericoReturn extends NFSeReturn {
 
 		if(!empty($return)) {
 
-			$encoding = mb_detect_encoding($return, array('UTF-8', 'ISO-8859-1', 'WINDOWS-1252'), false);
+			$detectBOM = function (string $data): ?string {
+				if (str_starts_with($data, "\xEF\xBB\xBF")) return 'UTF-8';
+				if (str_starts_with($data, "\xFF\xFE")) return 'UTF-16LE';
+				if (str_starts_with($data, "\xFE\xFF")) return 'UTF-16BE';
+				return null;
+			};
+
+			$encoding = $detectBOM($return);
+			$encoding = $encoding ?? mb_detect_encoding($return, array('UTF-8', 'ISO-8859-1', 'WINDOWS-1252'), false);
 			if($encoding == 'ISO-8859-1' || $encoding == 'WINDOWS-1252')
 				$return = iconv($encoding, 'UTF-8', $return);
 
@@ -786,7 +794,6 @@ class NFSeGenericoReturn extends NFSeReturn {
 						$oMensagem
 					)
 				);
-
 			}
 
 			$oDocument = $this->retDocReturn($dom, $metodo);
@@ -808,6 +815,7 @@ class NFSeGenericoReturn extends NFSeReturn {
 				break;
 
 				case "consultarNFSePorRps":
+				case "consultarNFSePorDps":
 					return array(
 						'ListaMensagemRetorno' => $this->retListaMensagem($oDocument),
 						'CompNfse' => $this->retInfNFSe($oDocument->firstChild, $oDocument)
