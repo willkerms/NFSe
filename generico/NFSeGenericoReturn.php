@@ -590,7 +590,8 @@ class NFSeGenericoReturn extends NFSeReturn {
 			'{@numeroNFSe}' => $oDocument->getValue($InfNfse, "Numero"),
 			'{@codigoVerificacao}' => $oDocument->getValue($InfNfse, "CodigoVerificacao"),
 			'{@sha1CodigoVerificacao}' => sha1($oDocument->getValue($InfNfse, "CodigoVerificacao")),
-			'{@idInfNfse}' => $InfNfse->getAttribute('Id')
+			'{@idInfNfse}' => $InfNfse->getAttribute('Id'),
+			'{@dataEmissao}' => $oDocument->getValue($InfNfse, "DataEmissao")
 		));
 
 		$oNFSeGenericoInfNFSe->Url = ( !empty($url) && substr($url, 0, 7) != 'http://' && substr($url, 0, 8) != 'https://' ? 'http://' : '') . $url;

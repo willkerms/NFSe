@@ -5,9 +5,7 @@
 			{@ifCnpj}<Cnpj>{@Cnpj}</Cnpj>{@endifCnpj}
 			{@ifCpf}<Cpf>{@Cpf}</Cpf>{@endifCpf}
 		</CpfCnpj>
-		{@ifInscricaoMunicipal}
 		<InscricaoMunicipal>{@InscricaoMunicipal}</InscricaoMunicipal>
-		{@endifInscricaoMunicipal}
 		<Senha>{@Senha}</Senha>
 		<Homologa>{@Homologa}</Homologa>
 	</IdentificacaoRequerente>
