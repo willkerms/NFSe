@@ -100,7 +100,7 @@
 							<ItemServico>
 								<ItemListaServico>{@ItemListaServico}</ItemListaServico>
 								<CodigoCnae>{@CodigoCnae}</CodigoCnae>
-								<Descricao>descricao do item de servico</Descricao>
+								<Descricao>{@ItemListaServico}</Descricao>
 								<Tributavel>1</Tributavel>
 								<Quantidade>1</Quantidade>
 								<ValorUnitario>{@ValorServicos}</ValorUnitario>
