@@ -817,9 +817,13 @@ class NFSeGenericoReturn extends NFSeReturn {
 
 				case "consultarNFSePorRps":
 				case "consultarNFSePorDps":
+					$oCompNfse = $oDocument->firstChild;
+					$oNfse = $oCompNfse->getElementsByTagName('Nfse')->item(0);
+
 					return array(
 						'ListaMensagemRetorno' => $this->retListaMensagem($oDocument),
-						'CompNfse' => $this->retInfNFSe($oDocument->firstChild, $oDocument)
+						'CompNfse' => $this->retInfNFSe($oCompNfse, $oDocument),
+						'Xml' => !is_null($oNfse) ? $oNfse->C14N() : null
 					);
 				break;
 
@@ -1032,6 +1036,25 @@ class NFSeGenericoReturn extends NFSeReturn {
 				'ListaMensagemRetorno' => $this->retListaMensagem($oGerarNfseRetorno, null, $this->oGenerico->getConfig('tagMensagensReturn', 'ListaMensagemRetorno')),
 				'ListaNfse' => $this->retListNFSe($oGerarNfseRetorno)
 			);
+
+			$oCompNfse = $oGerarNfseRetorno->getElementsByTagName($tagResposta)->item(0)
+							->getElementsByTagName('CompNfse')->item(0);
+
+			$oNfse = null;
+			if (!is_null($oCompNfse)) {
+				$oNfse = $oCompNfse->getElementsByTagName('Nfse')->item(0);
+
+			if (!is_null($oNfse)) {
+                $oInfNfse = $oNfse->getElementsByTagName('InfNfse')->item(0);
+
+                $return['Nfse'] = array(
+                    'InfNfse' => array(
+                        'Numero' => $oGerarNfseRetorno->getValue($oInfNfse, 'Numero')
+                    ),
+                    'Xml' => $oNfse->C14N()
+                );
+            }
+		}
 
 			$aConfig = $this->oGenerico->getConfig('templates', array());
 
