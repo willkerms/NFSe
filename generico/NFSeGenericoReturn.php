@@ -801,7 +801,11 @@ class NFSeGenericoReturn extends NFSeReturn {
 			switch ($metodo) {
 
 				case "cancelarNfse":
-					return $this->cancelarNfseResposta($oDocument);
+					$aConfig = $this->oGenerico->getConfig('metodos');
+					$configGerarNfse = PQDUtil::retDefault($aConfig, $metodo);
+					$tagRetCancelamento = PQDUtil::retDefault($configGerarNfse['tagMap'], 'tagRetCancelamento', 'RetCancelamento');
+					$tagConfirmacao = PQDUtil::retDefault($configGerarNfse['tagMap'], 'tagConfirmacao', 'Confirmacao');
+					return $this->cancelarNfseResposta($oDocument, $tagRetCancelamento, $tagConfirmacao);
 				break;
 				
 				case "gerarNfse":
@@ -933,13 +937,13 @@ class NFSeGenericoReturn extends NFSeReturn {
 	 *
 	 * @return array
 	 */
-	private function retCancelamento(NFSeDocument $oCancelarNfseResposta){
+	private function retCancelamento(NFSeDocument $oCancelarNfseResposta, $tagRetCancelamento = 'RetCancelamento', $tagConfirmacao = 'Confirmacao') {
 
 		$return = array(
 			'NfseCancelamento' => array()
 		);
 
-		$RetCancelamento = $oCancelarNfseResposta->getElementsByTagName('RetCancelamento');
+		$RetCancelamento = $oCancelarNfseResposta->getElementsByTagName($tagRetCancelamento);
 		
 		if ($RetCancelamento->length > 0) {
 
@@ -951,7 +955,7 @@ class NFSeGenericoReturn extends NFSeReturn {
 
 				$NfseCancelamento = $RetCancelamento->getElementsByTagName('NfseCancelamento')->item($i);
 
-				$Confirmacao = $NfseCancelamento->getElementsByTagName('Confirmacao')->item(0);
+				$Confirmacao = $NfseCancelamento->getElementsByTagName($tagConfirmacao)->item(0);
 
 				$DataHora = $oCancelarNfseResposta->getValue($Confirmacao, "DataHora");
 				$Pedido = $Confirmacao->getElementsByTagName('Pedido')->item(0);
@@ -1005,13 +1009,13 @@ class NFSeGenericoReturn extends NFSeReturn {
 	 *
 	 * @return array
 	 */
-	private function cancelarNfseResposta(NFSeDocument $oCancelarNfseResposta) {
+	private function cancelarNfseResposta(NFSeDocument $oCancelarNfseResposta, $tagRetCancelamento = 'RetCancelamento', $tagConfirmacao = 'Confirmacao') {
 		
 		if ($oCancelarNfseResposta->getElementsByTagName('CancelarNfseResposta')->length == 1) {
 			
 			return array(
 				'ListaMensagemRetorno' => $this->retListaMensagem($oCancelarNfseResposta),
-				'RetCancelamento' => $this->retCancelamento($oCancelarNfseResposta)
+				'RetCancelamento' => $this->retCancelamento($oCancelarNfseResposta, $tagRetCancelamento, $tagConfirmacao)
 			);
 
 		} else {

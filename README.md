@@ -231,7 +231,7 @@ Cada operação tem um sub-array. **Chaves comuns:**
 | `tagSign` | Tag cujo conteúdo é **assinado** digitalmente. |
 | `tagAppend` | Tag sob a qual a `<Signature>` gerada é **anexada**. |
 | `tagMap.return` | Tag externa da resposta de onde o XML de retorno é extraído. |
-| `tagMap.*` | Tags adicionais por operação: `tagResposta`, `respostaLote`, `respostaConsultaLote`. |
+| `tagMap.*` | Tags adicionais por operação: `tagResposta`(gerarNfse - Tag que confirma a resposta da geração da nota [ default: GerarNfseResposta] ) , `tagRetCancelamento`(cancelarNfse - Tag de retorno do cancelamento [ default: 'RetCancelamento' ] ), `tagConfirmacao`(cancelarNfse - Tag de confirmacao do cancelamento [ default: 'Confirmacao' ] ), `respostaLote`, `respostaConsultaLote`. |
 | `signConsulta` / `signRps` / `signDps` | Liga/desliga a assinatura nas consultas, nos RPS de lote ou nos DPS de lote. |
 | `returnType` | `'child'` (default) ou `'string'` (quando o payload vem como texto/CDATA e precisa ser reparseado). |
 | `returnReplace` | `['search'=>…, 'replace'=>…]` aplicado ao texto antes de reparsear (usado com `returnType = 'string'`). |

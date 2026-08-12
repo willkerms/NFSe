@@ -106,7 +106,7 @@ class NFSeGenerico extends NFSe {
 					'tagAppend' => 'Rps', //Tag sob a qual a <Signature> gerada é anexada
 					'tagMap' => array( //Nomes de tags usados pelo NFSeGenericoReturn para localizar o retorno
 						'return' => 'gerarNfseResponse', //Tag externa da resposta de onde o XML de retorno é extraído
-						'tagResposta' => 'GerarNfseResposta' //Tag que confirma a resposta de geração (default GerarNfseResposta)
+						'tagResposta' => 'GerarNfseResposta' //Tag que confirma a resposta de geração da nota (default GerarNfseResposta)
 					),
 					//'replaceXmlSOAP' => ['action2' => 'GerarNfse'],//Para replaces no do XML SOAP, quando a prefeitura tem mais de um action
 					'search' => array("\r\n", "\n", "\r", "\t"), //Strings removidas/normalizadas do XML do RPS antes de assinar (evita invalidar a assinatura)
@@ -176,7 +176,9 @@ class NFSeGenerico extends NFSe {
 					'tagAppend' => 'Pedido', //Tag onde a <Signature> é anexada
 					'codCancelamento' => '1',//1 - Erro na emissao
 					'tagMap' => array(
-						'return' => 'cancelarNfseResponse' //Tag externa da resposta
+						'return' => 'cancelarNfseResponse', //Tag externa da resposta
+						'tagRetCancelamento' => 'RetCancelamento', //Tag de retorno do cancelamento (default 'RetCancelamento')
+						'tagConfirmacao' => 'Confirmacao' //Tag de confirmacao do cancelamento (default 'Confirmacao')
 					)
 				),
 				'cancelarNFSeEnvio' => array(
