@@ -590,7 +590,8 @@ class NFSeGenericoReturn extends NFSeReturn {
 			'{@numeroNFSe}' => $oDocument->getValue($InfNfse, "Numero"),
 			'{@codigoVerificacao}' => $oDocument->getValue($InfNfse, "CodigoVerificacao"),
 			'{@sha1CodigoVerificacao}' => sha1($oDocument->getValue($InfNfse, "CodigoVerificacao")),
-			'{@idInfNfse}' => $InfNfse->getAttribute('Id')
+			'{@idInfNfse}' => $InfNfse->getAttribute('Id'),
+			'{@dataEmissao}' => $oDocument->getValue($InfNfse, "DataEmissao")
 		));
 
 		$oNFSeGenericoInfNFSe->Url = ( !empty($url) && substr($url, 0, 7) != 'http://' && substr($url, 0, 8) != 'https://' ? 'http://' : '') . $url;
@@ -800,7 +801,11 @@ class NFSeGenericoReturn extends NFSeReturn {
 			switch ($metodo) {
 
 				case "cancelarNfse":
-					return $this->cancelarNfseResposta($oDocument);
+					$aConfig = $this->oGenerico->getConfig('metodos');
+					$configGerarNfse = PQDUtil::retDefault($aConfig, $metodo);
+					$tagRetCancelamento = PQDUtil::retDefault($configGerarNfse['tagMap'], 'tagRetCancelamento', 'RetCancelamento');
+					$tagConfirmacao = PQDUtil::retDefault($configGerarNfse['tagMap'], 'tagConfirmacao', 'Confirmacao');
+					return $this->cancelarNfseResposta($oDocument, $tagRetCancelamento, $tagConfirmacao);
 				break;
 				
 				case "gerarNfse":
@@ -816,9 +821,13 @@ class NFSeGenericoReturn extends NFSeReturn {
 
 				case "consultarNFSePorRps":
 				case "consultarNFSePorDps":
+					$oCompNfse = $oDocument->firstChild;
+					$oNfse = $oCompNfse->getElementsByTagName('Nfse')->item(0);
+
 					return array(
 						'ListaMensagemRetorno' => $this->retListaMensagem($oDocument),
-						'CompNfse' => $this->retInfNFSe($oDocument->firstChild, $oDocument)
+						'CompNfse' => $this->retInfNFSe($oCompNfse, $oDocument),
+						'Xml' => !is_null($oNfse) ? $oNfse->C14N() : null
 					);
 				break;
 
@@ -928,13 +937,13 @@ class NFSeGenericoReturn extends NFSeReturn {
 	 *
 	 * @return array
 	 */
-	private function retCancelamento(NFSeDocument $oCancelarNfseResposta){
+	private function retCancelamento(NFSeDocument $oCancelarNfseResposta, $tagRetCancelamento = 'RetCancelamento', $tagConfirmacao = 'Confirmacao') {
 
 		$return = array(
 			'NfseCancelamento' => array()
 		);
 
-		$RetCancelamento = $oCancelarNfseResposta->getElementsByTagName('RetCancelamento');
+		$RetCancelamento = $oCancelarNfseResposta->getElementsByTagName($tagRetCancelamento);
 		
 		if ($RetCancelamento->length > 0) {
 
@@ -946,7 +955,7 @@ class NFSeGenericoReturn extends NFSeReturn {
 
 				$NfseCancelamento = $RetCancelamento->getElementsByTagName('NfseCancelamento')->item($i);
 
-				$Confirmacao = $NfseCancelamento->getElementsByTagName('Confirmacao')->item(0);
+				$Confirmacao = $NfseCancelamento->getElementsByTagName($tagConfirmacao)->item(0);
 
 				$DataHora = $oCancelarNfseResposta->getValue($Confirmacao, "DataHora");
 				$Pedido = $Confirmacao->getElementsByTagName('Pedido')->item(0);
@@ -1000,13 +1009,13 @@ class NFSeGenericoReturn extends NFSeReturn {
 	 *
 	 * @return array
 	 */
-	private function cancelarNfseResposta(NFSeDocument $oCancelarNfseResposta) {
+	private function cancelarNfseResposta(NFSeDocument $oCancelarNfseResposta, $tagRetCancelamento = 'RetCancelamento', $tagConfirmacao = 'Confirmacao') {
 		
 		if ($oCancelarNfseResposta->getElementsByTagName('CancelarNfseResposta')->length == 1) {
 			
 			return array(
 				'ListaMensagemRetorno' => $this->retListaMensagem($oCancelarNfseResposta),
-				'RetCancelamento' => $this->retCancelamento($oCancelarNfseResposta)
+				'RetCancelamento' => $this->retCancelamento($oCancelarNfseResposta, $tagRetCancelamento, $tagConfirmacao)
 			);
 
 		} else {
@@ -1031,6 +1040,25 @@ class NFSeGenericoReturn extends NFSeReturn {
 				'ListaMensagemRetorno' => $this->retListaMensagem($oGerarNfseRetorno, null, $this->oGenerico->getConfig('tagMensagensReturn', 'ListaMensagemRetorno')),
 				'ListaNfse' => $this->retListNFSe($oGerarNfseRetorno)
 			);
+
+			$oCompNfse = $oGerarNfseRetorno->getElementsByTagName($tagResposta)->item(0)
+							->getElementsByTagName('CompNfse')->item(0);
+
+			$oNfse = null;
+			if (!is_null($oCompNfse)) {
+				$oNfse = $oCompNfse->getElementsByTagName('Nfse')->item(0);
+
+			if (!is_null($oNfse)) {
+                $oInfNfse = $oNfse->getElementsByTagName('InfNfse')->item(0);
+
+                $return['Nfse'] = array(
+                    'InfNfse' => array(
+                        'Numero' => $oGerarNfseRetorno->getValue($oInfNfse, 'Numero')
+                    ),
+                    'Xml' => $oNfse->C14N()
+                );
+            }
+		}
 
 			$aConfig = $this->oGenerico->getConfig('templates', array());
 

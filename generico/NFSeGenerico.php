@@ -106,7 +106,7 @@ class NFSeGenerico extends NFSe {
 					'tagAppend' => 'Rps', //Tag sob a qual a <Signature> gerada é anexada
 					'tagMap' => array( //Nomes de tags usados pelo NFSeGenericoReturn para localizar o retorno
 						'return' => 'gerarNfseResponse', //Tag externa da resposta de onde o XML de retorno é extraído
-						'tagResposta' => 'GerarNfseResposta' //Tag que confirma a resposta de geração (default GerarNfseResposta)
+						'tagResposta' => 'GerarNfseResposta' //Tag que confirma a resposta de geração da nota (default GerarNfseResposta)
 					),
 					//'replaceXmlSOAP' => ['action2' => 'GerarNfse'],//Para replaces no do XML SOAP, quando a prefeitura tem mais de um action
 					'search' => array("\r\n", "\n", "\r", "\t"), //Strings removidas/normalizadas do XML do RPS antes de assinar (evita invalidar a assinatura)
@@ -176,7 +176,9 @@ class NFSeGenerico extends NFSe {
 					'tagAppend' => 'Pedido', //Tag onde a <Signature> é anexada
 					'codCancelamento' => '1',//1 - Erro na emissao
 					'tagMap' => array(
-						'return' => 'cancelarNfseResponse' //Tag externa da resposta
+						'return' => 'cancelarNfseResponse', //Tag externa da resposta
+						'tagRetCancelamento' => 'RetCancelamento', //Tag de retorno do cancelamento (default 'RetCancelamento')
+						'tagConfirmacao' => 'Confirmacao' //Tag de confirmacao do cancelamento (default 'Confirmacao')
 					)
 				),
 				'cancelarNFSeEnvio' => array(
@@ -290,13 +292,21 @@ class NFSeGenerico extends NFSe {
 		$aReplaces['ifs'][] = array('begin' => '{@ifCnpj}', 'end' => '{@endifCnpj}', 'bool' => strlen($cpfCnpj) == 14);
 		$aReplaces['ifs'][] = array('begin' => '{@ifInscricaoMunicipal}', 'end' => '{@endifInscricaoMunicipal}', 'bool' => !empty($inscMunicipal));
 		$aReplaces['ifs'][] = array('begin' => '{@ifCodigoCancelamento}', 'end' => '{@endifCodigoCancelamento}', 'bool' => !is_null($oCancelar->CodigoCancelamento));
+		
+		$search = PQDUtil::retDefault($this->aConfig['metodos'][$metodo], 'search', null);
+		$search = is_null($search) ? array("\r\n", "\n", "\r", "\t") : array_map('stripcslashes', $search);
+		$replace = PQDUtil::retDefault($this->aConfig['metodos'][$metodo], 'replace', null);
+		$replace = is_null($replace) ? "" : ( is_array($replace) ? array_map('stripcslashes', $replace) : $replace );
 
 		$xml = $this->retXML(PQDUtil::procTplText($tpl, $aReplaces['replace'], $aReplaces['ifs']));
 		$xml = $this->signXML($xml, 
 			$this->aConfig['metodos'][$metodo]['tagSign'], 
 			$this->aConfig['metodos'][$metodo]['tagAppend'], 
 			$this->aConfig['metodos'][$metodo]['nameSpace'],
-			true
+			true,
+			true,
+			$search,
+			$replace
 		);
 
 		$this->saveXML($xml, $metodo . '-' . $fileName);
