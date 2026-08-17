@@ -159,7 +159,7 @@
 			<OptanteSimplesNacional>{@OptanteSimplesNacional}</OptanteSimplesNacional>
 			<IncentivoFiscal>{@IncentivoFiscal}</IncentivoFiscal>
 	
-			<!-- {@ifIBSCBS}
+			{@ifIBSCBS}
 			<IBSCBS>
 				<finNFSe>{@finNFSe}</finNFSe>
 				{@ifIndFinal}
@@ -176,7 +176,7 @@
 					</trib>
 				</valores>
 			</IBSCBS>
-			{@endifIBSCBS} -->
+			{@endifIBSCBS}
 		</InfDeclaracaoPrestacaoServico>
 		<!--Signature>string</Signature-->
 	</Rps>

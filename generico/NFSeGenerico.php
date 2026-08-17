@@ -1215,7 +1215,17 @@ class NFSeGenerico extends NFSe {
 			'{@InformacoesComplementares}' => $oRps->InformacoesComplementares,
 			'{@NaturezaOperacao}' => $oRps->NaturezaOperacao,
 			'{@IncentivadorCultural}' => $oRps->IncentivadorCultural,
-			'{@Deducoes}' => $deducoes
+			'{@Deducoes}' => $deducoes,
+
+			// IBS/CBS
+			'{@finNFSe}' => $oRps->IBSCBS->finNFSe ?? null,
+			'{@indFinal}' => $oRps->IBSCBS->indFinal ?? null,
+			'{@cIndOp}' => $oRps->IBSCBS->cIndOp ?? null,
+			'{@indDest}' => $oRps->IBSCBS->indDest ?? null,
+
+			// IBS/CBS - Valores - Tributação
+			'{@CSTIBSCBS}' => $oRps->IBSCBS->valores->trib->gIBSCBS->CST ?? null,
+			'{@cClassTribIBSCBS}' => $oRps->IBSCBS->valores->trib->gIBSCBS->cClassTrib ?? null
 		);
 
 		foreach($aReplace as $k => $v){
@@ -1275,6 +1285,10 @@ class NFSeGenerico extends NFSe {
 
 			array('begin' => '{@ifIdInfDeclaracaoPrestacaoServico}', 'end' => '{@endifIdInfDeclaracaoPrestacaoServico}', 'bool' =>  !is_null($oRps->idInfDeclaracaoPrestacaoServico)  ),
 			array('begin' => '{@ifIdRps}', 'end' => '{@endifIdRps}', 'bool' => !is_null($oRps->idRps) ),
+
+			// IBS/CBS
+			['begin' => '{@ifIBSCBS}', 'end' => '{@endifIBSCBS}', 'bool' => !is_null($oRps->IBSCBS->finNFSe)],
+			['begin' => '{@ifIndFinal}', 'end' => '{@endifIndFinal}', 'bool' => !empty($oRps->IBSCBS->indFinal)],
 		);
 
 		return $this->retXML(PQDUtil::procTplText($tplRps, $aReplace, $aIfs));

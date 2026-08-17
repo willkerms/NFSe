@@ -400,8 +400,18 @@ NFSeGenericoInfRps
 ├── IntermediarioServico    (NFSeGenericoIntermediarioServico)
 ├── ConstrucaoCivil         (NFSeGenericoConstrucaoCivil: CodigoObra, Art)
 ├── Evento                  (NFSeGenericoEvento)
+├── IBSCBS                  (NFSeGenericoRpsIBSCBS)          # IBS/CBS no RPS — reforma tributária
+│   ├── finNFSe, indFinal, cIndOp, indDest
+│   └── valores (NFSeGenericoRpsIBSCBSValores)
+│       └── trib (NFSeGenericoRpsTributosIBSCBS)
+│           └── gIBSCBS (NFSeGenericoRpsSitClasIBSCBS: CST, cClassTrib)
 └── aDeducoes[]             (NFSeGenericoDeducao)
 ```
+
+> O ramo `IBSCBS` do RPS espelha o caminho de acesso do `IBSCBS` do DPS (`valores → trib → gIBSCBS`) de
+> propósito, para que o mapeamento das duas montagens fique comparável. O bloco só entra no XML quando
+> **duas** condições valem: o template do pacote em uso declara `{@ifIBSCBS} … {@endifIBSCBS}` e
+> `IBSCBS->finNFSe` não é nulo. Hoje só o pacote `webISS-se-v2-02` traz esse bloco ativo.
 
 **DPS (Nacional)** — `NFSe\generico\nfseNacional\NFSeGenericoInfDPS` agrega os grupos do padrão nacional:
 
