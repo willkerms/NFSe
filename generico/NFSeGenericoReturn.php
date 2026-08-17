@@ -154,16 +154,6 @@ class NFSeGenericoReturn extends NFSeReturn {
 		return gzinflate(substr($gz, 10, -8));
 	}
 
-	private function retXmlEventoJson($value){
-
-		if(empty($value))
-			return null;
-
-		$xml = $this->decodeXmlGZipB64($value);
-
-		return $xml === false ? null : trim($xml);
-	}
-
 	private function retListNFSeNacionalJson(NFSeDocument $oDocument, array $alertas){
 		$xpath = new \DOMXPath($oDocument);
 		$nodes = $xpath->query('//*[local-name()="NFSe"]');
@@ -413,8 +403,7 @@ class NFSeGenericoReturn extends NFSeReturn {
 		if(!empty($json['eventoXmlGZipB64']))
 			return array(
 				'ListaMensagemRetorno' => array(),
-				'eventoXmlGZipB64' => $json['eventoXmlGZipB64'],
-				'Xml' => $this->retXmlEventoJson($json['eventoXmlGZipB64'])
+				'eventoXmlGZipB64' => $json['eventoXmlGZipB64']
 			);
 
 		if(!empty($json['lote']) && is_array($json['lote'])){
@@ -427,12 +416,9 @@ class NFSeGenericoReturn extends NFSeReturn {
 
 				$status = strtoupper((string)$this->retJsonValue($item, array('statusProcessamento', 'StatusProcessamento'), ''));
 				if($status == 'SUCESSO'){
-					$xmlGZipB64 = PQDUtil::retDefault($item, 'xmlGZipB64', null);
-
 					return array(
 						'ListaMensagemRetorno' => array(),
-						'eventoXmlGZipB64' => $xmlGZipB64,
-						'Xml' => $this->retXmlEventoJson($xmlGZipB64)
+						'eventoXmlGZipB64' => PQDUtil::retDefault($item, 'xmlGZipB64', null)
 					);
 				}
 

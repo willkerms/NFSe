@@ -440,10 +440,11 @@ As operações devolvem _arrays_ associativos. As mensagens vêm como objetos `N
 | `consultarUrlNfse` | `['ListaMensagemRetorno' => [...], 'ListaLinks' => [['NumeroNfse', 'CodigoVerificacao', 'Url', 'UrlAutenticidade'], ...]]` |
 | `cancelarNfse` | `['ListaMensagemRetorno' => [...], 'RetCancelamento' => ['NfseCancelamento' => [...]]]` |
 | `cancelarNFSeEnvio` (SOAP) | `['ListaMensagemRetorno' => [...], 'RetCancelamento' => ['NfseCancelamento' => [...]], 'ListaEvento' => [[...]]]` |
-| `cancelarNFSeEnvio` (`rest-json`) | `['ListaMensagemRetorno' => [...], 'eventoXmlGZipB64' => '...', 'Xml' => '...']` (Emissor Nacional) — o `eventoXmlGZipB64` continua **codificado** (gzip + base64) e o `Xml` traz o mesmo evento já decodificado |
+| `cancelarNFSeEnvio` (`rest-json`) | `['ListaMensagemRetorno' => [...], 'eventoXmlGZipB64' => '...']` (Emissor Nacional) — o XML do evento vem **codificado** (gzip + base64) |
 
-> A chave `Xml` carrega o XML do documento retornado (`Nfse`/`NFSe` na geração e na consulta, `evento` no
-> cancelamento), já em C14N e sem nenhum empacotamento de transporte. É dela que sai o `nfse-{número}.xml`.
+> A chave `Xml` carrega o XML da nota retornada (`Nfse` no ABRASF, `NFSe` no Nacional), já em C14N e sem nenhum
+> empacotamento de transporte. É dela que sai o `nfse-{número}.xml`. O cancelamento **não** tem essa chave: o
+> que ele devolve é o evento, não a nota.
 
 > No SOAP do padrão Nacional o WebService devolve `CancelarNfseResposta` com um `choice` entre `ListaEvento` e `ListaMensagemRetorno` — **não existe `RetCancelamento` no layout**. A biblioteca deriva o `RetCancelamento` a partir do evento, para manter o mesmo contrato do `cancelarNfse`, e devolve também o `ListaEvento` com os dados brutos do evento registrado (`Id`, `verAplic`, `ambGer`, `nSeqEvento`, `dhProc`, `nDFSe` e o `pedRegEvento` que originou o pedido). No `RetCancelamento` derivado, `Numero` recebe o `nDFSe`, `CodigoVerificacao` recebe o `chNFSe`, e `InscricaoMunicipal`/`CodigoMunicipio` ficam nulos por não existirem no evento.
 
