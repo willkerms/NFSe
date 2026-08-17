@@ -155,8 +155,15 @@ public function __construct(array $aConfig, $isHomologacao = true)
 | `escapeAsHTML` | `false` | `true` escapa o texto dos objetos com entidades HTML nomeadas; `false` usa `htmlspecialchars`. |
 | `retirarAcentos` | `false` | Remove acentos do texto. **Só funciona se `escapeAsHTML = true`.** |
 | `hasConsultaUrlNfse` | `false` | Indica se a prefeitura oferece o serviço de consulta da URL pública da NFS-e. |
-| `pathSaveXMLs` | `./xml/` | Diretório onde os XMLs enviados e os retornos são gravados (arquivo/depuração). Se não existir, nada é salvo. |
+| `pathSaveXMLs` | `./xml/` | Diretório onde a biblioteca grava os XMLs. Três categorias: (a) os documentos enviados (`<operação>-<identificador>.xml`); (b) o retorno **bruto** de cada requisição (`<operação>-soap-return-*` / `<operação>-rest-return-*`), exatamente como veio do WebService — é a evidência em disco para depurar falhas; (c) o XML final da nota, como `nfse-{número}.xml`. Se o diretório não existir, **nada é gravado e nenhum erro é emitido**. |
 | `verAplic` | `'1.01'` | (padrão Nacional) Versão do aplicativo emissor, usada no cancelamento por evento. |
+
+> O `nfse-{número}.xml` guarda **só o XML da nota**, sem envelope SOAP e sem o wrapper JSON do `rest-json`, nos
+> dois transportes e nos dois padrões. Ele é gravado sempre que a resposta **trouxer a nota** — número e XML —
+> na geração ou na consulta. O sinal de sucesso é a nota ter vindo, e não a `ListaMensagemRetorno` estar vazia:
+> há prefeitura que devolve a nota junto de uma mensagem (Goiânia manda `L000-NORMAL` quando deu certo).
+> Num retorno de erro sem nota, e no **cancelamento** — cujo retorno traz o XML do _evento_, não o da nota —
+> nada é gravado e nenhuma exceção é lançada.
 
 #### `curl` — transporte cURL (quando `typeCommunication = 'curl'`)
 
@@ -416,14 +423,17 @@ As operações devolvem _arrays_ associativos. As mensagens vêm como objetos `N
 
 | Operação | Estrutura do retorno |
 |----------|----------------------|
-| `gerarNfse` | `['ListaMensagemRetorno' => [...], 'ListaNfse' => ['CompNfse' => [InfNFSe...], 'ListaMensagemAlertaRetorno' => [...]]]` |
+| `gerarNfse` | `['ListaMensagemRetorno' => [...], 'ListaNfse' => ['CompNfse' => [InfNFSe...], 'ListaMensagemAlertaRetorno' => [...]], 'Nfse' => ['InfNfse' => ['Numero' => '...'], 'Xml' => '...']]` — a chave `Nfse` vem nos **dois transportes** (SOAP e `rest-json`) e nos dois padrões; no Nacional o `Numero` recebe o `nNFSe` |
 | `enviarLoteRps` | `['NumeroLote', 'DataRecebimento', 'Protocolo', 'ListaNfse', 'ListaMensagemRetorno', 'ListaMensagemRetornoLote']` |
-| `consultarNFSePorRps` | `['ListaMensagemRetorno' => [...], 'CompNfse' => InfNFSe]` |
+| `consultarNFSePorRps` / `consultarNFSePorDps` | `['ListaMensagemRetorno' => [...], 'CompNfse' => InfNFSe, 'Xml' => '...']` — o `Xml` vem nos **dois transportes** (SOAP e `rest-json`) |
 | `consultarLoteRps` | `['Situacao', 'ListaNfse', 'ListaMensagemRetorno', 'ListaMensagemRetornoLote']` |
 | `consultarUrlNfse` | `['ListaMensagemRetorno' => [...], 'ListaLinks' => [['NumeroNfse', 'CodigoVerificacao', 'Url', 'UrlAutenticidade'], ...]]` |
 | `cancelarNfse` | `['ListaMensagemRetorno' => [...], 'RetCancelamento' => ['NfseCancelamento' => [...]]]` |
 | `cancelarNFSeEnvio` (SOAP) | `['ListaMensagemRetorno' => [...], 'RetCancelamento' => ['NfseCancelamento' => [...]], 'ListaEvento' => [[...]]]` |
-| `cancelarNFSeEnvio` (`rest-json`) | `['ListaMensagemRetorno' => [...], 'eventoXmlGZipB64' => '...']` (Emissor Nacional) |
+| `cancelarNFSeEnvio` (`rest-json`) | `['ListaMensagemRetorno' => [...], 'eventoXmlGZipB64' => '...', 'Xml' => '...']` (Emissor Nacional) — o `eventoXmlGZipB64` continua **codificado** (gzip + base64) e o `Xml` traz o mesmo evento já decodificado |
+
+> A chave `Xml` carrega o XML do documento retornado (`Nfse`/`NFSe` na geração e na consulta, `evento` no
+> cancelamento), já em C14N e sem nenhum empacotamento de transporte. É dela que sai o `nfse-{número}.xml`.
 
 > No SOAP do padrão Nacional o WebService devolve `CancelarNfseResposta` com um `choice` entre `ListaEvento` e `ListaMensagemRetorno` — **não existe `RetCancelamento` no layout**. A biblioteca deriva o `RetCancelamento` a partir do evento, para manter o mesmo contrato do `cancelarNfse`, e devolve também o `ListaEvento` com os dados brutos do evento registrado (`Id`, `verAplic`, `ambGer`, `nSeqEvento`, `dhProc`, `nDFSe` e o `pedRegEvento` que originou o pedido). No `RetCancelamento` derivado, `Numero` recebe o `nDFSe`, `CodigoVerificacao` recebe o `chNFSe`, e `InscricaoMunicipal`/`CodigoMunicipio` ficam nulos por não existirem no evento.
 

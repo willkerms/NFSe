@@ -154,6 +154,16 @@ class NFSeGenericoReturn extends NFSeReturn {
 		return gzinflate(substr($gz, 10, -8));
 	}
 
+	private function retXmlEventoJson($value){
+
+		if(empty($value))
+			return null;
+
+		$xml = $this->decodeXmlGZipB64($value);
+
+		return $xml === false ? null : trim($xml);
+	}
+
 	private function retListNFSeNacionalJson(NFSeDocument $oDocument, array $alertas){
 		$xpath = new \DOMXPath($oDocument);
 		$nodes = $xpath->query('//*[local-name()="NFSe"]');
@@ -169,6 +179,49 @@ class NFSeGenericoReturn extends NFSeReturn {
 			'CompNfse' => array($this->retInfNFSe($oWrapper->documentElement, $oWrapper)),
 			'ListaMensagemAlertaRetorno' => $alertas
 		);
+	}
+
+	/**
+	 * Acha o no da nota dentro do contexto, aceitando 'Nfse' (ABRASF) e 'NFSe' (nacional)
+	 *
+	 * @param \DOMNode $oContexto
+	 * @return \DOMElement|null
+	 */
+	private function retNoNfse($oContexto){
+
+		if(is_null($oContexto))
+			return null;
+
+		$oDoc = $oContexto instanceof \DOMDocument ? $oContexto : $oContexto->ownerDocument;
+
+		if(is_null($oDoc))
+			return null;
+
+		$xpath = new \DOMXPath($oDoc);
+		$nodes = $xpath->query('.//*[local-name()="Nfse" or local-name()="NFSe"]', $oContexto);
+
+		return $nodes->length > 0 ? $nodes->item(0) : null;
+	}
+
+	private function retNumeroNoNfse($oNfse, NFSeDocument $oDocument){
+
+		if(is_null($oNfse))
+			return null;
+
+		$numero = $oDocument->getValue($oNfse, 'Numero');//ABRASF
+
+		return is_null($numero) ? $oDocument->getValue($oNfse, 'nNFSe') : $numero;//nacional
+	}
+
+	private function retNumeroInfNFSe($oInfNFSe){
+
+		if(is_null($oInfNFSe))
+			return null;
+
+		if(isset($oInfNFSe->Numero) && !empty($oInfNFSe->Numero))//ABRASF
+			return $oInfNFSe->Numero;
+
+		return isset($oInfNFSe->nNFSe) ? $oInfNFSe->nNFSe : null;//nacional
 	}
 
 	private function retErrosJsonComIdDps(array $json){
@@ -210,7 +263,8 @@ class NFSeGenericoReturn extends NFSeReturn {
 
 		return array(
 			'ListaMensagemRetorno' => array(),
-			'ListaNfse' => $listaNfse
+			'ListaNfse' => $listaNfse,
+			'Xml' => $oDocument->C14N()//XML da nota sem o wrapper JSON/gzip
 		);
 	}
 
@@ -265,12 +319,24 @@ class NFSeGenericoReturn extends NFSeReturn {
 		if(count($return['ListaMensagemRetorno']) > 0)
 			return $return;
 
-		return array(
+		$aReturn = array(
 			'ListaMensagemRetorno' => array(),
 			'ListaNfse' => $return['ListaNfse'],
 			'idDps' => PQDUtil::retDefault($json, 'idDps', null),
 			'chaveAcesso' => PQDUtil::retDefault($json, 'chaveAcesso', null)
 		);
+
+		$oInfNFSe = PQDUtil::retDefault($return['ListaNfse']['CompNfse'], 0, null);
+
+		if(!is_null($oInfNFSe))//mesmas chaves do retorno SOAP, para o consumidor nao precisar saber o transporte
+			$aReturn['Nfse'] = array(
+				'InfNfse' => array(
+					'Numero' => $this->retNumeroInfNFSe($oInfNFSe)
+				),
+				'Xml' => $return['Xml']
+			);
+
+		return $aReturn;
 	}
 
 	private function normalizaConsultarNfseDpsNotasJson(array $json){
@@ -334,6 +400,7 @@ class NFSeGenericoReturn extends NFSeReturn {
 		return array(
 			'ListaMensagemRetorno' => array(),
 			'CompNfse' => $return['ListaNfse']['CompNfse'][0],
+			'Xml' => $return['Xml'],//mesma chave que o case SOAP de consulta devolve
 			'chaveAcesso' => PQDUtil::retDefault($json, 'chaveAcesso', null)
 		);
 	}
@@ -346,7 +413,8 @@ class NFSeGenericoReturn extends NFSeReturn {
 		if(!empty($json['eventoXmlGZipB64']))
 			return array(
 				'ListaMensagemRetorno' => array(),
-				'eventoXmlGZipB64' => $json['eventoXmlGZipB64']
+				'eventoXmlGZipB64' => $json['eventoXmlGZipB64'],
+				'Xml' => $this->retXmlEventoJson($json['eventoXmlGZipB64'])
 			);
 
 		if(!empty($json['lote']) && is_array($json['lote'])){
@@ -359,9 +427,12 @@ class NFSeGenericoReturn extends NFSeReturn {
 
 				$status = strtoupper((string)$this->retJsonValue($item, array('statusProcessamento', 'StatusProcessamento'), ''));
 				if($status == 'SUCESSO'){
+					$xmlGZipB64 = PQDUtil::retDefault($item, 'xmlGZipB64', null);
+
 					return array(
 						'ListaMensagemRetorno' => array(),
-						'eventoXmlGZipB64' => PQDUtil::retDefault($item, 'xmlGZipB64', null)
+						'eventoXmlGZipB64' => $xmlGZipB64,
+						'Xml' => $this->retXmlEventoJson($xmlGZipB64)
 					);
 				}
 
@@ -836,7 +907,7 @@ class NFSeGenericoReturn extends NFSeReturn {
 				case "consultarNFSePorRps":
 				case "consultarNFSePorDps":
 					$oCompNfse = $oDocument->firstChild;
-					$oNfse = $oCompNfse->getElementsByTagName('Nfse')->item(0);
+					$oNfse = $this->retNoNfse($oCompNfse);
 
 					return array(
 						'ListaMensagemRetorno' => $this->retListaMensagem($oDocument),
@@ -1229,21 +1300,16 @@ class NFSeGenericoReturn extends NFSeReturn {
 			$oCompNfse = $oGerarNfseRetorno->getElementsByTagName($tagResposta)->item(0)
 							->getElementsByTagName('CompNfse')->item(0);
 
-			$oNfse = null;
-			if (!is_null($oCompNfse)) {
-				$oNfse = $oCompNfse->getElementsByTagName('Nfse')->item(0);
+			$oNfse = $this->retNoNfse($oCompNfse);
 
 			if (!is_null($oNfse)) {
-                $oInfNfse = $oNfse->getElementsByTagName('InfNfse')->item(0);
-
-                $return['Nfse'] = array(
-                    'InfNfse' => array(
-                        'Numero' => $oGerarNfseRetorno->getValue($oInfNfse, 'Numero')
-                    ),
-                    'Xml' => $oNfse->C14N()
-                );
-            }
-		}
+				$return['Nfse'] = array(
+					'InfNfse' => array(
+						'Numero' => $this->retNumeroNoNfse($oNfse, $oGerarNfseRetorno)
+					),
+					'Xml' => $oNfse->C14N()
+				);
+			}
 
 			$aConfig = $this->oGenerico->getConfig('templates', array());
 
