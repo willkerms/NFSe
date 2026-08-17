@@ -182,13 +182,20 @@ class NFSeGenerico extends NFSe {
 					)
 				),
 				'cancelarNFSeEnvio' => array(
+					'allowCancel' => true,//Tem prefeituras que não permitem cancelamento pelo WebService, deste modo o sistema nem transmite somente retorna que foi cancelado
 					'action' => 'cancelarNFSeEnvio',
 					'typeCommunication' => 'soap',//Forma de transporte: 'soap' usa SoapClient; 'curl' faz POST HTTP puro. Quando omitido, default 'soap'
 					'nameSpace' => '',
 					'url' => '/nfse/{@chNFSe}/eventos',// URL para uso no cancelamento feito por REST HTTP
 					'tagSign' => 'infPedReg',
 					'tagAppend' => 'pedRegEvento',
-					'codCancelamento' => '1'
+					'codCancelamento' => '1',
+					'tagMap' => array(
+						'return' => 'CancelarNfseResposta', //Tag externa da resposta, recortada por retDocReturn
+						'tagListaEvento' => 'ListaEvento', //Tag com a lista de eventos registrados (padrão Nacional)
+						'tagRetCancelamento' => 'RetCancelamento', //Tag de retorno do cancelamento, quando a prefeitura responde no formato ABRASF
+						'tagConfirmacao' => 'Confirmacao' //Tag de confirmacao do cancelamento, quando a prefeitura responde no formato ABRASF
+					)
 				)
 			)/*,
 			'fields' => array( //(opcional) Funções de transformação aplicadas a cada campo antes de ir para o template, via applyFnField. A chave é o nome do campo em camelCase (o placeholder {@DataEmissao} corresponde a 'dataEmissao')
@@ -2015,6 +2022,35 @@ class NFSeGenerico extends NFSe {
 		$metodo = 'cancelarNFSeEnvio';
 
 		$oCancelar = $this->escapeTextObj($oCancelar);
+
+		//Quando a prefeitura não permite cancelamento pelo WebService
+		if(!$this->aConfig['metodos'][$metodo]['allowCancel']){
+			return array(
+				'ListaMensagemRetorno' => array(), 
+				'RetCancelamento' => array( 
+					'NfseCancelamento' => array( 
+						array( 
+							'Confirmacao' => array(
+								'Pedido' => array(
+									'InfPedidoCancelamento' => array(
+										'IdentificacaoNfse' => array(
+											'Numero' => $oCancelar->Numero,
+											'CodigoVerificacao' => $oCancelar->CodigoVerificacao,
+											'CpfCnpj' => $oCancelar->CpfCnpj,
+											'InscricaoMunicipal' => $oCancelar->InscricaoMunicipal,
+											'CodigoMunicipio' => $oCancelar->CodigoMunicipio
+										),
+										'CodigoCancelamento' => $oCancelar->CodigoCancelamento,
+										'DescricaoCancelamento' => $oCancelar->DescricaoCancelamento
+									)
+								),
+								'DataHora' => str_replace(" ", "T", date('Y-m-d H:i:s'))
+							)
+						 ) 
+					) 
+				)
+			);
+		}
 
 		// Gerar XML de cancelamento
 		$tpl = $this->getTemplate($metodo);

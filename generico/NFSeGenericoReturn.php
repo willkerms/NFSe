@@ -800,6 +800,20 @@ class NFSeGenericoReturn extends NFSeReturn {
 			$oDocument = $this->retDocReturn($dom, $metodo);
 			switch ($metodo) {
 
+				case "cancelarNFSeEnvio":
+					$aTagMap = PQDUtil::retDefault(
+						PQDUtil::retDefault($this->oGenerico->getConfig('metodos', array()), $metodo, array()),
+						'tagMap', array()
+					);
+
+					return $this->cancelarNFSeEnvioResposta(
+						$oDocument,
+						PQDUtil::retDefault($aTagMap, 'tagListaEvento', 'ListaEvento'),
+						PQDUtil::retDefault($aTagMap, 'tagRetCancelamento', 'RetCancelamento'),
+						PQDUtil::retDefault($aTagMap, 'tagConfirmacao', 'Confirmacao')
+					);
+				break;
+
 				case "cancelarNfse":
 					$aConfig = $this->oGenerico->getConfig('metodos');
 					$configGerarNfse = PQDUtil::retDefault($aConfig, $metodo);
@@ -932,6 +946,87 @@ class NFSeGenericoReturn extends NFSeReturn {
 	}
 
 	/**
+	 * Le a ListaEvento do padrao Nacional (CancelarNfseResposta) e devolve um array por evento
+	 *
+	 * @return array
+	 */
+	private function retListaEvento(NFSeDocument $oDocument, $tagListaEvento = 'ListaEvento') {
+
+		$return = array();
+
+		$ListaEvento = $oDocument->getElementsByTagName($tagListaEvento)->item(0);
+
+		if (is_null($ListaEvento))
+			return $return;
+
+		$aEventos = $ListaEvento->getElementsByTagName('evento');
+
+		for ($i = 0; $i < $aEventos->length; $i++) {
+
+			/**
+			 * @var \DOMElement $evento
+			 * @var \DOMElement $infEvento
+			 * @var \DOMElement $pedRegEvento
+			 * @var \DOMElement $infPedReg
+			 */
+			$evento = $aEventos->item($i);
+			$infEvento = $evento->getElementsByTagName('infEvento')->item(0);
+
+			if (is_null($infEvento))
+				continue;
+
+			$pedRegEvento = $infEvento->getElementsByTagName('pedRegEvento')->item(0);
+			$infPedReg = is_null($pedRegEvento) ? null : $pedRegEvento->getElementsByTagName('infPedReg')->item(0);
+
+			$aEvento = array(
+				'versao' => $evento->getAttribute('versao'),
+				'Id' => $infEvento->getAttribute('Id'),
+				'verAplic' => $oDocument->getValue($infEvento, 'verAplic'),
+				'ambGer' => $oDocument->getValue($infEvento, 'ambGer'),//1 - Sistema proprio do municipio; 2 - Sefin Nacional NFS-e; 3 - ADN NFS-e
+				'nSeqEvento' => $oDocument->getValue($infEvento, 'nSeqEvento'),//No cancelamento e sempre 001
+				'dhProc' => $oDocument->getValue($infEvento, 'dhProc'),//Data/hora do registro do evento, em UTC
+				'nDFSe' => $oDocument->getValue($infEvento, 'nDFSe'),
+				'pedRegEvento' => null
+			);
+
+			if (!is_null($infPedReg)) {
+
+				$tpEvento = null;
+				$oTpEvento = null;
+
+				//choice do TCInfPedReg: so uma das cinco tags de evento existe
+				foreach (array('e101101', 'e105102', 'e101103', 'e105104', 'e105105') as $tagEvento) {
+					$oTpEvento = $infPedReg->getElementsByTagName($tagEvento)->item(0);
+
+					if (!is_null($oTpEvento)) {
+						$tpEvento = substr($tagEvento, 1);//e101101 -> 101101
+						break;
+					}
+				}
+
+				$aEvento['pedRegEvento'] = array(
+					'versao' => $pedRegEvento->getAttribute('versao'),
+					'Id' => $infPedReg->getAttribute('Id'),
+					'tpAmb' => $oDocument->getValue($infPedReg, 'tpAmb'),//1 - Producao; 2 - Homologacao
+					'verAplic' => $oDocument->getValue($infPedReg, 'verAplic'),
+					'dhEvento' => $oDocument->getValue($infPedReg, 'dhEvento'),
+					'CNPJAutor' => $oDocument->getValue($infPedReg, 'CNPJAutor'),//choice com CPFAutor: o ausente fica null
+					'CPFAutor' => $oDocument->getValue($infPedReg, 'CPFAutor'),
+					'chNFSe' => $oDocument->getValue($infPedReg, 'chNFSe'),
+					'tpEvento' => $tpEvento,//101101 = cancelamento
+					'xDesc' => is_null($oTpEvento) ? null : $oDocument->getValue($oTpEvento, 'xDesc'),
+					'cMotivo' => is_null($oTpEvento) ? null : $oDocument->getValue($oTpEvento, 'cMotivo'),//1 - Erro na emissao; 2 - Servico nao prestado; 9 - Outros
+					'xMotivo' => is_null($oTpEvento) ? null : $oDocument->getValue($oTpEvento, 'xMotivo')
+				);
+			}
+
+			$return[] = $aEvento;
+		}
+
+		return $return;
+	}
+
+	/**
 	 *
 	 * @param NFSeDocument $oCancelarNfseResposta
 	 *
@@ -957,13 +1052,24 @@ class NFSeGenericoReturn extends NFSeReturn {
 
 				$Confirmacao = $NfseCancelamento->getElementsByTagName($tagConfirmacao)->item(0);
 
+				if (is_null($Confirmacao))
+					continue;
+
 				$DataHora = $oCancelarNfseResposta->getValue($Confirmacao, "DataHora");
 				$Pedido = $Confirmacao->getElementsByTagName('Pedido')->item(0);
 
+				if (is_null($Pedido))
+					continue;
 
 				$InfPedidoCancelamento = $Pedido->getElementsByTagName('InfPedidoCancelamento')->item(0);
 
+				if (is_null($InfPedidoCancelamento))
+					continue;
+
 				$IdentificacaoNfse = $InfPedidoCancelamento->getElementsByTagName('IdentificacaoNfse')->item(0);
+
+				if (is_null($IdentificacaoNfse))
+					continue;
 
 				$oIdentificacaoNfse = new NFSeGenericoIdentificacaoNfse();
 
@@ -971,10 +1077,11 @@ class NFSeGenericoReturn extends NFSeReturn {
 
 				$CpfCnpj = $IdentificacaoNfse->getElementsByTagName('CpfCnpj')->item(0);
 
-				if($CpfCnpj->getElementsByTagName("Cnpj")->length == 1)
-					$oIdentificacaoNfse->CpfCnpj = $oCancelarNfseResposta->getValue($CpfCnpj, "Cnpj");
-				else
-					$oIdentificacaoNfse->CpfCnpj = $oCancelarNfseResposta->getValue($CpfCnpj, "Cpf");
+				//CpfCnpj e opcional em algumas prefeituras; sem ele o documento nao traz o identificador do prestador
+				if(!is_null($CpfCnpj))
+					$oIdentificacaoNfse->CpfCnpj = $CpfCnpj->getElementsByTagName("Cnpj")->length == 1
+						? $oCancelarNfseResposta->getValue($CpfCnpj, "Cnpj")
+						: $oCancelarNfseResposta->getValue($CpfCnpj, "Cpf");
 
 				$oIdentificacaoNfse->InscricaoMunicipal = $oCancelarNfseResposta->getValue($IdentificacaoNfse, "InscricaoMunicipal");
 				$oIdentificacaoNfse->CodigoVerificacao = $oCancelarNfseResposta->getValue($IdentificacaoNfse, "CodigoVerificacao");
@@ -1024,6 +1131,84 @@ class NFSeGenericoReturn extends NFSeReturn {
 
 		}
 
+	}
+
+	/**
+	 * Monta o retorno do cancelamento no padrao Nacional (CancelarNfseResposta)
+	 *
+	 * @return array
+	 */
+	private function cancelarNFSeEnvioResposta(NFSeDocument $oCancelarNfseResposta, $tagListaEvento = 'ListaEvento', $tagRetCancelamento = 'RetCancelamento', $tagConfirmacao = 'Confirmacao') {
+
+		$aMensagens = $this->retListaMensagem($oCancelarNfseResposta);
+
+		if (count($aMensagens) > 0)
+			return array('ListaMensagemRetorno' => $aMensagens);
+
+		//Confirmacao concreta: evento registrado tem Id e dhProc (data/hora do registro no municipio)
+		$aListaEvento = array();
+
+		foreach ($this->retListaEvento($oCancelarNfseResposta, $tagListaEvento) as $aEvento)
+			if (!empty($aEvento['Id']) && !empty($aEvento['dhProc']))
+				$aListaEvento[] = $aEvento;
+
+		if (count($aListaEvento) > 0)
+			return array(
+				'ListaMensagemRetorno' => array(),
+				'RetCancelamento' => $this->retCancelamentoEvento($aListaEvento),
+				'ListaEvento' => $aListaEvento
+			);
+
+		//Prefeitura hibrida: envelope do padrao Nacional com RetCancelamento no formato ABRASF
+		$aRetCancelamento = $this->retCancelamento($oCancelarNfseResposta, $tagRetCancelamento, $tagConfirmacao);
+
+		if (count($aRetCancelamento['NfseCancelamento']) > 0)
+			return array(
+				'ListaMensagemRetorno' => array(),
+				'RetCancelamento' => $aRetCancelamento
+			);
+
+		return array('ListaMensagemRetorno' => array($this->retMsgForaEsperado()));
+	}
+
+	/**
+	 * Deriva o RetCancelamento (formato do cancelarNfse) a partir dos eventos do padrao Nacional
+	 *
+	 * @return array
+	 */
+	private function retCancelamentoEvento(array $aListaEvento) {
+
+		$return = array(
+			'NfseCancelamento' => array()
+		);
+
+		foreach ($aListaEvento as $aEvento) {
+
+			$aPedido = is_array($aEvento['pedRegEvento']) ? $aEvento['pedRegEvento'] : array();
+
+			$oIdentificacaoNfse = new NFSeGenericoIdentificacaoNfse();
+
+			$oIdentificacaoNfse->Numero = $aEvento['nDFSe'];//O Nacional nao devolve o Numero ABRASF; nDFSe e o numero do documento no municipio
+			$oIdentificacaoNfse->CodigoVerificacao = PQDUtil::retDefault($aPedido, 'chNFSe', null);//Chave de acesso da NFS-e
+			$oIdentificacaoNfse->CpfCnpj = PQDUtil::retDefault($aPedido, 'CNPJAutor', PQDUtil::retDefault($aPedido, 'CPFAutor', null));
+			$oIdentificacaoNfse->InscricaoMunicipal = null;//Nao existe no evento
+			$oIdentificacaoNfse->CodigoMunicipio = null;//Nao existe no evento
+
+			$return['NfseCancelamento'][] = array(
+				'Confirmacao' => array(
+					'Pedido' => array(
+						'InfPedidoCancelamento' => array(
+							'IdentificacaoNfse' => $oIdentificacaoNfse,
+							'CodigoCancelamento' => PQDUtil::retDefault($aPedido, 'cMotivo', null),
+							'DescricaoCancelamento' => PQDUtil::retDefault($aPedido, 'xMotivo', null)
+						)
+					),
+					'DataHora' => $aEvento['dhProc']//Data/hora do registro do evento
+				)
+			);
+		}
+
+		return $return;
 	}
 
 	/**

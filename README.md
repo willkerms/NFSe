@@ -231,13 +231,13 @@ Cada operação tem um sub-array. **Chaves comuns:**
 | `tagSign` | Tag cujo conteúdo é **assinado** digitalmente. |
 | `tagAppend` | Tag sob a qual a `<Signature>` gerada é **anexada**. |
 | `tagMap.return` | Tag externa da resposta de onde o XML de retorno é extraído. |
-| `tagMap.*` | Tags adicionais por operação: `tagResposta`(gerarNfse - Tag que confirma a resposta da geração da nota [ default: GerarNfseResposta] ) , `tagRetCancelamento`(cancelarNfse - Tag de retorno do cancelamento [ default: 'RetCancelamento' ] ), `tagConfirmacao`(cancelarNfse - Tag de confirmacao do cancelamento [ default: 'Confirmacao' ] ), `respostaLote`, `respostaConsultaLote`. |
+| `tagMap.*` | Tags adicionais por operação: `tagResposta`(gerarNfse - Tag que confirma a resposta da geração da nota [ default: GerarNfseResposta] ) , `tagRetCancelamento`(cancelarNfse - Tag de retorno do cancelamento [ default: 'RetCancelamento' ] ), `tagConfirmacao`(cancelarNfse - Tag de confirmacao do cancelamento [ default: 'Confirmacao' ] ), `tagListaEvento`(cancelarNFSeEnvio - Tag com a lista de eventos registrados no padrão Nacional [ default: 'ListaEvento' ] ), `respostaLote`, `respostaConsultaLote`. |
 | `signConsulta` / `signRps` / `signDps` | Liga/desliga a assinatura nas consultas, nos RPS de lote ou nos DPS de lote. |
 | `returnType` | `'child'` (default) ou `'string'` (quando o payload vem como texto/CDATA e precisa ser reparseado). |
 | `returnReplace` | `['search'=>…, 'replace'=>…]` aplicado ao texto antes de reparsear (usado com `returnType = 'string'`). |
 | `replaceXmlSOAP` | Substituições extras no envelope SOAP (prefeituras com mais de um `action`). |
 | `search` / `replace` | Strings normalizadas no XML **antes de assinar** (evita invalidar a assinatura). |
-| `allowCancel` | (cancelamento) `false` ⇒ não transmite e devolve um retorno simulado de "cancelado". |
+| `allowCancel` | (`cancelarNfse` e `cancelarNFSeEnvio`) Default `true`. Com `false` **nada é transmitido**: a biblioteca devolve um retorno simulado de "cancelado" (prefeituras que não aceitam cancelamento pelo WebService). Ver [Formato do retorno](#formato-do-retorno). |
 | `codCancelamento` | (cancelamento) Código padrão (`1` = Erro na emissão). |
 
 Defaults relevantes por operação:
@@ -251,6 +251,9 @@ Defaults relevantes por operação:
 | `consultarLoteRps` | `ConsultarLoteRps` | — | — |
 | `consultarUrlNfse` | `ConsultarUrlNfse` | `Pedido` | `ConsultarUrlNfseEnvio` |
 | `cancelarNfse` | `cancelarNfse` | `InfPedidoCancelamento` | `Pedido` |
+| `cancelarNFSeEnvio` | `cancelarNFSeEnvio` | `infPedReg` | `pedRegEvento` |
+
+> As duas operações de cancelamento (`cancelarNfse` e `cancelarNFSeEnvio`) nascem com `allowCancel => true` e `codCancelamento => '1'`. Como o merge de configuração é recursivo (`PQDUtil::setDefault`), declarar apenas algumas chaves de `metodos.cancelarNFSeEnvio` no `$aConfig` **não** apaga esses defaults — para desligar a transmissão é preciso passar `allowCancel => false` explicitamente.
 
 #### `fields` — transformações de campo (opcional)
 
@@ -360,7 +363,7 @@ Cada pasta em `templates/` é um pacote. Selecione com `templates.folder`. Já a
 | `consultarNfseDpsEnvio($numDPS, $serieDPS, $protocolo = null)` | Nº/série do DPS | Consulta NFS-e por DPS. |
 | `consultarNFSePorDps(NFSeGenericoConsultarNfseDps $o)` | Identificação do DPS | Consulta NFS-e por DPS (objeto). |
 | `consultarLoteDpsEnvio($protocolo)` | Protocolo | Consulta lote de DPS pelo protocolo. |
-| `cancelarNFSeEnvio($chNFSe, $nPedRegEvento, $tpEvento = '101101', $xMotivo = null)` | Chave + evento | Cancela NFS-e por evento. |
+| `cancelarNFSeEnvio(NFSeGenericoCancelarNfseEnvio $o)` | Dados do cancelamento | Cancela NFS-e por evento (`tpEvento` 101101). A chave de acesso vai em `CodigoVerificacao` e o motivo em `DescricaoCancelamento`. |
 
 **Utilitários:**
 
@@ -419,6 +422,12 @@ As operações devolvem _arrays_ associativos. As mensagens vêm como objetos `N
 | `consultarLoteRps` | `['Situacao', 'ListaNfse', 'ListaMensagemRetorno', 'ListaMensagemRetornoLote']` |
 | `consultarUrlNfse` | `['ListaMensagemRetorno' => [...], 'ListaLinks' => [['NumeroNfse', 'CodigoVerificacao', 'Url', 'UrlAutenticidade'], ...]]` |
 | `cancelarNfse` | `['ListaMensagemRetorno' => [...], 'RetCancelamento' => ['NfseCancelamento' => [...]]]` |
+| `cancelarNFSeEnvio` (SOAP) | `['ListaMensagemRetorno' => [...], 'RetCancelamento' => ['NfseCancelamento' => [...]], 'ListaEvento' => [[...]]]` |
+| `cancelarNFSeEnvio` (`rest-json`) | `['ListaMensagemRetorno' => [...], 'eventoXmlGZipB64' => '...']` (Emissor Nacional) |
+
+> No SOAP do padrão Nacional o WebService devolve `CancelarNfseResposta` com um `choice` entre `ListaEvento` e `ListaMensagemRetorno` — **não existe `RetCancelamento` no layout**. A biblioteca deriva o `RetCancelamento` a partir do evento, para manter o mesmo contrato do `cancelarNfse`, e devolve também o `ListaEvento` com os dados brutos do evento registrado (`Id`, `verAplic`, `ambGer`, `nSeqEvento`, `dhProc`, `nDFSe` e o `pedRegEvento` que originou o pedido). No `RetCancelamento` derivado, `Numero` recebe o `nDFSe`, `CodigoVerificacao` recebe o `chNFSe`, e `InscricaoMunicipal`/`CodigoMunicipio` ficam nulos por não existirem no evento.
+
+> Com `metodos.<cancelamento>.allowCancel = false` nada é transmitido e o retorno é **sempre** o formato do `cancelarNfse` (`RetCancelamento.NfseCancelamento` preenchido com os dados do pedido e `ListaMensagemRetorno` vazia) — inclusive no `cancelarNFSeEnvio`, que no fluxo normal não devolve `RetCancelamento`.
 
 Regra prática: uma operação **deu certo** quando `ListaMensagemRetorno` está vazia e o bloco de dados esperado (`ListaNfse`, `CompNfse`, etc.) foi preenchido. SOAP _Faults_ e respostas fora do formato esperado também são convertidos em entradas de `ListaMensagemRetorno`.
 
