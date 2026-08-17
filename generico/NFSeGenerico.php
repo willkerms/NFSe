@@ -2023,8 +2023,19 @@ class NFSeGenerico extends NFSe {
 
 		$oCancelar = $this->escapeTextObj($oCancelar);
 
+		$cpfCnpj = is_null($oCancelar->CpfCnpj) ? $this->aConfig['cpfCnpj'] : $oCancelar->CpfCnpj;
+		$inscMunicipal = is_null($oCancelar->InscricaoMunicipal) ? $this->aConfig['insMunicipal'] : $oCancelar->InscricaoMunicipal;
+		$chNFSe = $oCancelar->CodigoVerificacao;
+		$tpEvento = '101101';
+
+		$oCancelar->CodigoCancelamento = is_null($oCancelar->CodigoCancelamento) ? $this->aConfig['metodos'][$metodo]['codCancelamento'] : $oCancelar->CodigoCancelamento;
+
 		//Quando a prefeitura não permite cancelamento pelo WebService
 		if(!$this->aConfig['metodos'][$metodo]['allowCancel']){
+
+			$dhProc = date('Y-m-d\TH:i:sP');
+			$verAplic = PQDUtil::retDefault($this->aConfig, 'verAplic', '1.01');
+
 			return array(
 				'ListaMensagemRetorno' => array(), 
 				'RetCancelamento' => array( 
@@ -2036,8 +2047,8 @@ class NFSeGenerico extends NFSe {
 										'IdentificacaoNfse' => array(
 											'Numero' => $oCancelar->Numero,
 											'CodigoVerificacao' => $oCancelar->CodigoVerificacao,
-											'CpfCnpj' => $oCancelar->CpfCnpj,
-											'InscricaoMunicipal' => $oCancelar->InscricaoMunicipal,
+											'CpfCnpj' => $cpfCnpj,
+											'InscricaoMunicipal' => $inscMunicipal,
 											'CodigoMunicipio' => $oCancelar->CodigoMunicipio
 										),
 										'CodigoCancelamento' => $oCancelar->CodigoCancelamento,
@@ -2048,6 +2059,31 @@ class NFSeGenerico extends NFSe {
 							)
 						 ) 
 					) 
+				),
+				'ListaEvento' => array(
+					array(//Evento sintético: cancelamento local, nada foi transmitido
+						'versao' => '1.01',
+						'Id' => 'EVT' . $chNFSe . $tpEvento . '001',
+						'verAplic' => $verAplic,
+						'ambGer' => '1',//Sistema próprio do município
+						'nSeqEvento' => '001',//No cancelamento é sempre 001
+						'dhProc' => $dhProc,
+						'nDFSe' => $oCancelar->Numero,
+						'pedRegEvento' => array(
+							'versao' => '1.01',
+							'Id' => 'PRE' . $chNFSe . $tpEvento,
+							'tpAmb' => $this->isHomologacao ? '2' : '1',
+							'verAplic' => $verAplic,
+							'dhEvento' => $dhProc,
+							'CNPJAutor' => strlen($cpfCnpj) == 14 ? $cpfCnpj : null,
+							'CPFAutor' => strlen($cpfCnpj) == 11 ? $cpfCnpj : null,
+							'chNFSe' => $chNFSe,
+							'tpEvento' => $tpEvento,
+							'xDesc' => 'Cancelamento de NFS-e',
+							'cMotivo' => $oCancelar->CodigoCancelamento,
+							'xMotivo' => $oCancelar->DescricaoCancelamento
+						)
+					)
 				)
 			);
 		}
@@ -2055,11 +2091,6 @@ class NFSeGenerico extends NFSe {
 		// Gerar XML de cancelamento
 		$tpl = $this->getTemplate($metodo);
 
-		$oCancelar->CodigoCancelamento = is_null($oCancelar->CodigoCancelamento) ? $this->aConfig['metodos'][$metodo]['codCancelamento'] : $oCancelar->CodigoCancelamento;
-
-		$cpfCnpj = is_null($oCancelar->CpfCnpj) ? $this->aConfig['cpfCnpj'] : $oCancelar->CpfCnpj;
-		$chNFSe = $oCancelar->CodigoVerificacao;
-		$tpEvento = '101101';
 		$cMotivo = is_null($oCancelar->CodigoCancelamento) ? PQDUtil::retDefault($this->aConfig['metodos'][$metodo], 'codCancelamento', '1') : $oCancelar->CodigoCancelamento;
 		$xMotivo = $oCancelar->DescricaoCancelamento;
 
