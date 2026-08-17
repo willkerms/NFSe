@@ -237,7 +237,7 @@ Cada operação tem um sub-array. **Chaves comuns:**
 | `returnReplace` | `['search'=>…, 'replace'=>…]` aplicado ao texto antes de reparsear (usado com `returnType = 'string'`). |
 | `replaceXmlSOAP` | Substituições extras no envelope SOAP (prefeituras com mais de um `action`). |
 | `search` / `replace` | Strings normalizadas no XML **antes de assinar** (evita invalidar a assinatura). |
-| `allowCancel` | (`cancelarNfse` e `cancelarNFSeEnvio`) Default `true`. Com `false` **nada é transmitido**: a biblioteca devolve um retorno simulado de "cancelado" (prefeituras que não aceitam cancelamento pelo WebService). Ver [Formato do retorno](#formato-do-retorno). |
+| `allowCancel` | (`cancelarNfse` e `cancelarNFSeEnvio`) Default `true`. Com `false` **nada é transmitido**: a biblioteca devolve um retorno simulado de "cancelado", no formato real do método chamado — ABRASF no `cancelarNfse`, `RetCancelamento` + `ListaEvento` no `cancelarNFSeEnvio` (prefeituras que não aceitam cancelamento pelo WebService). Ver [Formato do retorno](#formato-do-retorno). |
 | `codCancelamento` | (cancelamento) Código padrão (`1` = Erro na emissão). |
 
 Defaults relevantes por operação:
@@ -427,7 +427,14 @@ As operações devolvem _arrays_ associativos. As mensagens vêm como objetos `N
 
 > No SOAP do padrão Nacional o WebService devolve `CancelarNfseResposta` com um `choice` entre `ListaEvento` e `ListaMensagemRetorno` — **não existe `RetCancelamento` no layout**. A biblioteca deriva o `RetCancelamento` a partir do evento, para manter o mesmo contrato do `cancelarNfse`, e devolve também o `ListaEvento` com os dados brutos do evento registrado (`Id`, `verAplic`, `ambGer`, `nSeqEvento`, `dhProc`, `nDFSe` e o `pedRegEvento` que originou o pedido). No `RetCancelamento` derivado, `Numero` recebe o `nDFSe`, `CodigoVerificacao` recebe o `chNFSe`, e `InscricaoMunicipal`/`CodigoMunicipio` ficam nulos por não existirem no evento.
 
-> Com `metodos.<cancelamento>.allowCancel = false` nada é transmitido e o retorno é **sempre** o formato do `cancelarNfse` (`RetCancelamento.NfseCancelamento` preenchido com os dados do pedido e `ListaMensagemRetorno` vazia) — inclusive no `cancelarNFSeEnvio`, que no fluxo normal não devolve `RetCancelamento`.
+> Com `metodos.<cancelamento>.allowCancel = false` nada é transmitido e o retorno é simulado **no formato do próprio método**, para o consumidor não precisar distinguir simulado de real:
+>
+> | Método | Retorno simulado |
+> |---|---|
+> | `cancelarNfse` | Formato ABRASF: `RetCancelamento.NfseCancelamento` com 1 item. |
+> | `cancelarNFSeEnvio` | `RetCancelamento` com 1 item **mais** `ListaEvento` com 1 evento de cancelamento sintético (`tpEvento` `101101`, `nSeqEvento` `001`, `dhProc`/`pedRegEvento.dhEvento` = instante local, `ambGer` `1`). |
+>
+> Nos dois casos `ListaMensagemRetorno` vem vazia e o `CodigoCancelamento` cai para `metodos.<op>.codCancelamento` quando não vier no objeto de entrada. Só no `cancelarNFSeEnvio` o `CpfCnpj` e a `InscricaoMunicipal` também caem para `cpfCnpj` e `insMunicipal` da configuração — no `cancelarNfse` eles saem exatamente como vieram no objeto de entrada.
 
 Regra prática: uma operação **deu certo** quando `ListaMensagemRetorno` está vazia e o bloco de dados esperado (`ListaNfse`, `CompNfse`, etc.) foi preenchido. SOAP _Faults_ e respostas fora do formato esperado também são convertidos em entradas de `ListaMensagemRetorno`.
 
