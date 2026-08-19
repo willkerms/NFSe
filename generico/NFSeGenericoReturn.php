@@ -23,7 +23,11 @@ class NFSeGenericoReturn extends NFSeReturn {
 		$return = array();
 
 		$aTags = $this->oGenerico->getConfig('tagMensagensRetorno', []);
-		$tagListaMensagem = PQDUtil::retDefault($aTags, 'tagListaMensagens', $listaMensagem);
+
+		$tagListaMensagem = $listaMensagem;
+		if($listaMensagem === 'ListaMensagemRetorno')
+			$tagListaMensagem = PQDUtil::retDefault($aTags, 'tagListaMensagens', $listaMensagem);
+
 		$tagMensagem = PQDUtil::retDefault($aTags, 'tagMensagem', 'MensagemRetorno');
 
 		$ListaMensagemRetorno = $oDocument->documentElement->getElementsByTagName($tagListaMensagem);
