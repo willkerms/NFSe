@@ -51,6 +51,7 @@ class NFSeGenerico extends NFSe {
 			'retirarAcentos' => false,//Somente funciona a remoção dos acentos se também escapar o HTML, ou seja para retirar os acentos escapeAsHTML tem que ser true
 			'tagMensagensRetorno' => [ //Nomes das tags de mensagens lidas pelo NFSeGenericoReturn ao montar a lista de erros/alertas do retorno
 				'tagListaMensagens' => 'ListaMensagemRetorno', //Tag que envolve a lista de mensagens no XML de resposta
+				'tagListaMensagensLote' => 'ListaMensagemRetornoLote', //Tag que envolve a lista de mensagens no XML de resposta por lote
 				'tagMensagem' => 'MensagemRetorno' //Tag de cada mensagem individual (contém Codigo/Mensagem/Correcao)
 			],
 			'autenticacao' => array( //Define se/onde as credenciais (usuário, senha, chave) são injetadas na requisição
