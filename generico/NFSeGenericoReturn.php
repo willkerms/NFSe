@@ -248,6 +248,8 @@ class NFSeGenericoReturn extends NFSeReturn {
 		if(is_null($oDocument->documentElement))
 			return array('ListaMensagemRetorno' => array($this->retMsgForaEsperado()));
 
+		$this->saveXmlDocReturn($oDocument, trim($xml));//no rest-json o payload descompactado ja e o XML da nota
+
 		$listaNfse = $this->retListNFSeNacionalJson($oDocument, $alertas);
 
 		if($listaNfse === false)
@@ -256,7 +258,7 @@ class NFSeGenericoReturn extends NFSeReturn {
 		return array(
 			'ListaMensagemRetorno' => array(),
 			'ListaNfse' => $listaNfse,
-			'Xml' => $oDocument->C14N()//XML da nota sem o wrapper JSON/gzip
+			'xml' => trim($xml)//bytes originais do Emissor Nacional, sem o wrapper JSON/gzip
 		);
 	}
 
@@ -325,7 +327,7 @@ class NFSeGenericoReturn extends NFSeReturn {
 				'InfNfse' => array(
 					'Numero' => $this->retNumeroInfNFSe($oInfNFSe)
 				),
-				'Xml' => $return['Xml']
+				'xml' => $return['xml']
 			);
 
 		return $aReturn;
@@ -392,9 +394,49 @@ class NFSeGenericoReturn extends NFSeReturn {
 		return array(
 			'ListaMensagemRetorno' => array(),
 			'CompNfse' => $return['ListaNfse']['CompNfse'][0],
-			'Xml' => $return['Xml'],//mesma chave que o case SOAP de consulta devolve
+			'xml' => $return['xml'],//mesma chave que o case SOAP de consulta devolve
 			'chaveAcesso' => PQDUtil::retDefault($json, 'chaveAcesso', null)
 		);
+	}
+
+	/**
+	 * Retorno do cancelamento no rest-json: decodifica o evento e devolve as mesmas chaves do SOAP.
+	 * Decode/parse que falha nao muda o retorno, o evento segue disponivel em eventoXmlGZipB64
+	 *
+	 * @return array
+	 */
+	private function retEventoJsonRetorno($eventoXmlGZipB64){
+
+		$aReturn = array(
+			'ListaMensagemRetorno' => array(),
+			'eventoXmlGZipB64' => $eventoXmlGZipB64
+		);
+
+		if(empty($eventoXmlGZipB64))
+			return $aReturn;
+
+		$xml = $this->decodeXmlGZipB64($eventoXmlGZipB64);
+
+		if($xml === false || trim($xml) == '')
+			return $aReturn;
+
+		$oDocument = new NFSeDocument();
+		$oDocument->loadXML(trim($xml), LIBXML_NOERROR | LIBXML_NOWARNING);
+
+		$aListaEvento = $this->retListaEvento($oDocument);
+
+		if(count($aListaEvento) == 0)
+			return $aReturn;
+
+		if(count($aListaEvento) == 1)
+			$aListaEvento[0]['xml'] = trim($xml);//bytes originais do ADN, sem passar pelo DOM
+
+		$this->saveXmlEvento($aListaEvento);
+
+		$aReturn['RetCancelamento'] = $this->retCancelamentoEvento($aListaEvento);
+		$aReturn['ListaEvento'] = $aListaEvento;
+
+		return $aReturn;
 	}
 
 	private function cancelarNFSeEnvioJsonRetorno(array $json){
@@ -403,10 +445,7 @@ class NFSeGenericoReturn extends NFSeReturn {
 			return array('ListaMensagemRetorno' => $aErros);
 
 		if(!empty($json['eventoXmlGZipB64']))
-			return array(
-				'ListaMensagemRetorno' => array(),
-				'eventoXmlGZipB64' => $json['eventoXmlGZipB64']
-			);
+			return $this->retEventoJsonRetorno($json['eventoXmlGZipB64']);
 
 		if(!empty($json['lote']) && is_array($json['lote'])){
 			$lote = array_values($json['lote']);
@@ -417,12 +456,8 @@ class NFSeGenericoReturn extends NFSeReturn {
 					return array('ListaMensagemRetorno' => $aErros);
 
 				$status = strtoupper((string)$this->retJsonValue($item, array('statusProcessamento', 'StatusProcessamento'), ''));
-				if($status == 'SUCESSO'){
-					return array(
-						'ListaMensagemRetorno' => array(),
-						'eventoXmlGZipB64' => PQDUtil::retDefault($item, 'xmlGZipB64', null)
-					);
-				}
+				if($status == 'SUCESSO')
+					return $this->retEventoJsonRetorno(PQDUtil::retDefault($item, 'xmlGZipB64', null));
 
 				if($status != '')
 					return array('ListaMensagemRetorno' => array($this->retMensagemJson(array(
@@ -618,7 +653,7 @@ class NFSeGenericoReturn extends NFSeReturn {
 		$Prestador = $InfDeclaracaoPrestacaoServico->getElementsByTagName("Prestador")->item(0);
 
 		//Tomador e opciional
-		$IdentificacaoTomador = $Tomador = null;
+		$IdentificacaoTomador = $Tomador = $EnderecoTomador = $ContatoTomador = null;
 
 		if($InfDeclaracaoPrestacaoServico->getElementsByTagName("Tomador")->length == 1)
 			$Tomador = $InfDeclaracaoPrestacaoServico->getElementsByTagName("Tomador")->item(0);
@@ -857,6 +892,9 @@ class NFSeGenericoReturn extends NFSeReturn {
 			}
 
 			$oDocument = $this->retDocReturn($dom, $metodo);
+
+			$this->saveXmlDocReturn($oDocument);//retorno sem envelope, header e body: e ele que vai para o nfse-{numero}.xml
+
 			switch ($metodo) {
 
 				case "cancelarNFSeEnvio":
@@ -900,7 +938,7 @@ class NFSeGenericoReturn extends NFSeReturn {
 					return array(
 						'ListaMensagemRetorno' => $this->retListaMensagem($oDocument),
 						'CompNfse' => $this->retInfNFSe($oCompNfse, $oDocument),
-						'Xml' => !is_null($oNfse) ? $oNfse->C14N() : null
+						'xml' => !is_null($oNfse) ? $oDocument->saveXML($oNfse) : null
 					);
 				break;
 
@@ -1005,6 +1043,50 @@ class NFSeGenericoReturn extends NFSeReturn {
 	}
 
 	/**
+	 * Grava o retorno sem envelope, header e body como nfse-{numero}.xml.
+	 * Só grava quando o retorno traz a nota: cancelamento, consulta de URL e retorno de erro não geram arquivo.
+	 *
+	 * @param NFSeDocument $oDocument - retorno já desembrulhado do transporte
+	 * @param string $xml - conteúdo a gravar; por padrão o próprio $oDocument serializado
+	 */
+	private function saveXmlDocReturn(NFSeDocument $oDocument, $xml = null){
+
+		$numero = $this->retNumeroNoNfse($this->retNoNfse($oDocument), $oDocument);
+
+		if(empty($numero))
+			return;
+
+		$this->oGenerico->saveXML(is_null($xml) ? $oDocument->saveXML() : $xml, 'nfse-' . $numero . '.xml');
+	}
+
+	/**
+	 * Grava o XML de cada evento como nfse-{numero}-{tpEvento}-{sequencia}.xml, o comprovante do cancelamento
+	 * no padrão Nacional. Sem evento registrado - ABRASF, allowCancel = false ou erro - nada é gravado
+	 *
+	 * @param array $aListaEvento - eventos lidos pelo retListaEvento
+	 */
+	private function saveXmlEvento(array $aListaEvento){
+
+		foreach($aListaEvento as $aEvento){
+
+			if(!is_array($aEvento))
+				continue;
+
+			$aPedido = PQDUtil::retDefault($aEvento, 'pedRegEvento', array());
+
+			$xml = PQDUtil::retDefault($aEvento, 'xml', null);
+			$numero = PQDUtil::retDefault($aEvento, 'nDFSe', null);
+			$tpEvento = PQDUtil::retDefault(is_array($aPedido) ? $aPedido : array(), 'tpEvento', null);
+			$nSeqEvento = PQDUtil::retDefault($aEvento, 'nSeqEvento', null);
+
+			if(empty($xml) || empty($numero) || empty($tpEvento) || empty($nSeqEvento))
+				continue;
+
+			$this->oGenerico->saveXML($xml, 'nfse-' . $numero . '-' . $tpEvento . '-' . $nSeqEvento . '.xml');
+		}
+	}
+
+	/**
 	 * Le a ListaEvento do padrao Nacional (CancelarNfseResposta) e devolve um array por evento
 	 *
 	 * @return array
@@ -1015,10 +1097,8 @@ class NFSeGenericoReturn extends NFSeReturn {
 
 		$ListaEvento = $oDocument->getElementsByTagName($tagListaEvento)->item(0);
 
-		if (is_null($ListaEvento))
-			return $return;
-
-		$aEventos = $ListaEvento->getElementsByTagName('evento');
+		//No rest-json o evento decodificado vem sem o wrapper ListaEvento
+		$aEventos = is_null($ListaEvento) ? $oDocument->getElementsByTagName('evento') : $ListaEvento->getElementsByTagName('evento');
 
 		for ($i = 0; $i < $aEventos->length; $i++) {
 
@@ -1045,7 +1125,8 @@ class NFSeGenericoReturn extends NFSeReturn {
 				'nSeqEvento' => $oDocument->getValue($infEvento, 'nSeqEvento'),//No cancelamento e sempre 001
 				'dhProc' => $oDocument->getValue($infEvento, 'dhProc'),//Data/hora do registro do evento, em UTC
 				'nDFSe' => $oDocument->getValue($infEvento, 'nDFSe'),
-				'pedRegEvento' => null
+				'pedRegEvento' => null,
+				'xml' => $oDocument->saveXML($evento)//XML do evento como veio, sem canonicalizar
 			);
 
 			if (!is_null($infPedReg)) {
@@ -1211,12 +1292,16 @@ class NFSeGenericoReturn extends NFSeReturn {
 			if (!empty($aEvento['Id']) && !empty($aEvento['dhProc']))
 				$aListaEvento[] = $aEvento;
 
-		if (count($aListaEvento) > 0)
+		if (count($aListaEvento) > 0) {
+
+			$this->saveXmlEvento($aListaEvento);
+
 			return array(
 				'ListaMensagemRetorno' => array(),
 				'RetCancelamento' => $this->retCancelamentoEvento($aListaEvento),
 				'ListaEvento' => $aListaEvento
 			);
+		}
 
 		//Prefeitura hibrida: envelope do padrao Nacional com RetCancelamento no formato ABRASF
 		$aRetCancelamento = $this->retCancelamento($oCancelarNfseResposta, $tagRetCancelamento, $tagConfirmacao);
@@ -1295,7 +1380,7 @@ class NFSeGenericoReturn extends NFSeReturn {
 					'InfNfse' => array(
 						'Numero' => $this->retNumeroNoNfse($oNfse, $oGerarNfseRetorno)
 					),
-					'Xml' => $oNfse->C14N()
+					'xml' => $oGerarNfseRetorno->saveXML($oNfse)
 				);
 			}
 

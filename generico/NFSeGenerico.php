@@ -762,12 +762,13 @@ class NFSeGenerico extends NFSe {
 
 	/**
 	 * Salva o XML em um arquivo, caso tenha sido configurado o caminho para ser salvo 'pathSaveXMLs'
+	 * Público porque o NFSeGenericoReturn grava por ele os XMLs que vierem no retorno
 	 * 
 	 * @param string $xml
 	 * @param string $name
 	 * 
 	 */
-	private function saveXML($xml, $name){
+	public function saveXML($xml, $name){
 
 		if(isset($this->aConfig['pathSaveXMLs']) && is_dir($this->aConfig['pathSaveXMLs']))
 			file_put_contents($this->aConfig['pathSaveXMLs'] . $name, $xml);
@@ -2010,66 +2011,7 @@ class NFSeGenerico extends NFSe {
 		if(is_null($this->oReturn))
 			$this->oReturn = new NFSeGenericoReturn($this);
 
-		$aReturn = $this->oReturn->getReturn($return, $metodo);
-
-		$this->saveXmlNfse($aReturn);
-
-		return $aReturn;
-	}
-
-	/**
-	 * Grava o XML da nota como nfse-{numero}.xml. O sinal de sucesso é a nota ter vindo no retorno (número e
-	 * XML), e não a ListaMensagemRetorno estar vazia: há prefeitura que devolve a nota junto de uma mensagem.
-	 * Cancelamento não gera arquivo: o retorno traz o XML do evento, não o da nota, e não tem número de nota
-	 *
-	 * @param mixed $aReturn - retorno já processado pelo NFSeGenericoReturn
-	 */
-	private function saveXmlNfse($aReturn){
-
-		if(!is_array($aReturn))
-			return;
-
-		$numero = $this->retNumeroNfseReturn($aReturn);
-		$xml = $this->retXmlNfseReturn($aReturn);
-
-		if(empty($numero) || empty($xml))
-			return;//sem numero ou sem XML não há o que gravar; I/O nunca derruba a operação da nota
-
-		$this->saveXML($xml, 'nfse-' . $numero . '.xml');
-	}
-
-	private function retNumeroNfseReturn(array $aReturn){
-
-		$aNfse = PQDUtil::retDefault($aReturn, 'Nfse', array());
-		$aInfNfse = PQDUtil::retDefault($aNfse, 'InfNfse', array());
-		$numero = PQDUtil::retDefault($aInfNfse, 'Numero', null);
-
-		if(!empty($numero))
-			return $numero;
-
-		$oCompNfse = PQDUtil::retDefault($aReturn, 'CompNfse', null);
-
-		if(is_null($oCompNfse)){
-			$aListaNfse = PQDUtil::retDefault($aReturn, 'ListaNfse', array());
-			$aCompNfse = PQDUtil::retDefault($aListaNfse, 'CompNfse', array());
-			$oCompNfse = PQDUtil::retDefault($aCompNfse, 0, null);
-		}
-
-		if(is_null($oCompNfse) || !is_object($oCompNfse))
-			return null;
-
-		if(isset($oCompNfse->Numero) && !empty($oCompNfse->Numero))//ABRASF
-			return $oCompNfse->Numero;
-
-		return isset($oCompNfse->nNFSe) ? $oCompNfse->nNFSe : null;//nacional
-	}
-
-	private function retXmlNfseReturn(array $aReturn){
-
-		$aNfse = PQDUtil::retDefault($aReturn, 'Nfse', array());
-		$xml = PQDUtil::retDefault($aNfse, 'Xml', null);
-
-		return empty($xml) ? PQDUtil::retDefault($aReturn, 'Xml', null) : $xml;
+		return $this->oReturn->getReturn($return, $metodo);
 	}
 
 	public function getIsHomologacao(){
