@@ -1,2 +1,36 @@
 <?xml version="1.0" encoding="utf-8"?>
-	{@Rps}
+<EnviarLoteRpsSincronoEnvio>
+	<!-- 1. Identificação do Emissor/Requerente -->
+	<IdentificacaoRequerente>
+		<CpfCnpj>
+			{@ifCpfPrestador}
+			<Cpf>{@CpfPrestador}</Cpf>
+			{@endifCpfPrestador}
+
+			{@ifCnpjPrestador}
+			<Cnpj>{@CnpjPrestador}</Cnpj>
+			{@endifCnpjPrestador}
+		</CpfCnpj>
+		<InscricaoMunicipal>{@InscricaoMunicipalPrestador}</InscricaoMunicipal>
+		<Senha>{@Senha}</Senha>
+		<Homologa>{@Homologa}</Homologa>
+	</IdentificacaoRequerente>
+	<!-- 2. Lote contendo a Lista de RPS -> RPS único -->
+	<LoteRps Id="lote-{@idRps}" versao="2.03">
+		<CpfCnpj>
+			{@ifCpfPrestador}
+			<Cpf>{@CpfPrestador}</Cpf>
+			{@endifCpfPrestador}
+
+			{@ifCnpjPrestador}
+			<Cnpj>{@CnpjPrestador}</Cnpj>
+			{@endifCnpjPrestador}
+		</CpfCnpj>
+		<InscricaoMunicipal>{@InscricaoMunicipalPrestador}</InscricaoMunicipal>
+		<NumeroLote>{@NumeroLote}</NumeroLote>
+		<QuantidadeRps>{@QuantidadeRps}</QuantidadeRps>
+		<ListaRps>
+			{@ListaRps}
+		</ListaRps>
+	</LoteRps>
+</EnviarLoteRpsSincronoEnvio>
