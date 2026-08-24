@@ -28,7 +28,7 @@ class NFSeGenericoReturn extends NFSeReturn {
 		$tagListaMensagem = is_null($tagListaMensagem) ? PQDUtil::retDefault($aTags, 'tagListaMensagens', 'ListaMensagemRetorno') : $tagListaMensagem;
 		$contextNode = is_null($contextNode) ? $oDocument->documentElement : $contextNode;
 
-        $ListaMensagemRetorno = $contextNode->getElementsByTagName($tagListaMensagem);
+		$ListaMensagemRetorno = $contextNode->getElementsByTagName($tagListaMensagem);
 
 		if($ListaMensagemRetorno->length == 1) {
 

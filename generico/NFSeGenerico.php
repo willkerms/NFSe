@@ -1289,7 +1289,7 @@ class NFSeGenerico extends NFSe {
 			array('begin' => '{@ifIdRps}', 'end' => '{@endifIdRps}', 'bool' => !is_null($oRps->idRps) ),
 
 			// IBS/CBS
-			['begin' => '{@ifIBSCBS}', 'end' => '{@endifIBSCBS}', 'bool' => !is_null($oRps->IBSCBS->finNFSe)],
+			['begin' => '{@ifIBSCBS}', 'end' => '{@endifIBSCBS}', 'bool' => !is_null($oRps->IBSCBS->finNFSe ?? null)],
 			['begin' => '{@ifIndFinal}', 'end' => '{@endifIndFinal}', 'bool' => !empty($oRps->IBSCBS->indFinal)],
 		);
 
@@ -1707,7 +1707,7 @@ class NFSeGenerico extends NFSe {
 			['begin' => '{@ifPTotTribSN}', 'end' => '{@endifPTotTribSN}', 'bool' => !is_null($oDPS->valores->trib->totTrib->pTotTribSN)],
 
 			// IBS/CBS
-			['begin' => '{@ifIBSCBS}', 'end' => '{@endifIBSCBS}', 'bool' => !is_null($oDPS->IBSCBS->finNFSe)],
+			['begin' => '{@ifIBSCBS}', 'end' => '{@endifIBSCBS}', 'bool' => !is_null($oDPS->IBSCBS->finNFSe ?? null)],
 			['begin' => '{@ifIndFinal}', 'end' => '{@endifIndFinal}', 'bool' => !empty($oDPS->IBSCBS->indFinal)],
 			['begin' => '{@ifTpOper}', 'end' => '{@endifTpOper}', 'bool' => !empty($oDPS->IBSCBS->tpOper)],
 			['begin' => '{@ifGRefNFSe}', 'end' => '{@endifGRefNFSe}', 'bool' => !empty($oDPS->IBSCBS->gRefNFSe)],
