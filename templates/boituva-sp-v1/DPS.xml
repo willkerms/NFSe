@@ -469,7 +469,7 @@
 					<tpRetISSQN>{@tpRetISSQN}</tpRetISSQN>
 				</tribMun>
 				{@ifTribFed}
-				<tribNac>
+				<tribFed>
 					{@ifPiscofins}
 					<piscofins>
 						<CST>{@CST}</CST>
@@ -502,7 +502,7 @@
 					{@ifVRetCSLL}
 					<vRetCSLL>{@vRetCSLL}</vRetCSLL>
 					{@endifVRetCSLL}
-				</tribNac>
+				</tribFed>
 				{@endifTribFed}
 				<totTrib>
 					{@ifVTotTrib}
