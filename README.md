@@ -408,11 +408,11 @@ NFSeGenericoInfRps
 ├── IntermediarioServico    (NFSeGenericoIntermediarioServico)
 ├── ConstrucaoCivil         (NFSeGenericoConstrucaoCivil: CodigoObra, Art)
 ├── Evento                  (NFSeGenericoEvento)
-├── IBSCBS                  (NFSeGenericoRpsIBSCBS)          # IBS/CBS no RPS — reforma tributária
+├── IBSCBS                  (nfseNacional\NFSeGenericoIBSCBS) # IBS/CBS no RPS — reforma tributária
 │   ├── finNFSe, indFinal, cIndOp, indDest
-│   └── valores (NFSeGenericoRpsIBSCBSValores)
-│       └── trib (NFSeGenericoRpsTributosIBSCBS)
-│           └── gIBSCBS (NFSeGenericoRpsSitClasIBSCBS: CST, cClassTrib)
+│   └── valores (NFSeGenericoIBSCBSValores)
+│       └── trib (NFSeGenericoInfoTributosIBSCBS)
+│           └── gIBSCBS (NFSeGenericoInfoTributosSitClas: CST, cClassTrib)
 └── aDeducoes[]             (NFSeGenericoDeducao)
 ```
 
@@ -441,7 +441,7 @@ As operações devolvem _arrays_ associativos. As mensagens vêm como objetos `N
 
 | Operação | Estrutura do retorno |
 |----------|----------------------|
-| `gerarNfse` | `['ListaMensagemRetorno' => [...], 'ListaNfse' => ['CompNfse' => [InfNFSe...], 'ListaMensagemAlertaRetorno' => [...]], 'Nfse' => ['InfNfse' => ['Numero' => '...'], 'xml' => '...']]` — a chave `Nfse` vem nos **dois transportes** (SOAP e `rest-json`) e nos dois padrões; no Nacional o `Numero` recebe o `nNFSe` |
+| `gerarNfse` | `['ListaMensagemRetorno' => [...], 'ListaNfse' => ['CompNfse' => [InfNFSe...], 'ListaMensagemAlertaRetorno' => [...]], 'Nfse' => ['InfNfse' => ['Numero' => '...']], 'xml' => '...']` — a chave `Nfse` vem nos **dois transportes** (SOAP e `rest-json`) e nos dois padrões; no Nacional o `Numero` recebe o `nNFSe`. O `xml` fica na **raiz** do retorno: no SOAP é a resposta integral do WebService, no `rest-json` é o XML da nota já descompactado |
 | `enviarLoteRps` | `['NumeroLote', 'DataRecebimento', 'Protocolo', 'ListaNfse', 'ListaMensagemRetorno', 'ListaMensagemRetornoLote']` |
 | `consultarNFSePorRps` / `consultarNFSePorDps` | `['ListaMensagemRetorno' => [...], 'CompNfse' => InfNFSe, 'xml' => '...']` — o `xml` vem nos **dois transportes** (SOAP e `rest-json`) |
 | `consultarLoteRps` | `['Situacao', 'ListaNfse', 'ListaMensagemRetorno', 'ListaMensagemRetornoLote']` |

@@ -205,17 +205,6 @@ class NFSeGenericoReturn extends NFSeReturn {
 		return is_null($numero) ? $oDocument->getValue($oNfse, 'nNFSe') : $numero;//nacional
 	}
 
-	private function retNumeroInfNFSe($oInfNFSe){
-
-		if(is_null($oInfNFSe))
-			return null;
-
-		if(isset($oInfNFSe->Numero) && !empty($oInfNFSe->Numero))//ABRASF
-			return $oInfNFSe->Numero;
-
-		return isset($oInfNFSe->nNFSe) ? $oInfNFSe->nNFSe : null;//nacional
-	}
-
 	private function retErrosJsonComIdDps(array $json){
 		$aErros = $this->retErrosJson($json);
 		if(count($aErros) > 0){
@@ -317,7 +306,8 @@ class NFSeGenericoReturn extends NFSeReturn {
 			'ListaMensagemRetorno' => array(),
 			'ListaNfse' => $return['ListaNfse'],
 			'idDps' => PQDUtil::retDefault($json, 'idDps', null),
-			'chaveAcesso' => PQDUtil::retDefault($json, 'chaveAcesso', null)
+			'chaveAcesso' => PQDUtil::retDefault($json, 'chaveAcesso', null),
+			'xml' => $return['xml']
 		);
 
 		$oInfNFSe = PQDUtil::retDefault($return['ListaNfse']['CompNfse'], 0, null);
@@ -325,9 +315,8 @@ class NFSeGenericoReturn extends NFSeReturn {
 		if(!is_null($oInfNFSe))//mesmas chaves do retorno SOAP, para o consumidor nao precisar saber o transporte
 			$aReturn['Nfse'] = array(
 				'InfNfse' => array(
-					'Numero' => $this->retNumeroInfNFSe($oInfNFSe)
-				),
-				'xml' => $return['xml']
+					'Numero' => $oInfNFSe->Numero ?? $oInfNFSe->nNFSe ?? null
+				)
 			);
 
 		return $aReturn;
@@ -394,7 +383,7 @@ class NFSeGenericoReturn extends NFSeReturn {
 		return array(
 			'ListaMensagemRetorno' => array(),
 			'CompNfse' => $return['ListaNfse']['CompNfse'][0],
-			'xml' => $return['xml'],//mesma chave que o case SOAP de consulta devolve
+			'xml' => $return['xml'],//XML integral da nota, ja descompactado do nfseXmlGZipB64
 			'chaveAcesso' => PQDUtil::retDefault($json, 'chaveAcesso', null)
 		);
 	}
@@ -1367,7 +1356,8 @@ class NFSeGenericoReturn extends NFSeReturn {
 
 			$return = array(
 				'ListaMensagemRetorno' => $this->retListaMensagem($oGerarNfseRetorno),
-				'ListaNfse' => $this->retListNFSe($oGerarNfseRetorno)
+				'ListaNfse' => $this->retListNFSe($oGerarNfseRetorno),
+				'xml' => $oGerarNfseRetorno->saveXML()
 			);
 
 			$oCompNfse = $oGerarNfseRetorno->getElementsByTagName($tagResposta)->item(0)
@@ -1379,8 +1369,7 @@ class NFSeGenericoReturn extends NFSeReturn {
 				$return['Nfse'] = array(
 					'InfNfse' => array(
 						'Numero' => $this->retNumeroNoNfse($oNfse, $oGerarNfseRetorno)
-					),
-					'xml' => $oGerarNfseRetorno->saveXML($oNfse)
+					)
 				);
 			}
 
