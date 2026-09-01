@@ -1,6 +1,8 @@
 <?php
 namespace NFSe\generico;
 
+use NFSe\generico\nfseNacional\NFSeGenericoIBSCBS;
+
 /**
  *
  * @since 2016-02-10
@@ -122,6 +124,13 @@ class NFSeGenericoInfRps {
 	 */
 	public $aDeducoes = array();
 
+	/**
+	 * Grupo IBS/CBS da reforma tributária
+	 *
+	 * @var NFSeGenericoIBSCBS
+	 */
+	public $IBSCBS;
+
 	public function __construct() {
 
 		$this->IdentificacaoRps 		= new NFSeGenericoIdentificacaoRps();
@@ -132,6 +141,7 @@ class NFSeGenericoInfRps {
 		$this->IntermediarioServico 	= new NFSeGenericoIntermediarioServico();
 		$this->ConstrucaoCivil 			= new NFSeGenericoConstrucaoCivil();
 		$this->Evento 					= new NFSeGenericoEvento();
+		$this->IBSCBS 					= new NFSeGenericoIBSCBS();
 	}
 
 }

@@ -73,7 +73,7 @@ nfs-e/
 ├── NFSeReturn.php        # Base de parsing de retorno (detecção de SOAP Fault)
 ├── generico/             # >>> Motor genérico (NFSeGenerico) + DTOs <<<
 │   ├── NFSeGenerico.php          # Motor principal dirigido por templates
-│   ├── NFSeGenericoReturn.php    # Parser de retorno do motor genérico
+│   ├── NFSeGenericoReturn.php    # Parser do retorno e gravacao dos XMLs do retorno do motor genérico
 │   ├── NFSeGenericoInfRps.php    # DTO de entrada (RPS / padrão ABRASF)
 │   ├── NFSeGenerico*.php         # Demais DTOs ABRASF (Servico, Valores, Tomador, ...)
 │   └── nfseNacional/             # DTOs do padrão Nacional (DPS, IBS/CBS, ...)
@@ -131,7 +131,7 @@ Em vez de escrever uma classe nova para cada prefeitura, o `NFSeGenerico`:
 2. **Assina** as tags configuradas;
 3. **Embrulha** no envelope SOAP (template `Soap.xml`), quando aplicável;
 4. **Transmite** por SOAP ou cURL conforme a configuração;
-5. **Faz o parsing** do retorno em uma estrutura de _arrays_/objetos previsível (via `NFSeGenericoReturn`).
+5. **Faz o parsing** do retorno em uma estrutura de _arrays_/objetos previsível e **grava os XMLs do retorno** — o da nota e o do evento de cancelamento (via `NFSeGenericoReturn`).
 
 Para integrar uma nova prefeitura, no caso ideal **basta criar/ajustar os templates e a configuração** — sem tocar na classe.
 
@@ -155,8 +155,23 @@ public function __construct(array $aConfig, $isHomologacao = true)
 | `escapeAsHTML` | `false` | `true` escapa o texto dos objetos com entidades HTML nomeadas; `false` usa `htmlspecialchars`. |
 | `retirarAcentos` | `false` | Remove acentos do texto. **Só funciona se `escapeAsHTML = true`.** |
 | `hasConsultaUrlNfse` | `false` | Indica se a prefeitura oferece o serviço de consulta da URL pública da NFS-e. |
-| `pathSaveXMLs` | `./xml/` | Diretório onde os XMLs enviados e os retornos são gravados (arquivo/depuração). Se não existir, nada é salvo. |
+| `pathSaveXMLs` | `./xml/` | Diretório onde a biblioteca grava os XMLs. Três categorias: (a) os documentos enviados (`<operação>-<identificador>.xml`); (b) o retorno **bruto** de cada requisição (`<operação>-soap-return-*` / `<operação>-rest-return-*`), exatamente como veio do WebService — é a evidência em disco para depurar falhas; (c) o retorno **sem envelope, header e body**, como `nfse-{número}.xml`; (d) o XML do evento de cancelamento, como `nfse-{número}-{tpEvento}-{sequência}.xml`. Se o diretório não existir, **nada é gravado e nenhum erro é emitido**. |
 | `verAplic` | `'1.01'` | (padrão Nacional) Versão do aplicativo emissor, usada no cancelamento por evento. |
+
+> O `nfse-{número}.xml` guarda o retorno **sem o transporte**: sem envelope, header e body do SOAP e sem o
+> wrapper JSON do `rest-json`. O que sobra difere por padrão, porque os padrões respondem coisas diferentes:
+> no SOAP/ABRASF é o elemento de resposta do serviço (`GerarNfseResposta` > `ListaNfse` > `CompNfse` > `Nfse`);
+> no `rest-json` do Nacional é o próprio documento `<NFSe>` assinado, byte a byte como o ADN o enviou dentro
+> do `nfseXmlGZipB64` — lá o JSON é o transporte e não existe elemento de resposta em volta. O arquivo é
+> gravado sempre que o retorno **trouxer a nota**, na geração ou na consulta, e o número do nome sai do
+> `Numero` (ABRASF) ou do `nNFSe` (Nacional) lido do próprio documento. Em retorno de lote o arquivo sai com
+> o número da primeira nota, já que o documento gravado é o retorno inteiro.
+> O sinal de sucesso é a nota ter vindo, e não a `ListaMensagemRetorno` estar vazia:
+> há prefeitura que devolve a nota junto de uma mensagem (Goiânia manda `L000-NORMAL` quando deu certo).
+> Num retorno de erro sem nota nada é gravado e nenhuma exceção é lançada. No **cancelamento** do
+> padrão Nacional o que se grava é o XML do _evento_ — o comprovante do cancelamento — como
+> `nfse-{número}-{tpEvento}-{sequência}.xml` (ex.: `nfse-123-101101-001.xml`). Sem evento no retorno
+> (ABRASF, `allowCancel = false`, erro) nenhum arquivo de evento é gravado.
 
 #### `curl` — transporte cURL (quando `typeCommunication = 'curl'`)
 
@@ -231,13 +246,13 @@ Cada operação tem um sub-array. **Chaves comuns:**
 | `tagSign` | Tag cujo conteúdo é **assinado** digitalmente. |
 | `tagAppend` | Tag sob a qual a `<Signature>` gerada é **anexada**. |
 | `tagMap.return` | Tag externa da resposta de onde o XML de retorno é extraído. |
-| `tagMap.*` | Tags adicionais por operação: `tagResposta`(gerarNfse - Tag que confirma a resposta da geração da nota [ default: GerarNfseResposta] ) , `tagRetCancelamento`(cancelarNfse - Tag de retorno do cancelamento [ default: 'RetCancelamento' ] ), `tagConfirmacao`(cancelarNfse - Tag de confirmacao do cancelamento [ default: 'Confirmacao' ] ), `respostaLote`, `respostaConsultaLote`. |
+| `tagMap.*` | Tags adicionais por operação: `tagResposta`(gerarNfse - Tag que confirma a resposta da geração da nota [ default: GerarNfseResposta] ) , `tagRetCancelamento`(cancelarNfse - Tag de retorno do cancelamento [ default: 'RetCancelamento' ] ), `tagConfirmacao`(cancelarNfse - Tag de confirmacao do cancelamento [ default: 'Confirmacao' ] ), `tagListaEvento`(cancelarNFSeEnvio - Tag com a lista de eventos registrados no padrão Nacional [ default: 'ListaEvento' ] ), `respostaLote`, `respostaConsultaLote`. |
 | `signConsulta` / `signRps` / `signDps` | Liga/desliga a assinatura nas consultas, nos RPS de lote ou nos DPS de lote. |
 | `returnType` | `'child'` (default) ou `'string'` (quando o payload vem como texto/CDATA e precisa ser reparseado). |
 | `returnReplace` | `['search'=>…, 'replace'=>…]` aplicado ao texto antes de reparsear (usado com `returnType = 'string'`). |
 | `replaceXmlSOAP` | Substituições extras no envelope SOAP (prefeituras com mais de um `action`). |
 | `search` / `replace` | Strings normalizadas no XML **antes de assinar** (evita invalidar a assinatura). |
-| `allowCancel` | (cancelamento) `false` ⇒ não transmite e devolve um retorno simulado de "cancelado". |
+| `allowCancel` | (`cancelarNfse` e `cancelarNFSeEnvio`) Default `true`. Com `false` **nada é transmitido**: a biblioteca devolve um retorno simulado de "cancelado", no formato real do método chamado — ABRASF no `cancelarNfse`, `RetCancelamento` + `ListaEvento` no `cancelarNFSeEnvio` (prefeituras que não aceitam cancelamento pelo WebService). Ver [Formato do retorno](#formato-do-retorno). |
 | `codCancelamento` | (cancelamento) Código padrão (`1` = Erro na emissão). |
 
 Defaults relevantes por operação:
@@ -251,6 +266,9 @@ Defaults relevantes por operação:
 | `consultarLoteRps` | `ConsultarLoteRps` | — | — |
 | `consultarUrlNfse` | `ConsultarUrlNfse` | `Pedido` | `ConsultarUrlNfseEnvio` |
 | `cancelarNfse` | `cancelarNfse` | `InfPedidoCancelamento` | `Pedido` |
+| `cancelarNFSeEnvio` | `cancelarNFSeEnvio` | `infPedReg` | `pedRegEvento` |
+
+> As duas operações de cancelamento (`cancelarNfse` e `cancelarNFSeEnvio`) nascem com `allowCancel => true` e `codCancelamento => '1'`. Como o merge de configuração é recursivo (`PQDUtil::setDefault`), declarar apenas algumas chaves de `metodos.cancelarNFSeEnvio` no `$aConfig` **não** apaga esses defaults — para desligar a transmissão é preciso passar `allowCancel => false` explicitamente.
 
 #### `fields` — transformações de campo (opcional)
 
@@ -360,7 +378,7 @@ Cada pasta em `templates/` é um pacote. Selecione com `templates.folder`. Já a
 | `consultarNfseDpsEnvio($numDPS, $serieDPS, $protocolo = null)` | Nº/série do DPS | Consulta NFS-e por DPS. |
 | `consultarNFSePorDps(NFSeGenericoConsultarNfseDps $o)` | Identificação do DPS | Consulta NFS-e por DPS (objeto). |
 | `consultarLoteDpsEnvio($protocolo)` | Protocolo | Consulta lote de DPS pelo protocolo. |
-| `cancelarNFSeEnvio($chNFSe, $nPedRegEvento, $tpEvento = '101101', $xMotivo = null)` | Chave + evento | Cancela NFS-e por evento. |
+| `cancelarNFSeEnvio(NFSeGenericoCancelarNfseEnvio $o)` | Dados do cancelamento | Cancela NFS-e por evento (`tpEvento` 101101). A chave de acesso vai em `CodigoVerificacao` e o motivo em `DescricaoCancelamento`. |
 
 **Utilitários:**
 
@@ -390,8 +408,18 @@ NFSeGenericoInfRps
 ├── IntermediarioServico    (NFSeGenericoIntermediarioServico)
 ├── ConstrucaoCivil         (NFSeGenericoConstrucaoCivil: CodigoObra, Art)
 ├── Evento                  (NFSeGenericoEvento)
+├── IBSCBS                  (nfseNacional\NFSeGenericoIBSCBS) # IBS/CBS no RPS — reforma tributária
+│   ├── finNFSe, indFinal, cIndOp, indDest
+│   └── valores (NFSeGenericoIBSCBSValores)
+│       └── trib (NFSeGenericoInfoTributosIBSCBS)
+│           └── gIBSCBS (NFSeGenericoInfoTributosSitClas: CST, cClassTrib)
 └── aDeducoes[]             (NFSeGenericoDeducao)
 ```
+
+> O ramo `IBSCBS` do RPS espelha o caminho de acesso do `IBSCBS` do DPS (`valores → trib → gIBSCBS`) de
+> propósito, para que o mapeamento das duas montagens fique comparável. O bloco só entra no XML quando
+> **duas** condições valem: o template do pacote em uso declara `{@ifIBSCBS} … {@endifIBSCBS}` e
+> `IBSCBS->finNFSe` não é nulo. Hoje só o pacote `webISS-se-v2-02` traz esse bloco ativo.
 
 **DPS (Nacional)** — `NFSe\generico\nfseNacional\NFSeGenericoInfDPS` agrega os grupos do padrão nacional:
 
@@ -413,12 +441,32 @@ As operações devolvem _arrays_ associativos. As mensagens vêm como objetos `N
 
 | Operação | Estrutura do retorno |
 |----------|----------------------|
-| `gerarNfse` | `['ListaMensagemRetorno' => [...], 'ListaNfse' => ['CompNfse' => [InfNFSe...], 'ListaMensagemAlertaRetorno' => [...]]]` |
+| `gerarNfse` | `['ListaMensagemRetorno' => [...], 'ListaNfse' => ['CompNfse' => [InfNFSe...], 'ListaMensagemAlertaRetorno' => [...]], 'Nfse' => ['InfNfse' => ['Numero' => '...']], 'xml' => '...']` — a chave `Nfse` vem nos **dois transportes** (SOAP e `rest-json`) e nos dois padrões; no Nacional o `Numero` recebe o `nNFSe`. O `xml` fica na **raiz** do retorno: no SOAP é a resposta integral do WebService, no `rest-json` é o XML da nota já descompactado |
 | `enviarLoteRps` | `['NumeroLote', 'DataRecebimento', 'Protocolo', 'ListaNfse', 'ListaMensagemRetorno', 'ListaMensagemRetornoLote']` |
-| `consultarNFSePorRps` | `['ListaMensagemRetorno' => [...], 'CompNfse' => InfNFSe]` |
+| `consultarNFSePorRps` / `consultarNFSePorDps` | `['ListaMensagemRetorno' => [...], 'CompNfse' => InfNFSe, 'xml' => '...']` — o `xml` vem nos **dois transportes** (SOAP e `rest-json`) |
 | `consultarLoteRps` | `['Situacao', 'ListaNfse', 'ListaMensagemRetorno', 'ListaMensagemRetornoLote']` |
 | `consultarUrlNfse` | `['ListaMensagemRetorno' => [...], 'ListaLinks' => [['NumeroNfse', 'CodigoVerificacao', 'Url', 'UrlAutenticidade'], ...]]` |
 | `cancelarNfse` | `['ListaMensagemRetorno' => [...], 'RetCancelamento' => ['NfseCancelamento' => [...]]]` |
+| `cancelarNFSeEnvio` (SOAP) | `['ListaMensagemRetorno' => [...], 'RetCancelamento' => ['NfseCancelamento' => [...]], 'ListaEvento' => [[...]]]` — cada item do `ListaEvento` traz o `xml` do evento registrado |
+| `cancelarNFSeEnvio` (`rest-json`) | as mesmas chaves do SOAP **mais** `eventoXmlGZipB64` (Emissor Nacional) — o evento vem **codificado** (gzip + base64) e a biblioteca o decodifica para montar `RetCancelamento` e `ListaEvento`; se a decodificação falhar, sobra só o `eventoXmlGZipB64` |
+
+> A chave `xml` carrega o XML da nota retornada (`Nfse` no ABRASF, `NFSe` no Nacional) **como veio** — sem
+> canonicalizar (nada de C14N) e sem empacotamento de transporte: no `rest-json` são os bytes do Emissor
+> Nacional, com prolog; no SOAP é o nó da nota serializado do envelope. Ela é **o nó da nota**, e não o que
+> vai para o `nfse-{número}.xml` — esse arquivo guarda o retorno inteiro, sem o transporte. O cancelamento
+> **não** tem essa chave: o que ele devolve é o evento, e o XML do evento vai no `xml` de cada item do
+> `ListaEvento`.
+
+> No SOAP do padrão Nacional o WebService devolve `CancelarNfseResposta` com um `choice` entre `ListaEvento` e `ListaMensagemRetorno` — **não existe `RetCancelamento` no layout**. A biblioteca deriva o `RetCancelamento` a partir do evento, para manter o mesmo contrato do `cancelarNfse`, e devolve também o `ListaEvento` com os dados brutos do evento registrado (`Id`, `verAplic`, `ambGer`, `nSeqEvento`, `dhProc`, `nDFSe`, o `xml` do evento e o `pedRegEvento` que originou o pedido). No `RetCancelamento` derivado, `Numero` recebe o `nDFSe`, `CodigoVerificacao` recebe o `chNFSe`, e `InscricaoMunicipal`/`CodigoMunicipio` ficam nulos por não existirem no evento.
+
+> Com `metodos.<cancelamento>.allowCancel = false` nada é transmitido e o retorno é simulado **no formato do próprio método**, para o consumidor não precisar distinguir simulado de real:
+>
+> | Método | Retorno simulado |
+> |---|---|
+> | `cancelarNfse` | Formato ABRASF: `RetCancelamento.NfseCancelamento` com 1 item. |
+> | `cancelarNFSeEnvio` | `RetCancelamento` com 1 item **mais** `ListaEvento` com 1 evento de cancelamento sintético (`tpEvento` `101101`, `nSeqEvento` `001`, `dhProc`/`pedRegEvento.dhEvento` = instante local, `ambGer` `1`). |
+>
+> Nos dois casos `ListaMensagemRetorno` vem vazia e o `CodigoCancelamento` cai para `metodos.<op>.codCancelamento` quando não vier no objeto de entrada. Só no `cancelarNFSeEnvio` o `CpfCnpj` e a `InscricaoMunicipal` também caem para `cpfCnpj` e `insMunicipal` da configuração — no `cancelarNfse` eles saem exatamente como vieram no objeto de entrada.
 
 Regra prática: uma operação **deu certo** quando `ListaMensagemRetorno` está vazia e o bloco de dados esperado (`ListaNfse`, `CompNfse`, etc.) foi preenchido. SOAP _Faults_ e respostas fora do formato esperado também são convertidos em entradas de `ListaMensagemRetorno`.
 

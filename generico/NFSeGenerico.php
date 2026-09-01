@@ -51,6 +51,7 @@ class NFSeGenerico extends NFSe {
 			'retirarAcentos' => false,//Somente funciona a remoção dos acentos se também escapar o HTML, ou seja para retirar os acentos escapeAsHTML tem que ser true
 			'tagMensagensRetorno' => [ //Nomes das tags de mensagens lidas pelo NFSeGenericoReturn ao montar a lista de erros/alertas do retorno
 				'tagListaMensagens' => 'ListaMensagemRetorno', //Tag que envolve a lista de mensagens no XML de resposta
+				'tagListaMensagensLote' => 'ListaMensagemRetornoLote', //Tag que envolve a lista de mensagens no XML de resposta por lote
 				'tagMensagem' => 'MensagemRetorno' //Tag de cada mensagem individual (contém Codigo/Mensagem/Correcao)
 			],
 			'autenticacao' => array( //Define se/onde as credenciais (usuário, senha, chave) são injetadas na requisição
@@ -182,13 +183,20 @@ class NFSeGenerico extends NFSe {
 					)
 				),
 				'cancelarNFSeEnvio' => array(
+					'allowCancel' => true,//Tem prefeituras que não permitem cancelamento pelo WebService, deste modo o sistema nem transmite somente retorna que foi cancelado
 					'action' => 'cancelarNFSeEnvio',
 					'typeCommunication' => 'soap',//Forma de transporte: 'soap' usa SoapClient; 'curl' faz POST HTTP puro. Quando omitido, default 'soap'
 					'nameSpace' => '',
 					'url' => '/nfse/{@chNFSe}/eventos',// URL para uso no cancelamento feito por REST HTTP
 					'tagSign' => 'infPedReg',
 					'tagAppend' => 'pedRegEvento',
-					'codCancelamento' => '1'
+					'codCancelamento' => '1',
+					'tagMap' => array(
+						'return' => 'CancelarNfseResposta', //Tag externa da resposta, recortada por retDocReturn
+						'tagListaEvento' => 'ListaEvento', //Tag com a lista de eventos registrados (padrão Nacional)
+						'tagRetCancelamento' => 'RetCancelamento', //Tag de retorno do cancelamento, quando a prefeitura responde no formato ABRASF
+						'tagConfirmacao' => 'Confirmacao' //Tag de confirmacao do cancelamento, quando a prefeitura responde no formato ABRASF
+					)
 				)
 			)/*,
 			'fields' => array( //(opcional) Funções de transformação aplicadas a cada campo antes de ir para o template, via applyFnField. A chave é o nome do campo em camelCase (o placeholder {@DataEmissao} corresponde a 'dataEmissao')
@@ -754,12 +762,13 @@ class NFSeGenerico extends NFSe {
 
 	/**
 	 * Salva o XML em um arquivo, caso tenha sido configurado o caminho para ser salvo 'pathSaveXMLs'
+	 * Público porque o NFSeGenericoReturn grava por ele os XMLs que vierem no retorno
 	 * 
 	 * @param string $xml
 	 * @param string $name
 	 * 
 	 */
-	private function saveXML($xml, $name){
+	public function saveXML($xml, $name){
 
 		if(isset($this->aConfig['pathSaveXMLs']) && is_dir($this->aConfig['pathSaveXMLs']))
 			file_put_contents($this->aConfig['pathSaveXMLs'] . $name, $xml);
@@ -1208,7 +1217,17 @@ class NFSeGenerico extends NFSe {
 			'{@InformacoesComplementares}' => $oRps->InformacoesComplementares,
 			'{@NaturezaOperacao}' => $oRps->NaturezaOperacao,
 			'{@IncentivadorCultural}' => $oRps->IncentivadorCultural,
-			'{@Deducoes}' => $deducoes
+			'{@Deducoes}' => $deducoes,
+
+			// IBS/CBS
+			'{@finNFSe}' => $oRps->IBSCBS->finNFSe ?? null,
+			'{@indFinal}' => $oRps->IBSCBS->indFinal ?? null,
+			'{@cIndOp}' => $oRps->IBSCBS->cIndOp ?? null,
+			'{@indDest}' => $oRps->IBSCBS->indDest ?? null,
+
+			// IBS/CBS - Valores - Tributação
+			'{@CSTIBSCBS}' => $oRps->IBSCBS->valores->trib->gIBSCBS->CST ?? null,
+			'{@cClassTribIBSCBS}' => $oRps->IBSCBS->valores->trib->gIBSCBS->cClassTrib ?? null
 		);
 
 		foreach($aReplace as $k => $v){
@@ -1268,6 +1287,10 @@ class NFSeGenerico extends NFSe {
 
 			array('begin' => '{@ifIdInfDeclaracaoPrestacaoServico}', 'end' => '{@endifIdInfDeclaracaoPrestacaoServico}', 'bool' =>  !is_null($oRps->idInfDeclaracaoPrestacaoServico)  ),
 			array('begin' => '{@ifIdRps}', 'end' => '{@endifIdRps}', 'bool' => !is_null($oRps->idRps) ),
+
+			// IBS/CBS
+			['begin' => '{@ifIBSCBS}', 'end' => '{@endifIBSCBS}', 'bool' => !is_null($oRps->IBSCBS->finNFSe ?? null)],
+			['begin' => '{@ifIndFinal}', 'end' => '{@endifIndFinal}', 'bool' => !empty($oRps->IBSCBS->indFinal)],
 		);
 
 		return $this->retXML(PQDUtil::procTplText($tplRps, $aReplace, $aIfs));
@@ -1684,7 +1707,7 @@ class NFSeGenerico extends NFSe {
 			['begin' => '{@ifPTotTribSN}', 'end' => '{@endifPTotTribSN}', 'bool' => !is_null($oDPS->valores->trib->totTrib->pTotTribSN)],
 
 			// IBS/CBS
-			['begin' => '{@ifIBSCBS}', 'end' => '{@endifIBSCBS}', 'bool' => !is_null($oDPS->IBSCBS->finNFSe)],
+			['begin' => '{@ifIBSCBS}', 'end' => '{@endifIBSCBS}', 'bool' => !is_null($oDPS->IBSCBS->finNFSe ?? null)],
 			['begin' => '{@ifIndFinal}', 'end' => '{@endifIndFinal}', 'bool' => !empty($oDPS->IBSCBS->indFinal)],
 			['begin' => '{@ifTpOper}', 'end' => '{@endifTpOper}', 'bool' => !empty($oDPS->IBSCBS->tpOper)],
 			['begin' => '{@ifGRefNFSe}', 'end' => '{@endifGRefNFSe}', 'bool' => !empty($oDPS->IBSCBS->gRefNFSe)],
@@ -1990,7 +2013,7 @@ class NFSeGenerico extends NFSe {
 
 		return $this->oReturn->getReturn($return, $metodo);
 	}
-	
+
 	public function getIsHomologacao(){
 		return $this->isHomologacao;
 	}
@@ -2016,14 +2039,74 @@ class NFSeGenerico extends NFSe {
 
 		$oCancelar = $this->escapeTextObj($oCancelar);
 
-		// Gerar XML de cancelamento
-		$tpl = $this->getTemplate($metodo);
+		$cpfCnpj = is_null($oCancelar->CpfCnpj) ? $this->aConfig['cpfCnpj'] : $oCancelar->CpfCnpj;
+		$inscMunicipal = is_null($oCancelar->InscricaoMunicipal) ? $this->aConfig['insMunicipal'] : $oCancelar->InscricaoMunicipal;
+		$chNFSe = $oCancelar->CodigoVerificacao;
+		$tpEvento = '101101';
 
 		$oCancelar->CodigoCancelamento = is_null($oCancelar->CodigoCancelamento) ? $this->aConfig['metodos'][$metodo]['codCancelamento'] : $oCancelar->CodigoCancelamento;
 
-		$cpfCnpj = is_null($oCancelar->CpfCnpj) ? $this->aConfig['cpfCnpj'] : $oCancelar->CpfCnpj;
-		$chNFSe = $oCancelar->CodigoVerificacao;
-		$tpEvento = '101101';
+		//Quando a prefeitura não permite cancelamento pelo WebService
+		if(!$this->aConfig['metodos'][$metodo]['allowCancel']){
+
+			$dhProc = date('Y-m-d\TH:i:sP');
+			$verAplic = PQDUtil::retDefault($this->aConfig, 'verAplic', '1.01');
+
+			return array(
+				'ListaMensagemRetorno' => array(), 
+				'RetCancelamento' => array( 
+					'NfseCancelamento' => array( 
+						array( 
+							'Confirmacao' => array(
+								'Pedido' => array(
+									'InfPedidoCancelamento' => array(
+										'IdentificacaoNfse' => array(
+											'Numero' => $oCancelar->Numero,
+											'CodigoVerificacao' => $oCancelar->CodigoVerificacao,
+											'CpfCnpj' => $cpfCnpj,
+											'InscricaoMunicipal' => $inscMunicipal,
+											'CodigoMunicipio' => $oCancelar->CodigoMunicipio
+										),
+										'CodigoCancelamento' => $oCancelar->CodigoCancelamento,
+										'DescricaoCancelamento' => $oCancelar->DescricaoCancelamento
+									)
+								),
+								'DataHora' => str_replace(" ", "T", date('Y-m-d H:i:s'))
+							)
+						 ) 
+					) 
+				),
+				'ListaEvento' => array(
+					array(//Evento sintético: cancelamento local, nada foi transmitido
+						'versao' => '1.01',
+						'Id' => 'EVT' . $chNFSe . $tpEvento . '001',
+						'verAplic' => $verAplic,
+						'ambGer' => '1',//Sistema próprio do município
+						'nSeqEvento' => '001',//No cancelamento é sempre 001
+						'dhProc' => $dhProc,
+						'nDFSe' => $oCancelar->Numero,
+						'pedRegEvento' => array(
+							'versao' => '1.01',
+							'Id' => 'PRE' . $chNFSe . $tpEvento,
+							'tpAmb' => $this->isHomologacao ? '2' : '1',
+							'verAplic' => $verAplic,
+							'dhEvento' => $dhProc,
+							'CNPJAutor' => strlen($cpfCnpj) == 14 ? $cpfCnpj : null,
+							'CPFAutor' => strlen($cpfCnpj) == 11 ? $cpfCnpj : null,
+							'chNFSe' => $chNFSe,
+							'tpEvento' => $tpEvento,
+							'xDesc' => 'Cancelamento de NFS-e',
+							'cMotivo' => $oCancelar->CodigoCancelamento,
+							'xMotivo' => $oCancelar->DescricaoCancelamento
+						)
+					)
+				)
+			);
+		}
+
+		// Gerar XML de cancelamento
+		$tpl = $this->getTemplate($metodo);
+
 		$cMotivo = is_null($oCancelar->CodigoCancelamento) ? PQDUtil::retDefault($this->aConfig['metodos'][$metodo], 'codCancelamento', '1') : $oCancelar->CodigoCancelamento;
 		$xMotivo = $oCancelar->DescricaoCancelamento;
 
