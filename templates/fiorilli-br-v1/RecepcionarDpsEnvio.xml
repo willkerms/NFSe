@@ -1,2 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-{@DPS}
+<nfse:recepcionarDps xmlns:nfse="http://www.fiorilli.com.br/nfse-nacional">
+	<!-- Aqui basta o prefixo da propria acao: o DPS chega assinado e ja declara os 4 prefixos do Soap.xml no proprio root (ver DPS.xml), entao o escopo de namespace do conteudo assinado nao depende deste elemento -->
+	{@DPS}
+</nfse:recepcionarDps>
