@@ -16,6 +16,14 @@ class NFSe {
 
 	private $certKey;
 
+	/**
+	 * Caminho do PEM com a cadeia de certificacao (certificado do titular + intermediarios
+	 * vindos do PFX). Quando presente, signXML() embute toda a cadeia no X509Data da
+	 * assinatura; quando ausente, cai no comportamento antigo (somente certPubKey).
+	 * @var string
+	 */
+	private $certChainKey;
+
 	private $sslProtocol = 0;
 
 	/**
@@ -178,11 +186,15 @@ class NFSe {
 		// X509Data
 		$X509Data = $xmldoc->createElement($ns . 'X509Data');
 		$KeyInfo->appendChild($X509Data);
-		// carrega o certificado sem as tags de inicio e fim
-		$cert = $this->cleanCerts(file_get_contents($this->certPubKey));
-		// X509Certificate
-		$newNode = $xmldoc->createElement($ns . 'X509Certificate', $cert);
-		$X509Data->appendChild($newNode);
+		// carrega a cadeia de certificacao (titular + intermediarios, quando disponivel);
+		// sem a cadeia, alguns webServices nao conseguem validar a confianca do certificado
+		// e recusam a assinatura mesmo com o digest/signature corretos
+		$certChainFile = !empty($this->certChainKey) && is_file($this->certChainKey) ? $this->certChainKey : $this->certPubKey;
+		foreach ($this->splitCerts(file_get_contents($certChainFile)) as $cert) {
+			// X509Certificate
+			$newNode = $xmldoc->createElement($ns . 'X509Certificate', $cert);
+			$X509Data->appendChild($newNode);
+		}
 		// grava na string o objeto DOM
 		$docxml = $xmldoc->saveXML($firstChild ? $xmldoc->firstChild : null);
 
@@ -241,11 +253,22 @@ class NFSe {
 			$pubKeyFile =  $pathFiles.$nameFiles.'pubKEY.pem';
 			//monta o path completo com o nome do certificado (chave publica e privada) em formato pem
 			$certKeyFile = $pathFiles.$nameFiles.'certKEY.pem';
+			//monta o path completo com a cadeia de certificacao (titular + intermediarios que vierem junto no pfx)
+			$certChainFile = $pathFiles.$nameFiles.'certCHAIN.pem';
 			//$this->zRemovePemFiles();
 			if ($createFiles) {
 				file_put_contents($priKeyFile, $x509certdata['pkey']);
 				file_put_contents($pubKeyFile, $x509certdata['cert']);
 				file_put_contents($certKeyFile, $x509certdata['pkey']."\r\n".$x509certdata['cert']);
+
+				//o pfx pode trazer os certificados intermediarios (AC) junto do certificado do titular;
+				//sem eles, alguns webServices nao conseguem montar a cadeia de confianca da assinatura
+				$certChain = $x509certdata['cert'];
+				if (!empty($x509certdata['extracerts']))
+					$certChain .= "\r\n" . implode("\r\n", $x509certdata['extracerts']);
+
+				file_put_contents($certChainFile, $certChain);
+				$this->certChainKey = $certChainFile;
 			}
 			//$this->pubKey=$x509certdata['cert'];
 			//$this->priKey=$x509certdata['pkey'];
@@ -282,6 +305,7 @@ class NFSe {
 		$aReturn['privKey'] = $this->pathTempFiles . $nameFiles . '_priKEY.pem';
 		$aReturn['pubKey'] = $this->pathTempFiles . $nameFiles . '_pubKEY.pem';
 		$aReturn['certKey'] = $this->pathTempFiles . $nameFiles . '_certKEY.pem';
+		$aReturn['certChain'] = $this->pathTempFiles . $nameFiles . '_certCHAIN.pem';
 
 		$this->deleteTempFiles = true;
 
@@ -340,6 +364,27 @@ class NFSe {
 			}
 		}
 		return $data;
+	}
+
+	/**
+	 * Separa um PEM com um ou mais certificados concatenados (formato gerado por
+	 * loadPfx() quando o pfx traz certificados intermediarios) em um array, um item
+	 * por certificado, ja sem as tags -----BEGIN/END CERTIFICATE-----.
+	 * Ao contrario de cleanCerts(), nao funde certificados diferentes numa unica string
+	 * (o que geraria um X509Certificate com conteudo base64 invalido).
+	 *
+	 * @param string $pemContent
+	 * @return string[]
+	 */
+	public function splitCerts($pemContent) {
+		preg_match_all('/-----BEGIN CERTIFICATE-----(.*?)-----END CERTIFICATE-----/s', $pemContent, $aMatches);
+
+		if (empty($aMatches[1]))
+			return array($this->cleanCerts($pemContent));//fallback: mantem o comportamento antigo se nao achar as tags PEM
+
+		return array_map(function($certBody) {
+			return preg_replace('/\s+/', '', $certBody);
+		}, $aMatches[1]);
 	}
 
 	/**

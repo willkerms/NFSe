@@ -625,9 +625,12 @@ class NFSeGenerico extends NFSe {
 		$aIfs[] = array('begin' => '{@ifCpfPrestador}', 'end' => '{@endifCpfPrestador}', 'bool' => strlen($oRps->Prestador->CpfCnpj) == 11);
 		$aIfs[] = array('begin' => '{@ifCnpjPrestador}', 'end' => '{@endifCnpjPrestador}', 'bool' => strlen($oRps->Prestador->CpfCnpj) == 14);
 
-		$tplLista = $this->getTemplate('enviarLoteRps');
+		$tplLista = $this->getTemplate($metodo);
 
 		$xml = $this->retXML(PQDUtil::procTplText($tplLista, $aReplace, $aIfs));
+
+		if($this->isHomologacao)
+			$this->saveXML($xml, $metodo . '-lote-' . $fileName);
 
 		//Assinando
 		$xml = $this->signXML(
@@ -640,9 +643,8 @@ class NFSeGenerico extends NFSe {
 			$search,
 			$replace
 		);
-		
-		if($this->isHomologacao)
-			$this->saveXML($xml, $metodo . '-' . $fileName);
+
+		$this->saveXML($xml, $metodo . '-' . $fileName);
 
 		return $this->procReturn($this->makeSOAPRequest($metodo, $xml, $fileName), $metodo);
 	}
@@ -2119,6 +2121,8 @@ class NFSeGenerico extends NFSe {
 		$aReplaces['replace']['{@CnpjCpf}'] = $cpfCnpj;
 		$aReplaces['replace']['{@CNPJAutor}'] = $cpfCnpj;
 		$aReplaces['replace']['{@CPFAutor}'] = $cpfCnpj;
+		$aReplaces['replace']['{@IMPrestador}'] = $inscMunicipal;//Prefeituras que encapsulam a ação no próprio template pedem a IM junto do pedido (ex.: <nfse:IM> do CancelarNFSeEnvio da Fiorilli)
+		$aReplaces['replace']['{@InscricaoMunicipal}'] = $inscMunicipal;
 		$aReplaces['replace']['{@chNFSe}'] = $chNFSe;
 		$aReplaces['replace']['{@tpEvento}'] = $tpEvento;
 		$aReplaces['replace']['{@IdPedidoRegistroEvento}'] = 'PRE' . $chNFSe . $tpEvento;

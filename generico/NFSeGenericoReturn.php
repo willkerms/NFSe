@@ -1373,9 +1373,21 @@ class NFSeGenericoReturn extends NFSeReturn {
 				);
 			}
 
+			//Sem mensagem alguma E sem NFS-e no retorno: não dá para afirmar que a nota foi emitida.
+			//Precisa virar erro, a ausência de mensagem é lida como sucesso e grava uma nota
+			//que não existe (ex.: a Fiorilli responde <ListaMensagens/> vazio, sem NFS-e)
+			if( count($return['ListaMensagemRetorno']) == 0 && is_null($this->retNoNfse($oGerarNfseRetorno)) ){
+
+				$oMensagem = new NFSeGenericoMensagemRetorno();
+				$oMensagem->Mensagem = "A prefeitura não confirmou a emissão da nota.";//mensagem de erro
+				$oMensagem->Correcao = "Consulte a nota antes de enviar de novo, para não duplicar.";//correcao
+
+				$return['ListaMensagemRetorno'] = array($oMensagem);
+			}
+
 			$aConfig = $this->oGenerico->getConfig('templates', array());
 
-			//Prefeitura de Goiânia envia mensagem de sucesso com código L000-NORMAL quando deu certo 
+			//Prefeitura de Goiânia envia mensagem de sucesso com código L000-NORMAL quando deu certo
 			if( $aConfig['folder'] == 'prefGoiania-v1' && count($return['ListaMensagemRetorno']) == 1 && $return['ListaMensagemRetorno'][0]->Codigo == 'L000' )
 				$return['ListaMensagemRetorno'] = [];
 		} 
