@@ -2121,6 +2121,8 @@ class NFSeGenerico extends NFSe {
 		$aReplaces['replace']['{@CnpjCpf}'] = $cpfCnpj;
 		$aReplaces['replace']['{@CNPJAutor}'] = $cpfCnpj;
 		$aReplaces['replace']['{@CPFAutor}'] = $cpfCnpj;
+		$aReplaces['replace']['{@IMPrestador}'] = $inscMunicipal;//Prefeituras que encapsulam a ação no próprio template pedem a IM junto do pedido (ex.: <nfse:IM> do CancelarNFSeEnvio da Fiorilli)
+		$aReplaces['replace']['{@InscricaoMunicipal}'] = $inscMunicipal;
 		$aReplaces['replace']['{@chNFSe}'] = $chNFSe;
 		$aReplaces['replace']['{@tpEvento}'] = $tpEvento;
 		$aReplaces['replace']['{@IdPedidoRegistroEvento}'] = 'PRE' . $chNFSe . $tpEvento;
