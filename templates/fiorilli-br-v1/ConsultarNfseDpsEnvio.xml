@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<nfse:ConsultarNfseEnvio xmlns:nfse="http://www.fiorilli.com.br/nfse-nacional">
+	<!-- Consulta nao assinada (signConsulta = false): nao ha conteudo assinado aqui, por isso basta o prefixo da propria acao. Todos os campos sao opcionais no WSDL; a NFS-e e identificada pelo numero+serie do DPS. A ordem dos elementos segue a do WSDL: CNPJ, CPF, IM, ChaveNFSe, IdDPS, NumeroDPS, SerieDPS -->
+	<!-- IF CHOICE CNPJ/CPF do prestador nfse:-->
+	{@ifCnpjPrestador}
+	<nfse:CNPJ>{@CnpjPrestador}</nfse:CNPJ>
+	{@endifCnpjPrestador}
+	<!-- IF CHOICE nfse:-->
+	{@ifCpfPrestador}
+	<nfse:CPF>{@CpfPrestador}</nfse:CPF>
+	{@endifCpfPrestador}
+	<!-- IF OPCIONAL nfse:-->
+	{@ifInscricaoMunicipal}
+	<nfse:IM>{@InscricaoMunicipal}</nfse:IM>
+	{@endifInscricaoMunicipal}
+	<nfse:NumeroDPS>{@Numero}</nfse:NumeroDPS>
+	<nfse:SerieDPS>{@Serie}</nfse:SerieDPS>
+</nfse:ConsultarNfseEnvio>
