@@ -1,642 +1,640 @@
 <?xml version="1.0" encoding="utf-8"?>
-<nfse1:DPS versao="1.00" xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:nfse="http://www.fiorilli.com.br/nfse-nacional" xmlns:nfse1="http://www.sped.fazenda.gov.br/nfse" xmlns:xd="http://www.w3.org/2000/09/xmldsig#" >
+<DPS xmlns="http://www.sped.fazenda.gov.br/nfse" versao="{@versao}">
 	<!-- Prefixos do root = os mesmos do Soap.xml: se o envelope acrescentar namespace ao escopo, a C14N inclusiva muda infDPS/SignedInfo e a assinatura cai (E172) -->
-	<nfse1:infDPS Id="{@IdDPS}">
-		<nfse1:tpAmb>{@tpAmb}</nfse1:tpAmb>
-		<nfse1:dhEmi>{@dhEmi}</nfse1:dhEmi>
-		<nfse1:verAplic>{@verAplic}</nfse1:verAplic>
-		<nfse1:serie>{@serie}</nfse1:serie>
-		<nfse1:nDPS>{@nDPS}</nfse1:nDPS>
-		<nfse1:dCompet>{@dCompet}</nfse1:dCompet>
-		<nfse1:tpEmit>{@tpEmit}</nfse1:tpEmit>
+	<infDPS Id="{@IdDPS}">
+		<tpAmb>{@tpAmb}</tpAmb>
+		<dhEmi>{@dhEmi}</dhEmi>
+		<verAplic>{@verAplic}</verAplic>
+		<serie>{@serie}</serie>
+		<nDPS>{@nDPS}</nDPS>
+		<dCompet>{@dCompet}</dCompet>
+		<tpEmit>{@tpEmit}</tpEmit>
 		{@ifCMotivoEmisTI}
-		<nfse1:cMotivoEmisTI>{@cMotivoEmisTI}</nfse1:cMotivoEmisTI>
+		<cMotivoEmisTI>{@cMotivoEmisTI}</cMotivoEmisTI>
 		{@endifCMotivoEmisTI}
 		{@ifChNFSeRej}
-		<nfse1:chNFSeRej>{@chNFSeRej}</nfse1:chNFSeRej>
+		<chNFSeRej>{@chNFSeRej}</chNFSeRej>
 		{@endifChNFSeRej}
-		<nfse1:cLocEmi>{@cLocEmi}</nfse1:cLocEmi>
+		<cLocEmi>{@cLocEmi}</cLocEmi>
 		{@ifSubst}
-		<nfse1:subst>
-			<nfse1:chSubstda>{@chSubstda}</nfse1:chSubstda>
-			<nfse1:cMotivo>{@cMotivo}</nfse1:cMotivo>
-			<!-- IF OPCIONAL nfse1:-->
+		<subst>
+			<chSubstda>{@chSubstda}</chSubstda>
+			<cMotivo>{@cMotivo}</cMotivo>
 			{@ifXMotivo}
-			<nfse1:xMotivo>{@xMotivo}</nfse1:xMotivo>
+			<xMotivo>{@xMotivo}</xMotivo>
 			{@endifXMotivo}
-		</nfse1:subst>
+		</subst>
 		{@endifSubst}
-		<nfse1:prest>
-			<!-- IF CHOICE CNPJ/CPF/NIF/C NÃO NIF TOMADOR nfse1:-->
+		<prest>
+			<!-- IF CHOICE CNPJ/CPF/NIF/C NÃO NIF TOMADOR -->
 			{@ifCNPJPrestador}
-			<nfse1:CNPJ>{@CNPJPrestador}</nfse1:CNPJ>
+			<CNPJ>{@CNPJPrestador}</CNPJ>
 			{@endifCNPJPrestador}
-			<!-- IF CHOICE nfse1:-->
+			
 			{@ifCPFPrestador}
-			<nfse1:CPF>{@CPFPrestador}</nfse1:CPF>
+			<CPF>{@CPFPrestador}</CPF>
 			{@endifCPFPrestador}
-			<!-- IF CHOICE nfse1:-->
+			
 			{@ifNIFPrestador}
-			<nfse1:NIF>{@NIFPrestador}</nfse1:NIF>
+			<NIF>{@NIFPrestador}</NIF>
 			{@endifNIFPrestador}
-			<!-- IF CHOICE nfse1:-->
+			
 			{@ifCNaoNIFPrestador}
-			<nfse1:cNaoNIF>{@cNaoNIFPrestador}</nfse1:cNaoNIF>
+			<cNaoNIF>{@cNaoNIFPrestador}</cNaoNIF>
 			{@endifCNaoNIFPrestador}
-			<!-- IF OPCIONAL CAEPF DPS PRESTADOR nfse1:-->
+			<!-- IF OPCIONAL CAEPF DPS PRESTADOR -->
 			{@ifCAEPFPrestador}
-			<nfse1:CAEPF>{@CAEPFPrestador}</nfse1:CAEPF>
+			<CAEPF>{@CAEPFPrestador}</CAEPF>
 			{@endifCAEPFPrestador}
 			{@ifIMPrestador}
-			<nfse1:IM>{@IMPrestador}</nfse1:IM>
+			<IM>{@IMPrestador}</IM>
 			{@endifIMPrestador}
 			{@ifXNomePrestador}
-			<nfse1:xNome>{@xNomePrestador}</nfse1:xNome>
+			
+			<!-- A razaão social do prestador não pode ser informado caso ele seja o emitente, tpEmit = 1
+			E0128 Se o emitente da DPS for o prestador de serviço (tpEmit = 1), então o nome ou razão social não deve ser informado.
+			-->
+			<!--xNome>{@xNomePrestador}</xNome-->
+
 			{@endifXNomePrestador}
-			<!-- IF OPCIONAL END DPS PRESTADOR nfse1:-->
+			
 			{@ifEndPrestador}
-			<nfse1:end>
-				<!-- IF CHOICE nfse1:-->
+			
+			<!-- O endereço do prestador não pode ser informado caso ele seja o emitente, tpEmit = 1
+			E0128 O endereço do prestador do serviço não deve ser informado na DPS quando o próprio prestador for o emitente da DPS 
+			-->
+			<!--end>
 				{@ifEndNacPrestador}
-				<nfse1:endNac>
-					<nfse1:cMun>{@cMunPrestador}</nfse1:cMun>
-					<nfse1:CEP>{@CEPPrestador}</nfse1:CEP>
-				</nfse1:endNac>
+				<endNac>
+					<cMun>{@cMunPrestador}</cMun>
+					<CEP>{@CEPPrestador}</CEP>
+				</endNac>
 				{@endifEndNacPrestador}
-				<!-- IF CHOICE nfse1:-->
 				{@ifEndExtPrestador}
-				<nfse1:endExt>
-					<nfse1:cPais>{@cPaisPrestador}</nfse1:cPais>
-					<nfse1:cEndPost>{@cEndPostPrestador}</nfse1:cEndPost>
-					<nfse1:xCidade>{@xCidadePrestador}</nfse1:xCidade>
-					<nfse1:xEstProvReg>{@xEstProvRegPrestador}</nfse1:xEstProvReg>
-				</nfse1:endExt>
+				<endExt>
+					<cPais>{@cPaisPrestador}</cPais>
+					<cEndPost>{@cEndPostPrestador}</cEndPost>
+					<xCidade>{@xCidadePrestador}</xCidade>
+					<xEstProvReg>{@xEstProvRegPrestador}</xEstProvReg>
+				</endExt>
 				{@endifEndExtPrestador}
-				<nfse1:xLgr>{@xLgrPrestador}</nfse1:xLgr>
-				<nfse1:nro>{@nroPrestador}</nfse1:nro>
-				<!-- IF OPCIONAL nfse1:-->
+				<xLgr>{@xLgrPrestador}</xLgr>
+				<nro>{@nroPrestador}</nro>
 				{@ifXCplPrestador}
-				<nfse1:xCpl>{@xCplPrestador}</nfse1:xCpl>
+				<xCpl>{@xCplPrestador}</xCpl>
 				{@endifXCplPrestador}
-				<nfse1:xBairro>{@xBairroPrestador}</nfse1:xBairro>
-			</nfse1:end>
+				<xBairro>{@xBairroPrestador}</xBairro>
+			</end-->
 			{@endifEndPrestador}
-			<!-- IF OPCIONAL nfse1:-->
+
 			{@ifFonePrestador}
-			<nfse1:fone>{@fonePrestador}</nfse1:fone>
+			<fone>{@fonePrestador}</fone>
 			{@endifFonePrestador}
-			<!-- IF OPCIONAL nfse1:-->
 			{@ifEmailPrestador}
-			<nfse1:email>{@emailPrestador}</nfse1:email>
+			<email>{@emailPrestador}</email>
 			{@endifEmailPrestador}
-			<nfse1:regTrib>
-				<nfse1:opSimpNac>{@opSimpNac}</nfse1:opSimpNac>
-				<!-- IF OPCIONAL nfse1:-->
+			<regTrib>
+				<opSimpNac>{@opSimpNac}</opSimpNac>
 				{@ifRegApTribSN}
-				<nfse1:regApTribSN>{@regApTribSN}</nfse1:regApTribSN>
+				<regApTribSN>{@regApTribSN}</regApTribSN>
 				{@endifRegApTribSN}
-				<nfse1:regEspTrib>{@regEspTrib}</nfse1:regEspTrib>
-			</nfse1:regTrib>
-		</nfse1:prest>
-		<!-- IF OPCIONAL nfse1:-->
+				<regEspTrib>{@regEspTrib}</regEspTrib>
+			</regTrib>
+		</prest>
 		{@ifToma}
-		<nfse1:toma>
-			<!-- IF CHOICE CNPJ/CPF/NIF/C NÃO NIF TOMADOR nfse1:-->
+		<toma>
+			<!-- IF CHOICE CNPJ/CPF/NIF/C NÃO NIF TOMADOR -->
 			{@ifCNPJTomador}
-			<nfse1:CNPJ>{@CNPJTomador}</nfse1:CNPJ>
+			<CNPJ>{@CNPJTomador}</CNPJ>
 			{@endifCNPJTomador}
-			<!-- IF CHOICE nfse1:-->
+			
 			{@ifCPFTomador}
-			<nfse1:CPF>{@CPFTomador}</nfse1:CPF>
+			<CPF>{@CPFTomador}</CPF>
 			{@endifCPFTomador}
-			<!-- IF CHOICE nfse1:-->
+			
 			{@ifNIFTomador}
-			<nfse1:NIF>{@NIFTomador}</nfse1:NIF>
+			<NIF>{@NIFTomador}</NIF>
 			{@endifNIFTomador}
-			<!-- IF CHOICE nfse1:-->
+			
 			{@ifCNaoNIFTomador}
-			<nfse1:cNaoNIF>{@cNaoNIFTomador}</nfse1:cNaoNIF>
+			<cNaoNIF>{@cNaoNIFTomador}</cNaoNIF>
 			{@endifCNaoNIFTomador}
-			<!-- IF OPCIONAL CAEPF DPS TOMADOR nfse1:-->
+			<!-- IF OPCIONAL CAEPF DPS TOMADOR -->
 			{@ifCAEPFTomador}
-			<nfse1:CAEPF>{@CAEPFTomador}</nfse1:CAEPF>
+			<CAEPF>{@CAEPFTomador}</CAEPF>
 			{@endifCAEPFTomador}
-			<!-- IF OPCIONAL IM DPS TOMADOR nfse1:-->
+			<!-- IF OPCIONAL IM DPS TOMADOR -->
 			{@ifIMTomador}
-			<nfse1:IM>{@IMTomador}</nfse1:IM>
+			<IM>{@IMTomador}</IM>
 			{@endifIMTomador}
-			<nfse1:xNome>{@xNomeTomador}</nfse1:xNome>
-			<!-- IF OPCIONAL END DPS TOMADOR nfse1:-->
+			<xNome>{@xNomeTomador}</xNome>
+			<!-- IF OPCIONAL END DPS TOMADOR -->
 			{@ifEndTomador}
-			<nfse1:end>
-				<!-- IF CHOICE nfse1:-->
+			<end>
+				
 				{@ifEndNacTomador}
-				<nfse1:endNac>
-					<nfse1:cMun>{@cMunTomador}</nfse1:cMun>
-					<nfse1:CEP>{@CEPTomador}</nfse1:CEP>
-				</nfse1:endNac>
+				<endNac>
+					<cMun>{@cMunTomador}</cMun>
+					<CEP>{@CEPTomador}</CEP>
+				</endNac>
 				{@endifEndNacTomador}
-				<!-- IF CHOICE nfse1:-->
+				
 				{@ifEndExtTomador}
-				<nfse1:endExt>
-					<nfse1:cPais>{@cPaisTomador}</nfse1:cPais>
-					<nfse1:cEndPost>{@cEndPostTomador}</nfse1:cEndPost>
-					<nfse1:xCidade>{@xCidadeTomador}</nfse1:xCidade>
-					<nfse1:xEstProvReg>{@xEstProvRegTomador}</nfse1:xEstProvReg>
-				</nfse1:endExt>
+				<endExt>
+					<cPais>{@cPaisTomador}</cPais>
+					<cEndPost>{@cEndPostTomador}</cEndPost>
+					<xCidade>{@xCidadeTomador}</xCidade>
+					<xEstProvReg>{@xEstProvRegTomador}</xEstProvReg>
+				</endExt>
 				{@endifEndExtTomador}
-				<nfse1:xLgr>{@xLgrTomador}</nfse1:xLgr>
-				<nfse1:nro>{@nroTomador}</nfse1:nro>
-				<!-- IF OPCIONAL nfse1:-->
+				<xLgr>{@xLgrTomador}</xLgr>
+				<nro>{@nroTomador}</nro>
 				{@ifXCplTomador}
-				<nfse1:xCpl>{@xCplTomador}</nfse1:xCpl>
+				<xCpl>{@xCplTomador}</xCpl>
 				{@endifXCplTomador}
-				<nfse1:xBairro>{@xBairroTomador}</nfse1:xBairro>
-			</nfse1:end>
+				<xBairro>{@xBairroTomador}</xBairro>
+			</end>
 			{@endifEndTomador}
-			<!-- IF OPCIONAL nfse1:-->
 			{@ifFoneTomador}
-			<nfse1:fone>{@foneTomador}</nfse1:fone>
+			<fone>{@foneTomador}</fone>
 			{@endifFoneTomador}
-			<!-- IF OPCIONAL nfse1:-->
 			{@ifEmailTomador}
-			<nfse1:email>{@emailTomador}</nfse1:email>
+			<email>{@emailTomador}</email>
 			{@endifEmailTomador}
-		</nfse1:toma>
+		</toma>
 		{@endifToma}
-		<!-- IF OPCIONAL nfse1:-->
 		{@ifInterm}
-		<nfse1:interm>
-			<!-- IF CHOICE CNPJ/CPF/NIF/C NÃO NIF INTERMEDIÁRIO nfse1:-->
+		<interm>
+			<!-- IF CHOICE CNPJ/CPF/NIF/C NÃO NIF INTERMEDIÁRIO -->
 			{@ifCNPJInterm}
-			<nfse1:CNPJ>{@CNPJInterm}</nfse1:CNPJ>
+			<CNPJ>{@CNPJInterm}</CNPJ>
 			{@endifCNPJInterm}
-			<!-- IF CHOICE nfse1:-->
+			
 			{@ifCPFInterm}
-			<nfse1:CPF>{@CPFInterm}</nfse1:CPF>
+			<CPF>{@CPFInterm}</CPF>
 			{@endifCPFInterm}
-			<!-- IF CHOICE nfse1:-->
+			
 			{@ifNIFInterm}
-			<nfse1:NIF>{@NIFInterm}</nfse1:NIF>
+			<NIF>{@NIFInterm}</NIF>
 			{@endifNIFInterm}
-			<!-- IF CHOICE nfse1:-->
+			
 			{@ifCNaoNIFInterm}
-			<nfse1:cNaoNIF>{@cNaoNIFInterm}</nfse1:cNaoNIF>
+			<cNaoNIF>{@cNaoNIFInterm}</cNaoNIF>
 			{@endifCNaoNIFInterm}
-			<!-- IF OPCIONAL CAEPF INTERMEDIÁRIO nfse1:-->
+			<!-- IF OPCIONAL CAEPF INTERMEDIÁRIO -->
 			{@ifCAEPFInterm}
-			<nfse1:CAEPF>{@CAEPFInterm}</nfse1:CAEPF>
+			<CAEPF>{@CAEPFInterm}</CAEPF>
 			{@endifCAEPFInterm}
-			<!-- IF OPCIONAL IM INTERMEDIÁRIO nfse1:-->
+			<!-- IF OPCIONAL IM INTERMEDIÁRIO -->
 			{@ifIMInterm}
-			<nfse1:IM>{@IMInterm}</nfse1:IM>
+			<IM>{@IMInterm}</IM>
 			{@endifIMInterm}
-			<nfse1:xNome>{@xNomeInterm}</nfse1:xNome>
-			<!-- IF OPCIONAL END INTERMEDIÁRIO nfse1:-->
+			<xNome>{@xNomeInterm}</xNome>
+			<!-- IF OPCIONAL END INTERMEDIÁRIO -->
 			{@ifEndInterm}
-			<nfse1:end>
-				<!-- IF CHOICE nfse1:-->
+			<end>
+				
 				{@ifEndNacInterm}
-				<nfse1:endNac>
-					<nfse1:cMun>{@cMunInterm}</nfse1:cMun>
-					<nfse1:CEP>{@CEPInterm}</nfse1:CEP>
-				</nfse1:endNac>
+				<endNac>
+					<cMun>{@cMunInterm}</cMun>
+					<CEP>{@CEPInterm}</CEP>
+				</endNac>
 				{@endifEndNacInterm}
-				<!-- IF CHOICE nfse1:-->
+				
 				{@ifEndExtInterm}
-				<nfse1:endExt>
-					<nfse1:cPais>{@cPaisInterm}</nfse1:cPais>
-					<nfse1:cEndPost>{@cEndPostInterm}</nfse1:cEndPost>
-					<nfse1:xCidade>{@xCidadeInterm}</nfse1:xCidade>
-					<nfse1:xEstProvReg>{@xEstProvRegInterm}</nfse1:xEstProvReg>
-				</nfse1:endExt>
+				<endExt>
+					<cPais>{@cPaisInterm}</cPais>
+					<cEndPost>{@cEndPostInterm}</cEndPost>
+					<xCidade>{@xCidadeInterm}</xCidade>
+					<xEstProvReg>{@xEstProvRegInterm}</xEstProvReg>
+				</endExt>
 				{@endifEndExtInterm}
-				<nfse1:xLgr>{@xLgrInterm}</nfse1:xLgr>
-				<nfse1:nro>{@nroInterm}</nfse1:nro>
-				<!-- IF OPCIONAL nfse1:-->
+				<xLgr>{@xLgrInterm}</xLgr>
+				<nro>{@nroInterm}</nro>
 				{@ifXCplInterm}
-				<nfse1:xCpl>{@xCplInterm}</nfse1:xCpl>
+				<xCpl>{@xCplInterm}</xCpl>
 				{@endifXCplInterm}
-				<nfse1:xBairro>{@xBairroInterm}</nfse1:xBairro>
-			</nfse1:end>
+				<xBairro>{@xBairroInterm}</xBairro>
+			</end>
 			{@endifEndInterm}
-			<!-- IF OPCIONAL nfse1:-->
 			{@ifFoneInterm}
-			<nfse1:fone>{@foneInterm}</nfse1:fone>
+			<fone>{@foneInterm}</fone>
 			{@endifFoneInterm}
-			<!-- IF OPCIONAL nfse1:-->
 			{@ifEmailInterm}
-			<nfse1:email>{@emailInterm}</nfse1:email>
+			<email>{@emailInterm}</email>
 			{@endifEmailInterm}
-		</nfse1:interm>
+		</interm>
 		{@endifInterm}
-		<nfse1:serv>
-			<nfse1:locPrest>
-				<!-- IF CHOICE nfse1:-->
+		<serv>
+			<locPrest>
+				
 				{@ifCLocPrestacao}
-				<nfse1:cLocPrestacao>{@cLocPrestacao}</nfse1:cLocPrestacao>
+				<cLocPrestacao>{@cLocPrestacao}</cLocPrestacao>
 				{@endifCLocPrestacao}
-				<!-- IF CHOICE nfse1:-->
+				
 				{@ifCPaisPrestacao}
-				<nfse1:cPaisPrestacao>{@cPaisPrestacao}</nfse1:cPaisPrestacao>
+				<cPaisPrestacao>{@cPaisPrestacao}</cPaisPrestacao>
 				{@endifCPaisPrestacao}
-			</nfse1:locPrest>
-			<nfse1:cServ>
-				<nfse1:cTribNac>{@cTribNac}</nfse1:cTribNac>
-				<nfse1:cTribMun>{@cTribMun}</nfse1:cTribMun>
-				<nfse1:xDescServ>{@xDescServ}</nfse1:xDescServ>
-				<nfse1:cNBS>{@cNBS}</nfse1:cNBS>
-				<!-- IF OPCIONAL nfse1:-->
+			</locPrest>
+			<cServ>
+				<cTribNac>{@cTribNac}</cTribNac>
+				<!-- IF OPCIONAL: sem o guard, o ERP sem esse dado geraria a tag vazia e o valor vazio nao passa no pattern do XSD -->
+				{@ifCTribMun}
+				<cTribMun>{@cTribMun}</cTribMun>
+				{@endifCTribMun}
+				<xDescServ>{@xDescServ}</xDescServ>
+				{@ifCNBS}
+				<cNBS>{@cNBS}</cNBS>
+				{@endifCNBS}
 				{@ifCIntContrib}
-				<nfse1:cIntContrib>{@cIntContrib}</nfse1:cIntContrib>
+				<cIntContrib>{@cIntContrib}</cIntContrib>
 				{@endifCIntContrib}
-			</nfse1:cServ>
-			<!-- IF OPCIONAL nfse1:-->
+			</cServ>
 			{@ifComExt}
-			<nfse1:comExt>
-				<nfse1:mdPrestacao>{@mdPrestacao}</nfse1:mdPrestacao>
-				<nfse1:vincPrest>{@vincPrest}</nfse1:vincPrest>
-				<nfse1:tpMoeda>{@tpMoeda}</nfse1:tpMoeda>
-				<nfse1:vServMoeda>{@vServMoeda}</nfse1:vServMoeda>
-				<nfse1:mecAFComexP>{@mecAFComexP}</nfse1:mecAFComexP>
-				<nfse1:mecAFComexT>{@mecAFComexT}</nfse1:mecAFComexT>
-				<nfse1:movTempBens>{@movTempBens}</nfse1:movTempBens>
-				<!-- IF OPCIONAL nfse1:-->
+			<comExt>
+				<mdPrestacao>{@mdPrestacao}</mdPrestacao>
+				<vincPrest>{@vincPrest}</vincPrest>
+				<tpMoeda>{@tpMoeda}</tpMoeda>
+				<vServMoeda>{@vServMoeda}</vServMoeda>
+				<mecAFComexP>{@mecAFComexP}</mecAFComexP>
+				<mecAFComexT>{@mecAFComexT}</mecAFComexT>
+				<movTempBens>{@movTempBens}</movTempBens>
 				{@ifNDI}
-				<nfse1:nDI>{@nDI}</nfse1:nDI>
+				<nDI>{@nDI}</nDI>
 				{@endifNDI}
-				<!-- IF OPCIONAL nfse1:-->
 				{@ifNRE}
-				<nfse1:nRE>{@nRE}</nfse1:nRE>
+				<nRE>{@nRE}</nRE>
 				{@endifNRE}
-				<nfse1:mdic>{@mdic}</nfse1:mdic>
-			</nfse1:comExt>
+				<mdic>{@mdic}</mdic>
+			</comExt>
 			{@endifComExt}
-			<!-- IF OPCIONAL nfse1:-->
 			{@ifObra}
-			<nfse1:obra>
-				<!-- IF OPCIONAL nfse1:-->
+			<obra>
 				{@ifInscImobFiscObra}
-				<nfse1:inscImobFisc>{@inscImobFiscObra}</nfse1:inscImobFisc>
+				<inscImobFisc>{@inscImobFiscObra}</inscImobFisc>
 				{@endifInscImobFiscObra}
-				<!-- IF CHOICE nfse1:-->
+				
 				{@ifCObra}
-				<nfse1:cObra>{@cObra}</nfse1:cObra>
+				<cObra>{@cObra}</cObra>
 				{@endifCObra}
-				<!-- IF CHOICE nfse1:-->
+				
 				{@ifCCIBObra}
-				<nfse1:cCIB>{@cCIBObra}</nfse1:cCIB>
+				<cCIB>{@cCIBObra}</cCIB>
 				{@endifCCIBObra}
-				<!-- IF CHOICE nfse1:-->
+				
 				{@ifEndObra}
-				<nfse1:end>
-					<!-- IF CHOICE nfse1:-->
+				<end>
+					
 					{@ifCEPObra}
-					<nfse1:CEP>{@CEPObra}</nfse1:CEP>
+					<CEP>{@CEPObra}</CEP>
 					{@endifCEPObra}
-					<!-- IF CHOICE nfse1:-->
+					
 					{@ifEndExtObra}
-					<nfse1:endExt>
-						<nfse1:cEndPost>{@cEndPostObra}</nfse1:cEndPost>
-						<nfse1:xCidade>{@xCidadeObra}</nfse1:xCidade>
-						<nfse1:xEstProvReg>{@xEstProvRegObra}</nfse1:xEstProvReg>
-					</nfse1:endExt>
+					<endExt>
+						<cEndPost>{@cEndPostObra}</cEndPost>
+						<xCidade>{@xCidadeObra}</xCidade>
+						<xEstProvReg>{@xEstProvRegObra}</xEstProvReg>
+					</endExt>
 					{@endifEndExtObra}
-					<nfse1:xLgr>{@xLgrObra}</nfse1:xLgr>
-					<nfse1:nro>{@nroObra}</nfse1:nro>
-					<!-- IF OPCIONAL nfse1:-->
+					<xLgr>{@xLgrObra}</xLgr>
+					<nro>{@nroObra}</nro>
 					{@ifXCplObra}
-					<nfse1:xCpl>{@xCplObra}</nfse1:xCpl>
+					<xCpl>{@xCplObra}</xCpl>
 					{@endifXCplObra}
-					<nfse1:xBairro>{@xBairroObra}</nfse1:xBairro>
-				</nfse1:end>
+					<xBairro>{@xBairroObra}</xBairro>
+				</end>
 				{@endifEndObra}
-			</nfse1:obra>
+			</obra>
 			{@endifObra}
-			<!-- IF OPCIONAL nfse1:-->
 			{@ifAtvEvento}
-			<nfse1:atvEvento>
-				<nfse1:xNome>{@xNomeAtvEvento}</nfse1:xNome>
-				<nfse1:dtIni>{@dtIniAtvEvento}</nfse1:dtIni>
-				<nfse1:dtFim>{@dtFimAtvEvento}</nfse1:dtFim>
-				<!-- IF CHOICE nfse1:-->
+			<atvEvento>
+				<xNome>{@xNomeAtvEvento}</xNome>
+				<dtIni>{@dtIniAtvEvento}</dtIni>
+				<dtFim>{@dtFimAtvEvento}</dtFim>
+				
 				{@ifIdAtvEv}
-				<nfse1:idAtvEv>{@idAtvEv}</nfse1:idAtvEv>
+				<idAtvEv>{@idAtvEv}</idAtvEv>
 				{@endifIdAtvEv}
-				<!-- IF CHOICE nfse1:-->
-				{@ifEndAtvEv}
-				<nfse1:end>
-					<!-- IF CHOICE nfse1:-->
+				
+				{@ifEndAtvEvento}
+				<end>
+					
 					{@ifCEPAtvEvento}
-					<nfse1:CEP>{@CEPAtvEvento}</nfse1:CEP>
+					<CEP>{@CEPAtvEvento}</CEP>
 					{@endifCEPAtvEvento}
-					<!-- IF CHOICE nfse1:-->
+					
 					{@ifEndExtAtvEvento}
-					<nfse1:endExt>
-						<nfse1:cEndPost>{@cEndPostAtvEvento}</nfse1:cEndPost>
-						<nfse1:xCidade>{@xCidadeAtvEvento}</nfse1:xCidade>
-						<nfse1:xEstProvReg>{@xEstProvRegAtvEvento}</nfse1:xEstProvReg>
-					</nfse1:endExt>
+					<endExt>
+						<cEndPost>{@cEndPostAtvEvento}</cEndPost>
+						<xCidade>{@xCidadeAtvEvento}</xCidade>
+						<xEstProvReg>{@xEstProvRegAtvEvento}</xEstProvReg>
+					</endExt>
 					{@endifEndExtAtvEvento}
-					<nfse1:xLgr>{@xLgrAtvEvento}</nfse1:xLgr>
-					<nfse1:nro>{@nroAtvEvento}</nfse1:nro>
-					<!-- IF OPCIONAL nfse1:-->
+					<xLgr>{@xLgrAtvEvento}</xLgr>
+					<nro>{@nroAtvEvento}</nro>
 					{@ifXCplAtvEvento}
-					<nfse1:xCpl>{@xCplAtvEvento}</nfse1:xCpl>
+					<xCpl>{@xCplAtvEvento}</xCpl>
 					{@endifXCplAtvEvento}
-					<nfse1:xBairro>{@xBairroAtvEvento}</nfse1:xBairro>
-				</nfse1:end>
-				{@endifEndAtvEv}
-			</nfse1:atvEvento>
+					<xBairro>{@xBairroAtvEvento}</xBairro>
+				</end>
+				{@endifEndAtvEvento}
+			</atvEvento>
 			{@endifAtvEvento}
-			<!-- IF OPCIONAL nfse1:-->
 			{@ifInfoCompl}
-			<nfse1:infoCompl>
-				<!-- IF OPCIONAL nfse1:-->
+			<infoCompl>
 				{@ifIdDocTec}
-				<nfse1:idDocTec>{@idDocTec}</nfse1:idDocTec>
+				<idDocTec>{@idDocTec}</idDocTec>
 				{@endifIdDocTec}
-				<!-- IF OPCIONAL nfse1:-->
 				{@ifDocRef}
-				<nfse1:docRef>{@docRef}</nfse1:docRef>
+				<docRef>{@docRef}</docRef>
 				{@endifDocRef}
-				<!-- IF OPCIONAL nfse1:-->
 				{@ifXPed}
-				<nfse1:xPed>{@xPed}</nfse1:xPed>
+				<xPed>{@xPed}</xPed>
 				{@endifXPed}
-				<!-- IF OPCIONAL nfse1:-->
 				{@ifGItemPed}
-				<nfse1:gItemPed>
-					<nfse1:xItemPed>{@xItemPed}</nfse1:xItemPed>
-				</nfse1:gItemPed>
+				<gItemPed>
+					{@gItemPed}
+				</gItemPed>
 				{@endifGItemPed}
-				<!-- IF OPCIONAL nfse1:-->
 				{@ifXInfComp}
-				<nfse1:xInfComp>{@xInfComp}</nfse1:xInfComp>
+				<xInfComp>{@xInfComp}</xInfComp>
 				{@endifXInfComp}
-			</nfse1:infoCompl>
+			</infoCompl>
 			{@endifInfoCompl}
-		</nfse1:serv>
-		<nfse1:valores>
-			<nfse1:vServPrest>
-				<!-- IF OPCIONAL nfse1:-->
+		</serv>
+		<valores>
+			<vServPrest>
 				{@ifVReceb}
-				<nfse1:vReceb>{@vReceb}</nfse1:vReceb>
+				<vReceb>{@vReceb}</vReceb>
 				{@endifVReceb}
-				<nfse1:vServ>{@vServ}</nfse1:vServ>
-			</nfse1:vServPrest>
-			<!-- IF OPCIONAL nfse1:-->
+				<vServ>{@vServ}</vServ>
+			</vServPrest>
 			{@ifVDescCondIncond}
-			<nfse1:vDescCondIncond>
-				<!-- IF OPCIONAL nfse1:-->
+			<vDescCondIncond>
 				{@ifVDescIncond}
-				<nfse1:vDescIncond>{@vDescIncond}</nfse1:vDescIncond>
+				<vDescIncond>{@vDescIncond}</vDescIncond>
 				{@endifVDescIncond}
-				<!-- IF OPCIONAL nfse1:-->
 				{@ifVDescCond}
-				<nfse1:vDescCond>{@vDescCond}</nfse1:vDescCond>
+				<vDescCond>{@vDescCond}</vDescCond>
 				{@endifVDescCond}
-			</nfse1:vDescCondIncond>
+			</vDescCondIncond>
 			{@endifVDescCondIncond}
-			<!-- IF OPCIONAL nfse1:-->
 			{@ifVDedRed}
-			<nfse1:vDedRed>
-				<!-- IF CHOICE nfse1:-->
+			<vDedRed>
+				
 				{@ifPDR}
-				<nfse1:pDR>{@pDR}</nfse1:pDR>
+				<pDR>{@pDR}</pDR>
 				{@endifPDR}
-				<!-- IF CHOICE nfse1:-->
+				
 				{@ifVDR}
-				<nfse1:vDR>{@vDR}</nfse1:vDR>
+				<vDR>{@vDR}</vDR>
 				{@endifVDR}
-				<!-- IF CHOICE nfse1:-->
+				
 				{@ifDocumentos}
-				<nfse1:documentos>
-					<nfse1:docDedRed>
-						<!-- IF CHOICE nfse1:-->
-						{@ifChNFSe}
-						<nfse1:chNFSe>{@chNFSe}</nfse1:chNFSe>
-						{@endifChNFSe}
-						<!-- IF CHOICE nfse1:-->
-						{@ifChNFe}
-						<nfse1:chNFe>{@chNFe}</nfse1:chNFe>
-						{@endifChNFe}r-unexpected-elementr-unexpected-element
-						<!-- IF CHOICE nfse1:-->
-						{@ifNFSeMun}
-						<nfse1:NFSeMun>
-							<nfse1:cMunNFSeMun>{@cMunNFSeMun}</nfse1:cMunNFSeMun>
-							<nfse1:nNFSeMun>{@nNFSeMun}</nfse1:nNFSeMun>
-							<nfse1:cVerifNFSeMun>{@cVerifNFSeMun}</nfse1:cVerifNFSeMun>
-						</nfse1:NFSeMun>
-						{@endifNFSeMun}
-						<!-- IF CHOICE nfse1:-->
-						{@ifNFNFS}
-						<nfse1:NFNFS>
-							<nfse1:nNFNFS>{@nNFNFS}</nfse1:nNFNFS>
-							<nfse1:modNFNFS>{@modNFNFS}</nfse1:modNFNFS>
-							<nfse1:serieNFNFS>{@serieNFNFS}</nfse1:serieNFNFS>
-						</nfse1:NFNFS>
-						{@endifNFNFS}
-						<!-- IF CHOICE nfse1:-->
-						{@ifNDocFisc}
-						<nfse1:nDocFisc>{@nDocFisc}</nfse1:nDocFisc>
-						{@endifNDocFisc}
-						<!-- IF CHOICE nfse1:-->
-						{@ifNDoc}
-						<nfse1:nDoc>{@nDoc}</nfse1:nDoc>
-						{@endifNDoc}
-						<nfse1:tpDedRed>{@tpDedRed}</nfse1:tpDedRed>
-						<!-- IF OPCIONAL nfse1:-->
-						{@ifXDescOutDed}
-						<nfse1:xDescOutDed>{@xDescOutDed}</nfse1:xDescOutDed>
-						{@endifXDescOutDed}
-						<nfse1:dtEmiDoc>{@dtEmiDoc}</nfse1:dtEmiDoc>
-						<nfse1:vDedutivelRedutivel>{@vDedutivelRedutivel}</nfse1:vDedutivelRedutivel>
-						<nfse1:vDeducaoReducao>{@vDeducaoReducao}</nfse1:vDeducaoReducao>
-						<!-- IF OPCIONAL nfse1:-->
-						{@ifFornec}
-						<nfse1:fornec>
-							<!-- IF CHOICE nfse1:-->
-							{@ifCNPJFornec}
-							<nfse1:CNPJ>{@CNPJFornec}</nfse1:CNPJ>
-							{@endifCNPJFornec}
-							<!-- IF CHOICE nfse1:-->
-							{@ifCPFFornec}
-							<nfse1:CPF>{@CPFFornec}</nfse1:CPF>
-							{@endifCPFFornec}
-							<!-- IF CHOICE nfse1:-->
-							{@ifNIFFornec}
-							<nfse1:NIF>{@NIFFornec}</nfse1:NIF>
-							{@endifNIFFornec}
-							<!-- IF CHOICE nfse1:-->
-							{@ifCNaoNIFFornec}
-							<nfse1:cNaoNIF>{@cNaoNIFFornec}</nfse1:cNaoNIF>
-							{@endifCNaoNIFFornec}
-							<!-- IF OPCIONAL nfse1:-->
-							{@ifCAEPFFornec}
-							<nfse1:CAEPF>{@CAEPFFornec}</nfse1:CAEPF>
-							{@endifCAEPFFornec}
-							<!-- IF OPCIONAL nfse1:-->
-							{@ifIMFornec}
-							<nfse1:IM>{@IMFornec}</nfse1:IM>
-							{@endifIMFornec}
-							<nfse1:xNome>{@xNomeFornec}</nfse1:xNome>
-							<!-- IF OPCIONAL nfse1:-->
-							{@ifEndFornec}
-							<nfse1:end>
-								<!-- IF CHOICE nfse1:-->
-								{@ifEndNacFornec}
-								<nfse1:endNac>
-									<nfse1:cMun>{@cMunFornec}</nfse1:cMun>
-									<nfse1:CEP>{@CEPFornec}</nfse1:CEP>
-								</nfse1:endNac>
-								{@endifEndNacFornec}
-								<!-- IF CHOICE nfse1:-->
-								{@ifEndExtFornec}
-								<nfse1:endExt>
-									<nfse1:cPais>{@cPaisFornec}</nfse1:cPais>
-									<nfse1:cEndPost>{@cEndPostFornec}</nfse1:cEndPost>
-									<nfse1:xCidade>{@xCidadeFornec}</nfse1:xCidade>
-									<nfse1:xEstProvReg>{@xEstProvRegFornec}</nfse1:xEstProvReg>
-								</nfse1:endExt>
-								{@endifEndExtFornec}
-								<nfse1:xLgr>{@xLgrFornec}</nfse1:xLgr>
-								<nfse1:nro>{@nroFornec}</nfse1:nro>
-								<!-- IF OPCIONAL nfse1:-->
-								{@ifXCplFornec}
-								<nfse1:xCpl>{@xCplFornec}</nfse1:xCpl>
-								{@endifXCplFornec}
-								<nfse1:xBairro>{@xBairroFornec}</nfse1:xBairro>
-							</nfse1:end>
-							{@endifEndFornec}
-							<!-- IF OPCIONAL nfse1:-->
-							{@ifFoneFornec}
-							<nfse1:fone>{@foneFornec}</nfse1:fone>
-							{@endifFoneFornec}
-							<!-- IF OPCIONAL nfse1:-->
-							{@ifEmailFornec}
-							<nfse1:email>{@emailFornec}</nfse1:email>
-							{@endifEmailFornec}
-						</nfse1:fornec>
-						{@endifFornec}
-					</nfse1:docDedRed>
-				</nfse1:documentos>
+				<documentos>
+					{@documentos}
+				</documentos>
 				{@endifDocumentos}
-			</nfse1:vDedRed>
+			</vDedRed>
 			{@endifVDedRed}
-			<nfse1:trib>
-				<nfse1:tribMun>
-					<nfse1:tribISSQN>{@tribISSQN}</nfse1:tribISSQN>
-					<!-- IF OPCIONAL nfse1:-->
+			<trib>
+				<tribMun>
+					<tribISSQN>{@tribISSQN}</tribISSQN>
 					{@ifCPaisResult}
-					<nfse1:cPaisResult>{@cPaisResult}</nfse1:cPaisResult>
+					<cPaisResult>{@cPaisResult}</cPaisResult>
 					{@endifCPaisResult}
-					<!-- IF OPCIONAL nfse1:-->
 					{@ifTpImunidade}
-					<nfse1:tpImunidade>{@tpImunidade}</nfse1:tpImunidade>
+					<tpImunidade>{@tpImunidade}</tpImunidade>
 					{@endifTpImunidade}
-					<!-- IF OPCIONAL nfse1:-->
 					{@ifExigSusp}
-					<nfse1:exigSusp>
-						<nfse1:tpSusp>{@tpSusp}</nfse1:tpSusp>
-						<nfse1:nProcesso>{@nProcesso}</nfse1:nProcesso>
-					</nfse1:exigSusp>
+					<exigSusp>
+						<tpSusp>{@tpSusp}</tpSusp>
+						<nProcesso>{@nProcesso}</nProcesso>
+					</exigSusp>
 					{@endifExigSusp}
-					<!-- IF OPCIONAL nfse1:-->
 					{@ifBM}
-					<nfse1:BM>
-						<nfse1:nBM>{@nBM}</nfse1:nBM>
-						<!-- IF CHOICE nfse1:-->
+					<BM>
+						<nBM>{@nBM}</nBM>
+						
 						{@ifVRedBCBM}
-						<nfse1:vRedBCBM>{@vRedBCBM}</nfse1:vRedBCBM>
+						<vRedBCBM>{@vRedBCBM}</vRedBCBM>
 						{@endifVRedBCBM}
-						<!-- IF CHOICE nfse1:-->
+						
 						{@ifPRedBCBM}
-						<nfse1:pRedBCBM>{@pRedBCBM}</nfse1:pRedBCBM>
+						<pRedBCBM>{@pRedBCBM}</pRedBCBM>
 						{@endifPRedBCBM}
-					</nfse1:BM>
+					</BM>
 					{@endifBM}
-					<nfse1:tpRetISSQN>{@tpRetISSQN}</nfse1:tpRetISSQN>
-					<!-- IF OPCIONAL nfse1:-->
+					<tpRetISSQN>{@tpRetISSQN}</tpRetISSQN>
 					{@ifPAliqISSQN}
-					<nfse1:pAliq>{@pAliq}</nfse1:pAliq>
+					<pAliq>{@pAliq}</pAliq>
 					{@endifPAliqISSQN}
-				</nfse1:tribMun>
-				<!-- IF OPCIONAL nfse1:-->
+				</tribMun>
 				{@ifTribFed}
-				<nfse1:tribFed>
-					<!-- IF OPCIONAL nfse1:-->
+				<tribFed>
 					{@ifPiscofins}
-					<nfse1:piscofins>
-						<nfse1:CST>{@CST}</nfse1:CST>
-						<!-- IF OPCIONAL nfse1:-->
+					<piscofins>
+						<CST>{@CST}</CST>
 						{@ifVBCPisCofins}
-						<nfse1:vBCPisCofins>{@vBCPisCofins}</nfse1:vBCPisCofins>
+						<vBCPisCofins>{@vBCPisCofins}</vBCPisCofins>
 						{@endifVBCPisCofins}
-						<!-- IF OPCIONAL nfse1:-->
 						{@ifPAliqPis}
-						<nfse1:pAliqPis>{@pAliqPis}</nfse1:pAliqPis>
+						<pAliqPis>{@pAliqPis}</pAliqPis>
 						{@endifPAliqPis}
-						<!-- IF OPCIONAL nfse1:-->
 						{@ifPAliqCofins}
-						<nfse1:pAliqCofins>{@pAliqCofins}</nfse1:pAliqCofins>
+						<pAliqCofins>{@pAliqCofins}</pAliqCofins>
 						{@endifPAliqCofins}
-						<!-- IF OPCIONAL nfse1:-->
 						{@ifVPis}
-						<nfse1:vPis>{@vPis}</nfse1:vPis>
+						<vPis>{@vPis}</vPis>
 						{@endifVPis}
-						<!-- IF OPCIONAL nfse1:-->
 						{@ifVCofins}
-						<nfse1:vCofins>{@vCofins}</nfse1:vCofins>
+						<vCofins>{@vCofins}</vCofins>
 						{@endifVCofins}
-						<!-- IF OPCIONAL nfse1:-->
 						{@ifTpRetPisCofins}
-						<nfse1:tpRetPisCofins>{@tpRetPisCofins}</nfse1:tpRetPisCofins>
+						<tpRetPisCofins>{@tpRetPisCofins}</tpRetPisCofins>
 						{@endifTpRetPisCofins}
-					</nfse1:piscofins>
+					</piscofins>
 					{@endifPiscofins}
-					<!-- IF OPCIONAL nfse1:-->
 					{@ifVRetCP}
-					<nfse1:vRetCP>{@vRetCP}</nfse1:vRetCP>
+					<vRetCP>{@vRetCP}</vRetCP>
 					{@endifVRetCP}
-					<!-- IF OPCIONAL nfse1:-->
 					{@ifVRetIRRF}
-					<nfse1:vRetIRRF>{@vRetIRRF}</nfse1:vRetIRRF>
+					<vRetIRRF>{@vRetIRRF}</vRetIRRF>
 					{@endifVRetIRRF}
-					<!-- IF OPCIONAL nfse1:-->
 					{@ifVRetCSLL}
-					<nfse1:vRetCSLL>{@vRetCSLL}</nfse1:vRetCSLL>
+					<vRetCSLL>{@vRetCSLL}</vRetCSLL>
 					{@endifVRetCSLL}
-				</nfse1:tribFed>
+				</tribFed>
 				{@endifTribFed}
-				<nfse1:totTrib>
-					<!-- IF CHOICE nfse1:-->
+				<totTrib>
+					
 					{@ifVTotTrib}
-					<nfse1:vTotTrib>
-						<nfse1:vTotTribFed>{@vTotTribFed}</nfse1:vTotTribFed>
-						<nfse1:vTotTribEst>{@vTotTribEst}</nfse1:vTotTribEst>
-						<nfse1:vTotTribMun>{@vTotTribMun}</nfse1:vTotTribMun>
-					</nfse1:vTotTrib>
+					<vTotTrib>
+						<vTotTribFed>{@vTotTribFed}</vTotTribFed>
+						<vTotTribEst>{@vTotTribEst}</vTotTribEst>
+						<vTotTribMun>{@vTotTribMun}</vTotTribMun>
+					</vTotTrib>
 					{@endifVTotTrib}
-					<!-- IF CHOICE nfse1:-->
+					
 					{@ifPTotTrib}
-					<nfse1:pTotTrib>
-						<nfse1:pTotTribFed>{@pTotTribFed}</nfse1:pTotTribFed>
-						<nfse1:pTotTribEst>{@pTotTribEst}</nfse1:pTotTribEst>
-						<nfse1:pTotTribMun>{@pTotTribMun}</nfse1:pTotTribMun>
-					</nfse1:pTotTrib>
+					<pTotTrib>
+						<pTotTribFed>{@pTotTribFed}</pTotTribFed>
+						<pTotTribEst>{@pTotTribEst}</pTotTribEst>
+						<pTotTribMun>{@pTotTribMun}</pTotTribMun>
+					</pTotTrib>
 					{@endifPTotTrib}
-					<!-- IF CHOICE nfse1:-->
+					
 					{@ifIndTotTrib}
-					<nfse1:indTotTrib>{@indTotTrib}</nfse1:indTotTrib>
+					<indTotTrib>{@indTotTrib}</indTotTrib>
 					{@endifIndTotTrib}
-					<!-- IF CHOICE nfse1:-->
+					
 					{@ifPTotTribSN}
-					<nfse1:pTotTribSN>{@pTotTribSN}</nfse1:pTotTribSN>
+					<pTotTribSN>{@pTotTribSN}</pTotTribSN>
 					{@endifPTotTribSN}
-				</nfse1:totTrib>
-			</nfse1:trib>
-		</nfse1:valores>
-	</nfse1:infDPS>
+				</totTrib>
+			</trib>
+		</valores>
+		{@ifIBSCBS}
+		<IBSCBS>
+			<finNFSe>{@finNFSe}</finNFSe>
+			{@ifIndFinal}
+			<indFinal>{@indFinal}</indFinal>
+			{@endifIndFinal}
+			<cIndOp>{@cIndOp}</cIndOp>
+			{@ifTpOper}
+			<tpOper>{@tpOper}</tpOper>
+			{@endifTpOper}
+			<!-- IF OPCIONAL: o item que repete e o refNFSe (ate 99), montado pelo template parcial 'refNfse' -->
+			{@ifGRefNFSe}
+			<gRefNFSe>
+				{@gRefNFSe}
+			</gRefNFSe>
+			{@endifGRefNFSe}
+			{@ifTpEnteGov}
+			<tpEnteGov>{@tpEnteGov}</tpEnteGov>
+			{@endifTpEnteGov}
+			<indDest>{@indDest}</indDest>
+			<!-- IF OPCIONAL destinatario do servico -->
+			{@ifDest}
+			<dest>
+				<!-- IF CHOICE CNPJ/CPF/NIF/C NAO NIF DESTINATARIO -->
+				{@ifCNPJDest}
+				<CNPJ>{@CNPJDest}</CNPJ>
+				{@endifCNPJDest}
+				
+				{@ifCPFDest}
+				<CPF>{@CPFDest}</CPF>
+				{@endifCPFDest}
+				
+				{@ifNIFDest}
+				<NIF>{@NIFDest}</NIF>
+				{@endifNIFDest}
+				
+				{@ifCNaoNIFDest}
+				<cNaoNIF>{@cNaoNIFDest}</cNaoNIF>
+				{@endifCNaoNIFDest}
+				<xNome>{@xNomeDest}</xNome>
+				{@ifEndDest}
+				<end>
+					
+					{@ifEndNacDest}
+					<endNac>
+						<cMun>{@cMunDest}</cMun>
+						<CEP>{@CEPDest}</CEP>
+					</endNac>
+					{@endifEndNacDest}
+					
+					{@ifEndExtDest}
+					<endExt>
+						<cPais>{@cPaisDest}</cPais>
+						<cEndPost>{@cEndPostDest}</cEndPost>
+						<xCidade>{@xCidadeDest}</xCidade>
+						<xEstProvReg>{@xEstProvRegDest}</xEstProvReg>
+					</endExt>
+					{@endifEndExtDest}
+					<xLgr>{@xLgrDest}</xLgr>
+					<nro>{@nroDest}</nro>
+					{@ifXCplDest}
+					<xCpl>{@xCplDest}</xCpl>
+					{@endifXCplDest}
+					<xBairro>{@xBairroDest}</xBairro>
+				</end>
+				{@endifEndDest}
+				{@ifFoneDest}
+				<fone>{@foneDest}</fone>
+				{@endifFoneDest}
+				{@ifEmailDest}
+				<email>{@emailDest}</email>
+				{@endifEmailDest}
+			</dest>
+			{@endifDest}
+			<!-- IF OPCIONAL imovel -->
+			{@ifImovel}
+			<imovel>
+				{@ifInscImobFiscImovel}
+				<inscImobFisc>{@inscImobFiscImovel}</inscImobFisc>
+				{@endifInscImobFiscImovel}
+				<!-- IF CHOICE cCIB/end -->
+				{@ifCCIBImovel}
+				<cCIB>{@cCIBImovel}</cCIB>
+				{@endifCCIBImovel}
+				
+				{@ifEndImovel}
+				<end>
+					
+					{@ifCEPImovel}
+					<CEP>{@CEPImovel}</CEP>
+					{@endifCEPImovel}
+					
+					{@ifEndExtImovel}
+					<endExt>
+						<cEndPost>{@cEndPostImovel}</cEndPost>
+						<xCidade>{@xCidadeImovel}</xCidade>
+						<xEstProvReg>{@xEstProvRegImovel}</xEstProvReg>
+					</endExt>
+					{@endifEndExtImovel}
+					<xLgr>{@xLgrImovel}</xLgr>
+					<nro>{@nroImovel}</nro>
+					{@ifXCplImovel}
+					<xCpl>{@xCplImovel}</xCpl>
+					{@endifXCplImovel}
+					<xBairro>{@xBairroImovel}</xBairro>
+				</end>
+				{@endifEndImovel}
+			</imovel>
+			{@endifImovel}
+			<valores>
+				<!-- IF OPCIONAL reembolso/repasse/ressarcimento: parcial repetido, exige o template 'documentoReeRepRes' na pasta -->
+				{@ifGReeRepRes}
+				<gReeRepRes>
+					{@documentosReeRepRes}
+				</gReeRepRes>
+				{@endifGReeRepRes}
+				<trib>
+					<gIBSCBS>
+						<CST>{@CSTIBSCBS}</CST>
+						<cClassTrib>{@cClassTribIBSCBS}</cClassTrib>
+						{@ifCCredPresIBSCBS}
+						<cCredPres>{@cCredPresIBSCBS}</cCredPres>
+						{@endifCCredPresIBSCBS}
+						{@ifGTribRegularIBSCBS}
+						<gTribRegular>
+							<CSTReg>{@CSTReg}</CSTReg>
+							<cClassTribReg>{@cClassTribReg}</cClassTribReg>
+						</gTribRegular>
+						{@endifGTribRegularIBSCBS}
+						{@ifGDif}
+						<gDif>
+							<pDifUF>{@pDifUF}</pDifUF>
+							<pDifMun>{@pDifMun}</pDifMun>
+							<pDifCBS>{@pDifCBS}</pDifCBS>
+						</gDif>
+						{@endifGDif}
+					</gIBSCBS>
+				</trib>
+			</valores>
+		</IBSCBS>
+		{@endifIBSCBS}
+	</infDPS>
 	<!--<xd:Signature>string</xd:Signature>-->
-</nfse1:DPS>
+</DPS>
