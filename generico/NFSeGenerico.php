@@ -4,6 +4,8 @@ namespace NFSe\generico;
 
 use NFSe\generico\nfseNacional\NFSeGenericoInfDPS;
 use NFSe\generico\nfseNacional\NFSeGenericoConsultarNfseDps;
+use NFSe\generico\nfseNacional\NFSeGenericoDocDedRed;
+use NFSe\generico\nfseNacional\NFSeGenericoInfoItemPed;
 use NFSe\NFSe;
 use NFSe\NFSeDocument;
 use PQD\PQDUtil;
@@ -85,6 +87,11 @@ class NFSeGenerico extends NFSe {
 				'dps' => 'DPS.xml', //Template do DPS (Declaração de Prestação de Serviços) - padrão Nacional
 				'enviarLoteRps' => 'EnviarLoteRps.xml', //Template do envelope de envio de lote de RPS
 				'deducao' => 'Deducao.xml', //Template de uma dedução (repetido para cada item de $oRps->aDeducoes)
+				//Parciais do padrão Nacional: cada bloco 1-n do XSD tem o template do seu item, repetido em laço e injetado no DPS
+				'documentoDocDedRed' => 'DocumentoDocDedRed.xml', //Um docDedRed de valores/vDedRed/documentos (injeta em {@documentos})
+				'itemPed' => 'ItemPed.xml', //Um xItemPed de serv/infoCompl/gItemPed (injeta em {@gItemPed})
+				'refNfse' => 'RefNfse.xml', //Um refNFSe de IBSCBS/gRefNFSe (injeta em {@gRefNFSe})
+				'documentoReeRepRes' => 'DocumentoReeRepRes.xml', //Um documentos de IBSCBS/valores/gReeRepRes (injeta em {@documentosReeRepRes})
 				'gerarNfse' => 'GerarNfseEnvio.xml', //Template do envelope de geração de NFS-e (recebe o RPS/DPS já assinado em {@Rps}/{@DPS})
 				'gerarNfseRestEnvelope' => 'GerarNfseEnvio.json', //Template do envelope de geração de NFS-e (recebe o RPS/DPS já assinado em {@Rps}/{@DPS})
 				'consultarNFSePorRps' => 'ConsultarNfseRpsEnvio.xml', //Template de consulta de NFS-e por RPS
@@ -816,9 +823,9 @@ class NFSeGenerico extends NFSe {
 
 				$headers = array();
 				foreach(PQDUtil::retDefault($curl, 'header', array() ) as $header)
-					$headers[] = $header; 
+					$headers[] = $header;
 				foreach(PQDUtil::retDefault($metodoConfig, 'header', array() ) as $header)
-					$headers[] = $header; 
+					$headers[] = $header;
 
 				return $this->curl(
 					$url, 
@@ -1345,6 +1352,7 @@ class NFSeGenerico extends NFSe {
 			'{@dhEmi}' => $oDPS->dhEmi,
 			'{@verAplic}' => $oDPS->verAplic,
 			'{@serie}' => $oDPS->serie,
+			'{@serieAsInt}' => (int)$oDPS->serie,
 			'{@nDPS}' => $oDPS->nDPS,
 			'{@dCompet}' => $oDPS->dCompet,
 			'{@tpEmit}' => $oDPS->tpEmit,
@@ -1477,7 +1485,7 @@ class NFSeGenerico extends NFSe {
 			'{@idDocTec}' => $oDPS->serv->infoCompl->idDocTec,
 			'{@docRef}' => $oDPS->serv->infoCompl->docRef,
 			'{@xPed}' => $oDPS->serv->infoCompl->xPed,
-			'{@gItemPed}' =>  $this->retItensPed($oDPS->serv->infoCompl->gItemPed->xItemPed ?? []),
+			'{@gItemPed}' =>  $this->retItensPed($oDPS->serv->infoCompl->aItensPed ?? []),
 			'{@xInfComp}' => $oDPS->serv->infoCompl->xInfComp,
 
 			// Valores - Serviço Prestado
@@ -1668,7 +1676,7 @@ class NFSeGenerico extends NFSe {
 			['begin' => '{@ifIdDocTec}', 'end' => '{@endifIdDocTec}', 'bool' => !empty($oDPS->serv->infoCompl->idDocTec)],
 			['begin' => '{@ifDocRef}', 'end' => '{@endifDocRef}', 'bool' => !empty($oDPS->serv->infoCompl->docRef)],
 			['begin' => '{@ifXPed}', 'end' => '{@endifXPed}', 'bool' => !empty($oDPS->serv->infoCompl->xPed)],
-			['begin' => '{@ifGItemPed}', 'end' => '{@endifGItemPed}', 'bool' => !empty($oDPS->serv->infoCompl->gItemPed->xItemPed)],
+			['begin' => '{@ifGItemPed}', 'end' => '{@endifGItemPed}', 'bool' => count($oDPS->serv->infoCompl->aItensPed) > 0],
 			['begin' => '{@ifXInfComp}', 'end' => '{@endifXInfComp}', 'bool' => !empty($oDPS->serv->infoCompl->xInfComp)],
 
 			['begin' => '{@ifVReceb}', 'end' => '{@endifVReceb}', 'bool' => !empty($oDPS->valores->vServPrest->vReceb)],
@@ -1687,7 +1695,7 @@ class NFSeGenerico extends NFSe {
 			['begin' => '{@ifBM}', 'end' => '{@endifBM}', 'bool' => !empty($oDPS->valores->trib->tribMun->BM->nBM)],
 			['begin' => '{@ifVRedBCBM}', 'end' => '{@endifVRedBCBM}', 'bool' => !empty($oDPS->valores->trib->tribMun->BM->vRedBCBM)],
 			['begin' => '{@ifPRedBCBM}', 'end' => '{@endifPRedBCBM}', 'bool' => !empty($oDPS->valores->trib->tribMun->BM->pRedBCBM)],
-			['begin' => '{@ifPAliqISSQN}', 'end' => '{@endifPAliqISSQN}', 'bool' => !empty($oDPS->valores->trib->tribMun->pAliq)],
+			['begin' => '{@ifPAliqISSQN}', 'end' => '{@endifPAliqISSQN}', 'bool' => $oDPS->valores->trib->tribMun->pAliq > 0 ],
 
 			// Tributação Federal
 			['begin' => '{@ifTribFed}', 'end' => '{@endifTribFed}', 'bool' => !is_null($oDPS->valores->trib->tribFed->piscofins->CST) || !is_null($oDPS->valores->trib->tribFed->vRetCP) || !is_null($oDPS->valores->trib->tribFed->vRetIRRF) || !is_null($oDPS->valores->trib->tribFed->vRetCSLL) ],
@@ -1755,7 +1763,7 @@ class NFSeGenerico extends NFSe {
 	/**
 	 * Retorna o XML dos documentos de deduções e reduções
 	 * 
-	 * @param array $aDocumentos
+	 * @param NFSeGenericoDocDedRed[] $aDocumentos
 	 * @return string
 	*/
 	private function retDocumentosDocDedRed(array $aDocumentos): string{
@@ -1767,10 +1775,6 @@ class NFSeGenerico extends NFSe {
 			return $xmlDocs;
 		}
 		$tplDoc = $this->getTemplate('documentoDocDedRed');
-
-		$aIfs = [
-			['begin' => '{@ifDocumentos}', 'end' => '{@endifDocumentos}', 'bool' => count($aDocumentos) > 0],
-		];
 
 		foreach($aDocumentos as $doc){
 
@@ -1818,7 +1822,15 @@ class NFSeGenerico extends NFSe {
 				'{@emailFornec}' => $doc->fornec->email,
 			];
 
-			$aIfs2 = [
+			$aIfs = [
+				//IF CHOICE do documento: o TCDocDedRed aceita só um dos seis grupos, então cada um precisa do seu guard
+				['begin' => '{@ifChNFSe}', 'end' => '{@endifChNFSe}', 'bool' => !empty($doc->chNFSe)],
+				['begin' => '{@ifChNFe}', 'end' => '{@endifChNFe}', 'bool' => !empty($doc->chNFe)],
+				['begin' => '{@ifNFSeMun}', 'end' => '{@endifNFSeMun}', 'bool' => !empty($doc->NFSeMun->nNFSeMun ?? null)],
+				['begin' => '{@ifNFNFS}', 'end' => '{@endifNFNFS}', 'bool' => !empty($doc->NFNFS->nNFS ?? null)],
+				['begin' => '{@ifNDocFisc}', 'end' => '{@endifNDocFisc}', 'bool' => !empty($doc->nDocFisc)],
+				['begin' => '{@ifNDoc}', 'end' => '{@endifNDoc}', 'bool' => !empty($doc->nDoc)],
+
 				['begin' => '{@ifXDescOutDed}', 'end' => '{@endifXDescOutDed}', 'bool' => !empty($doc->xDescOutDed)],
 
 				['begin' => '{@ifFornec}', 'end' => '{@endifFornec}', 'bool' => !empty($doc->fornec->xNome)],
@@ -1845,9 +1857,7 @@ class NFSeGenerico extends NFSe {
 				['begin' => '{@ifEmailFornec}', 'end' => '{@endifEmailFornec}', 'bool' => !empty($doc->fornec->email)],
 			];
 
-			$aIfsFinal = array_merge($aIfs, $aIfs2);
-
-			$xmlDocs .= PQDUtil::procTplText($tplDoc, $aReplace, $aIfsFinal);
+			$xmlDocs .= PQDUtil::procTplText($tplDoc, $aReplace, $aIfs);
 		}
 
 		return $xmlDocs;
@@ -1856,7 +1866,7 @@ class NFSeGenerico extends NFSe {
 	/**
 	 * Retorna o XML dos itens do pedido 
 	 * 
-	 * @param array $aItensPed
+	 * @param NFSeGenericoInfoItemPed[] $aItensPed
 	 * @return string
 	*/
 	private function retItensPed(array $aItensPed){
@@ -1867,17 +1877,13 @@ class NFSeGenerico extends NFSe {
 		}
 		$tplItemPed = $this->getTemplate('itemPed');
 
-		$aIfs = [
-			['begin' => '{@ifGItemPed}', 'end' => '{@endifGItemPed}', 'bool' => count($aItensPed) > 0],
-		];
-
-		foreach($aItensPed as $xItemPed){
+		foreach($aItensPed as $oNFSeGenericoInfoItemPed){
 
 			$aReplace = [
-				'{@xItemPed}' => $xItemPed,
+				'{@xItemPed}' => $oNFSeGenericoInfoItemPed->xItemPed,
 			];
 
-			$xmlItensPed .= PQDUtil::procTplText($tplItemPed, $aReplace, $aIfs);
+			$xmlItensPed .= PQDUtil::procTplText($tplItemPed, $aReplace);
 		}
 
 		return $xmlItensPed;
