@@ -1,59 +1,59 @@
-<!-- Item repetido de nfse1:gReeRepRes (documentos, 1 a 1000) - reembolso/repasse/ressarcimento. Montado uma vez por documento em NFSeGenerico::retReeRepRes() e injetado em {@documentosReeRepRes} do DPS.xml. Ordem conforme TCRTCListaDoc do tiposComplexos_v1.01.xsd -->
-<nfse1:documentos>
-	<!-- IF CHOICE do documento: so um dos tres grupos pode ir nfse1:-->
+<!-- Item repetido de gReeRepRes (documentos, 1 a 1000) - reembolso/repasse/ressarcimento. Montado uma vez por documento em NFSeGenerico::retReeRepRes() e injetado em {@documentosReeRepRes} do DPS.xml. Ordem conforme TCRTCListaDoc do tiposComplexos_v1.01.xsd -->
+<documentos>
+	<!-- IF CHOICE do documento: so um dos tres grupos pode ir -->
 	{@ifDFeNacional}
-	<nfse1:dFeNacional>
-		<nfse1:tipoChaveDFe>{@tipoChaveDFe}</nfse1:tipoChaveDFe>
-		<!-- IF OPCIONAL nfse1:-->
+	<dFeNacional>
+		<tipoChaveDFe>{@tipoChaveDFe}</tipoChaveDFe>
+		<!-- IF OPCIONAL -->
 		{@ifXTipoChaveDFe}
-		<nfse1:xTipoChaveDFe>{@xTipoChaveDFe}</nfse1:xTipoChaveDFe>
+		<xTipoChaveDFe>{@xTipoChaveDFe}</xTipoChaveDFe>
 		{@endifXTipoChaveDFe}
-		<nfse1:chaveDFe>{@chaveDFe}</nfse1:chaveDFe>
-	</nfse1:dFeNacional>
+		<chaveDFe>{@chaveDFe}</chaveDFe>
+	</dFeNacional>
 	{@endifDFeNacional}
-	<!-- IF CHOICE nfse1:-->
+	<!-- IF CHOICE -->
 	{@ifDocFiscalOutro}
-	<nfse1:docFiscalOutro>
-		<nfse1:cMunDocFiscal>{@cMunDocFiscal}</nfse1:cMunDocFiscal>
-		<nfse1:nDocFiscal>{@nDocFiscal}</nfse1:nDocFiscal>
-		<nfse1:xDocFiscal>{@xDocFiscal}</nfse1:xDocFiscal>
-	</nfse1:docFiscalOutro>
+	<docFiscalOutro>
+		<cMunDocFiscal>{@cMunDocFiscal}</cMunDocFiscal>
+		<nDocFiscal>{@nDocFiscal}</nDocFiscal>
+		<xDocFiscal>{@xDocFiscal}</xDocFiscal>
+	</docFiscalOutro>
 	{@endifDocFiscalOutro}
-	<!-- IF CHOICE nfse1:-->
+	<!-- IF CHOICE -->
 	{@ifDocOutro}
-	<nfse1:docOutro>
-		<nfse1:nDoc>{@nDoc}</nfse1:nDoc>
-		<nfse1:xDoc>{@xDoc}</nfse1:xDoc>
-	</nfse1:docOutro>
+	<docOutro>
+		<nDoc>{@nDoc}</nDoc>
+		<xDoc>{@xDoc}</xDoc>
+	</docOutro>
 	{@endifDocOutro}
-	<!-- IF OPCIONAL fornecedor (TCRTCListaDocFornec) nfse1:-->
+	<!-- IF OPCIONAL fornecedor (TCRTCListaDocFornec) -->
 	{@ifFornecReeRepRes}
-	<nfse1:fornec>
-		<!-- IF CHOICE CNPJ/CPF/NIF/C NAO NIF FORNECEDOR nfse1:-->
+	<fornec>
+		<!-- IF CHOICE CNPJ/CPF/NIF/C NAO NIF FORNECEDOR -->
 		{@ifCNPJFornecReeRepRes}
-		<nfse1:CNPJ>{@CNPJFornecReeRepRes}</nfse1:CNPJ>
+		<CNPJ>{@CNPJFornecReeRepRes}</CNPJ>
 		{@endifCNPJFornecReeRepRes}
-		<!-- IF CHOICE nfse1:-->
+		<!-- IF CHOICE -->
 		{@ifCPFFornecReeRepRes}
-		<nfse1:CPF>{@CPFFornecReeRepRes}</nfse1:CPF>
+		<CPF>{@CPFFornecReeRepRes}</CPF>
 		{@endifCPFFornecReeRepRes}
-		<!-- IF CHOICE nfse1:-->
+		<!-- IF CHOICE -->
 		{@ifNIFFornecReeRepRes}
-		<nfse1:NIF>{@NIFFornecReeRepRes}</nfse1:NIF>
+		<NIF>{@NIFFornecReeRepRes}</NIF>
 		{@endifNIFFornecReeRepRes}
-		<!-- IF CHOICE nfse1:-->
+		<!-- IF CHOICE -->
 		{@ifCNaoNIFFornecReeRepRes}
-		<nfse1:cNaoNIF>{@cNaoNIFFornecReeRepRes}</nfse1:cNaoNIF>
+		<cNaoNIF>{@cNaoNIFFornecReeRepRes}</cNaoNIF>
 		{@endifCNaoNIFFornecReeRepRes}
-		<nfse1:xNome>{@xNomeFornecReeRepRes}</nfse1:xNome>
-	</nfse1:fornec>
+		<xNome>{@xNomeFornecReeRepRes}</xNome>
+	</fornec>
 	{@endifFornecReeRepRes}
-	<nfse1:dtEmiDoc>{@dtEmiDoc}</nfse1:dtEmiDoc>
-	<nfse1:dtCompDoc>{@dtCompDoc}</nfse1:dtCompDoc>
-	<nfse1:tpReeRepRes>{@tpReeRepRes}</nfse1:tpReeRepRes>
-	<!-- IF OPCIONAL nfse1:-->
+	<dtEmiDoc>{@dtEmiDoc}</dtEmiDoc>
+	<dtCompDoc>{@dtCompDoc}</dtCompDoc>
+	<tpReeRepRes>{@tpReeRepRes}</tpReeRepRes>
+	<!-- IF OPCIONAL -->
 	{@ifXTpReeRepRes}
-	<nfse1:xTpReeRepRes>{@xTpReeRepRes}</nfse1:xTpReeRepRes>
+	<xTpReeRepRes>{@xTpReeRepRes}</xTpReeRepRes>
 	{@endifXTpReeRepRes}
-	<nfse1:vlrReeRepRes>{@vlrReeRepRes}</nfse1:vlrReeRepRes>
-</nfse1:documentos>
+	<vlrReeRepRes>{@vlrReeRepRes}</vlrReeRepRes>
+</documentos>
