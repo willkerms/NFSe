@@ -38,7 +38,7 @@ class NFSeGenericoInfoCompl  {
 	/**
 	 * Grupo de itens do pedido/ordem de compra/ordem de serviço/projeto
 	 * 
-	 * @var array[NFSeGenericoInfoItemPed]
+	 * @var NFSeGenericoInfoItemPed[]
 	*/
 	public $aItensPed = [];
 

@@ -26,7 +26,7 @@ class NFSeGenericoInfoDedRed {
 	/**
 	 * Grupo de informações de documento utilizado para Dedução/Redução do valor do serviço
 	 * 
-	 * @var array[NFSeGenericoDocDedRed]
+	 * @var NFSeGenericoDocDedRed[]
 	*/
 	public $documentos = [];
 
