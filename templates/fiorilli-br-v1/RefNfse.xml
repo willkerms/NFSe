@@ -1,0 +1,2 @@
+<!-- Item repetido de nfse1:gRefNFSe (refNFSe, 1 a 99). Montado uma vez por chave em NFSeGenerico::retRefsNfse() e injetado em {@gRefNFSe} do DPS.xml -->
+<nfse1:refNFSe>{@refNFSe}</nfse1:refNFSe>

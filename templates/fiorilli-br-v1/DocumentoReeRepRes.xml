@@ -1,0 +1,59 @@
+<!-- Item repetido de nfse1:gReeRepRes (documentos, 1 a 1000) - reembolso/repasse/ressarcimento. Montado uma vez por documento em NFSeGenerico::retReeRepRes() e injetado em {@documentosReeRepRes} do DPS.xml. Ordem conforme TCRTCListaDoc do tiposComplexos_v1.01.xsd -->
+<nfse1:documentos>
+	<!-- IF CHOICE do documento: so um dos tres grupos pode ir nfse1:-->
+	{@ifDFeNacional}
+	<nfse1:dFeNacional>
+		<nfse1:tipoChaveDFe>{@tipoChaveDFe}</nfse1:tipoChaveDFe>
+		<!-- IF OPCIONAL nfse1:-->
+		{@ifXTipoChaveDFe}
+		<nfse1:xTipoChaveDFe>{@xTipoChaveDFe}</nfse1:xTipoChaveDFe>
+		{@endifXTipoChaveDFe}
+		<nfse1:chaveDFe>{@chaveDFe}</nfse1:chaveDFe>
+	</nfse1:dFeNacional>
+	{@endifDFeNacional}
+	<!-- IF CHOICE nfse1:-->
+	{@ifDocFiscalOutro}
+	<nfse1:docFiscalOutro>
+		<nfse1:cMunDocFiscal>{@cMunDocFiscal}</nfse1:cMunDocFiscal>
+		<nfse1:nDocFiscal>{@nDocFiscal}</nfse1:nDocFiscal>
+		<nfse1:xDocFiscal>{@xDocFiscal}</nfse1:xDocFiscal>
+	</nfse1:docFiscalOutro>
+	{@endifDocFiscalOutro}
+	<!-- IF CHOICE nfse1:-->
+	{@ifDocOutro}
+	<nfse1:docOutro>
+		<nfse1:nDoc>{@nDoc}</nfse1:nDoc>
+		<nfse1:xDoc>{@xDoc}</nfse1:xDoc>
+	</nfse1:docOutro>
+	{@endifDocOutro}
+	<!-- IF OPCIONAL fornecedor (TCRTCListaDocFornec) nfse1:-->
+	{@ifFornecReeRepRes}
+	<nfse1:fornec>
+		<!-- IF CHOICE CNPJ/CPF/NIF/C NAO NIF FORNECEDOR nfse1:-->
+		{@ifCNPJFornecReeRepRes}
+		<nfse1:CNPJ>{@CNPJFornecReeRepRes}</nfse1:CNPJ>
+		{@endifCNPJFornecReeRepRes}
+		<!-- IF CHOICE nfse1:-->
+		{@ifCPFFornecReeRepRes}
+		<nfse1:CPF>{@CPFFornecReeRepRes}</nfse1:CPF>
+		{@endifCPFFornecReeRepRes}
+		<!-- IF CHOICE nfse1:-->
+		{@ifNIFFornecReeRepRes}
+		<nfse1:NIF>{@NIFFornecReeRepRes}</nfse1:NIF>
+		{@endifNIFFornecReeRepRes}
+		<!-- IF CHOICE nfse1:-->
+		{@ifCNaoNIFFornecReeRepRes}
+		<nfse1:cNaoNIF>{@cNaoNIFFornecReeRepRes}</nfse1:cNaoNIF>
+		{@endifCNaoNIFFornecReeRepRes}
+		<nfse1:xNome>{@xNomeFornecReeRepRes}</nfse1:xNome>
+	</nfse1:fornec>
+	{@endifFornecReeRepRes}
+	<nfse1:dtEmiDoc>{@dtEmiDoc}</nfse1:dtEmiDoc>
+	<nfse1:dtCompDoc>{@dtCompDoc}</nfse1:dtCompDoc>
+	<nfse1:tpReeRepRes>{@tpReeRepRes}</nfse1:tpReeRepRes>
+	<!-- IF OPCIONAL nfse1:-->
+	{@ifXTpReeRepRes}
+	<nfse1:xTpReeRepRes>{@xTpReeRepRes}</nfse1:xTpReeRepRes>
+	{@endifXTpReeRepRes}
+	<nfse1:vlrReeRepRes>{@vlrReeRepRes}</nfse1:vlrReeRepRes>
+</nfse1:documentos>
