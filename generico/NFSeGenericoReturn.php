@@ -489,7 +489,7 @@ class NFSeGenericoReturn extends NFSeReturn {
 
 		$aConfig = $this->oGenerico->getConfig($this->oGenerico->getIsHomologacao() ? 'homologacao': 'producao', []);
 
-		$NFSe       = $oCompNfse->getElementsByTagName('NFSe')->item(0);
+		$NFSe       = $oCompNfse->localName == 'NFSe' ? $oCompNfse : $oCompNfse->getElementsByTagName('NFSe')->item(0);
 		$infNFSe    = $NFSe->getElementsByTagName('infNFSe')->item(0);
 		$emit       = $infNFSe->getElementsByTagName('emit')->item(0);
 		$enderNac   = !is_null($emit) ? $emit->getElementsByTagName('enderNac')->item(0) : null;
@@ -770,17 +770,17 @@ class NFSeGenericoReturn extends NFSeReturn {
 	 * @param NFSeDocument $oDocument
 	 * @return array[NFSeGenericoInfNFSe]
 	 */
-	private function retListNFSe(NFSeDocument $oDocument) {
+	private function retListNFSe(NFSeDocument $oDocument, string $tagCompNfse = 'CompNfse', string $tagListaNfse = 'ListaNfse') {
 
-		$ListaNfse = $oDocument->getElementsByTagName("ListaNfse");
-
+		$ListaNfse = $oDocument->getElementsByTagName($tagListaNfse);
+		
 		if (is_null($ListaNfse) || $ListaNfse->length != 1)
 			return array();
-
+		
 		$ListaNfse = $ListaNfse->item(0);
 
 		$return = array('CompNfse' => array(), 'ListaMensagemAlertaRetorno' => $this->retListaMensagem($oDocument, $ListaNfse, 'ListaMensagemAlertaRetorno'));
-		$aCompNfse = $ListaNfse->getElementsByTagName('CompNfse');
+		$aCompNfse = $ListaNfse->getElementsByTagName($tagCompNfse);
 		
 		for ($i = 0; $i < $aCompNfse->length; $i++) {
 
@@ -902,17 +902,23 @@ class NFSeGenericoReturn extends NFSeReturn {
 
 				case "cancelarNfse":
 					$aConfig = $this->oGenerico->getConfig('metodos');
-					$configGerarNfse = PQDUtil::retDefault($aConfig, $metodo);
+					$configGerarNfse = $aConfig[$metodo];
+
 					$tagRetCancelamento = PQDUtil::retDefault($configGerarNfse['tagMap'], 'tagRetCancelamento', 'RetCancelamento');
 					$tagConfirmacao = PQDUtil::retDefault($configGerarNfse['tagMap'], 'tagConfirmacao', 'Confirmacao');
+					
 					return $this->cancelarNfseResposta($oDocument, $tagRetCancelamento, $tagConfirmacao);
 				break;
 				
 				case "gerarNfse":
 					$aConfig = $this->oGenerico->getConfig('metodos');
-					$configGerarNfse = PQDUtil::retDefault($aConfig, $metodo);
+					$configGerarNfse = $aConfig[$metodo];
+					
 					$tagResposta = PQDUtil::retDefault($configGerarNfse['tagMap'], 'tagResposta', 'GerarNfseResposta');
-					return $this->gerarNfseRetorno($oDocument, $tagResposta);
+					$tagCompNfse = PQDUtil::retDefault($configGerarNfse['tagMap'], 'tagCompNfse', 'CompNfse');
+					$tagListaNfse = PQDUtil::retDefault($configGerarNfse['tagMap'], 'tagListaNfse', 'ListaNfse');
+
+					return $this->gerarNfseRetorno($oDocument, $tagResposta, $tagCompNfse, $tagListaNfse);
 				break;
 				
 				case "enviarLoteRps":
@@ -1246,6 +1252,7 @@ class NFSeGenericoReturn extends NFSeReturn {
 	 * @return array
 	 */
 	private function cancelarNfseResposta(NFSeDocument $oCancelarNfseResposta, $tagRetCancelamento = 'RetCancelamento', $tagConfirmacao = 'Confirmacao') {
+
 		
 		if ($oCancelarNfseResposta->getElementsByTagName('CancelarNfseResposta')->length == 1) {
 			
@@ -1349,14 +1356,14 @@ class NFSeGenericoReturn extends NFSeReturn {
 	 * @param NFSeDocument $oGerarNfseRetorno
 	 * @return array
 	 */
-	private function gerarNfseRetorno(NFSeDocument $oGerarNfseRetorno, $tagResposta = 'GerarNfseResposta') {
+	private function gerarNfseRetorno(NFSeDocument $oGerarNfseRetorno, $tagResposta = 'GerarNfseResposta', string $tagCompNfse = 'CompNfse', string $tagListaNfse = 'ListaNfse') {
 
 		$return = array();
 		if ($oGerarNfseRetorno->getElementsByTagName($tagResposta)->length == 1) {
 
 			$return = array(
 				'ListaMensagemRetorno' => $this->retListaMensagem($oGerarNfseRetorno),
-				'ListaNfse' => $this->retListNFSe($oGerarNfseRetorno),
+				'ListaNfse' => $this->retListNFSe($oGerarNfseRetorno, $tagCompNfse, $tagListaNfse),
 				'xml' => $oGerarNfseRetorno->saveXML()
 			);
 
@@ -1403,12 +1410,15 @@ class NFSeGenericoReturn extends NFSeReturn {
 		if ($oDocument->getElementsByTagName($aConfig['enviarLoteRps']['tagMap']['respostaLote'])->length == 1) {
 
 			$oEnviarLoteRpsSincronoResposta = $oDocument->getElementsByTagName($aConfig['enviarLoteRps']['tagMap']['respostaLote'])->item(0);
+
+			$tagCompNfse = PQDUtil::retDefault($aConfig['enviarLoteRps']['tagMap'], 'tagCompNfse', 'CompNfse');
+			$tagListaNfse = PQDUtil::retDefault($aConfig['enviarLoteRps']['tagMap'], 'tagListaNfse', 'ListaNfse');
 			
 			return array(
 				'NumeroLote' => $oDocument->getValue($oEnviarLoteRpsSincronoResposta, "NumeroLote"),
 				'DataRecebimento' => $oDocument->getValue($oEnviarLoteRpsSincronoResposta, "DataRecebimento"),
 				'Protocolo' => $oDocument->getValue($oEnviarLoteRpsSincronoResposta, "Protocolo"),
-				'ListaNfse' => $this->retListNFSe($oDocument),
+				'ListaNfse' => $this->retListNFSe($oDocument, $tagCompNfse, $tagListaNfse),
 				'ListaMensagemRetorno' => $this->retListaMensagem($oDocument),
 				'ListaMensagemRetornoLote' => $this->retListaMensagem($oDocument, null, PQDUtil::retDefault($this->oGenerico->getConfig('tagMensagensRetorno', []), 'tagListaMensagensLote', 'ListaMensagemRetornoLote'))
 			);
@@ -1425,10 +1435,13 @@ class NFSeGenericoReturn extends NFSeReturn {
 		if ($oDocument->getElementsByTagName($aConfig['consultarLoteRps']['tagMap']['respostaConsultaLote'])->length == 1) {
 
 			$oConsultarLoteRpsResposta = $oDocument->getElementsByTagName($aConfig['consultarLoteRps']['tagMap']['respostaConsultaLote'])->item(0);
+
+			$tagCompNfse = PQDUtil::retDefault($aConfig['consultarLoteRps']['tagMap'], 'tagCompNfse', 'CompNfse');
+			$tagListaNfse = PQDUtil::retDefault($aConfig['consultarLoteRps']['tagMap'], 'tagListaNfse', 'ListaNfse');
 			
 			return array(
 				'Situacao' => $oDocument->getValue($oConsultarLoteRpsResposta, "Situacao"),
-				'ListaNfse' => $this->retListNFSe($oDocument),
+				'ListaNfse' => $this->retListNFSe($oDocument, $tagCompNfse, $tagListaNfse),
 				'ListaMensagemRetorno' => $this->retListaMensagem($oDocument),
 				'ListaMensagemRetornoLote' => $this->retListaMensagem($oDocument, null, PQDUtil::retDefault($this->oGenerico->getConfig('tagMensagensRetorno', []), 'tagListaMensagensLote', 'ListaMensagemRetornoLote'))
 			);
