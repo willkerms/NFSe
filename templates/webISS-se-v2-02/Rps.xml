@@ -41,6 +41,10 @@
 				{@ifCodigoTributacaoMunicipio}
 				<CodigoTributacaoMunicipio>{@CodigoTributacaoMunicipio}</CodigoTributacaoMunicipio>
 				{@endifCodigoTributacaoMunicipio}
+
+				{@ifCodigoNbs}
+				<CodigoNbs>{@CodigoNbs}</CodigoNbs>
+				{@endifCodigoNbs}
 	
 				<Discriminacao>{@Discriminacao}</Discriminacao>
 				<CodigoMunicipio>{@CodigoMunicipioServico}</CodigoMunicipio>
