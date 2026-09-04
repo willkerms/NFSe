@@ -54,7 +54,7 @@
 			<!-- A razaão social do prestador não pode ser informado caso ele seja o emitente, tpEmit = 1
 			E0128 Se o emitente da DPS for o prestador de serviço (tpEmit = 1), então o nome ou razão social não deve ser informado.
 			-->
-			<!--xNome>{@xNomePrestador}</xNome-->
+			<xNome>{@xNomePrestador}</xNome>
 
 			{@endifXNomePrestador}
 			
@@ -63,7 +63,7 @@
 			<!-- O endereço do prestador não pode ser informado caso ele seja o emitente, tpEmit = 1
 			E0128 O endereço do prestador do serviço não deve ser informado na DPS quando o próprio prestador for o emitente da DPS 
 			-->
-			<!--end>
+			<end>
 				{@ifEndNacPrestador}
 				<endNac>
 					<cMun>{@cMunPrestador}</cMun>
@@ -84,7 +84,7 @@
 				<xCpl>{@xCplPrestador}</xCpl>
 				{@endifXCplPrestador}
 				<xBairro>{@xBairroPrestador}</xBairro>
-			</end-->
+			</end>
 			{@endifEndPrestador}
 
 			{@ifFonePrestador}
