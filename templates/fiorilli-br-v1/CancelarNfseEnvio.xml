@@ -2,7 +2,7 @@
 <nfse:CancelarNFSeEnvio xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:nfse="http://www.fiorilli.com.br/nfse-nacional" xmlns:nfse1="http://www.sped.fazenda.gov.br/nfse" xmlns:xd="http://www.w3.org/2000/09/xmldsig#">
 	<!-- NAO REMOVER nenhum xmlns do root: diferente do RecepcionarDpsEnvio.xml, aqui o conteudo assinado (infPedReg) nao declara prefixo proprio, quem define o escopo dele e este elemento. Os 4 prefixos tem que ser os mesmos do Soap.xml, senao o envelope acrescenta namespace ao escopo, muda a C14N de infPedReg/SignedInfo e derruba a assinatura (E172) -->
 	<nfse:IM>{@IMPrestador}</nfse:IM>
-	<nfse:pedRegEvento versao="1.01">
+	<nfse1:pedRegEvento versao="1.01">
 		<nfse1:infPedReg Id="{@IdPedidoRegistroEvento}">
 			<nfse1:tpAmb>{@tpAmb}</nfse1:tpAmb>
 			<nfse1:verAplic>{@verAplic}</nfse1:verAplic>
@@ -29,5 +29,5 @@
 			{@endifE101101}
 		</nfse1:infPedReg>
 		<!--<xd:Signature>string</xd:Signature>-->
-	</nfse:pedRegEvento>
+	</nfse1:pedRegEvento>
 </nfse:CancelarNFSeEnvio>

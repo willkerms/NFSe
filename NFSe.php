@@ -78,7 +78,7 @@ class NFSe {
 	 *        	: namespace utilizado, normalmente "p1"
 	 * @return mixed false se houve erro ou string com o XML assinado
 	 */
-	public function signXML($docxml, $tagid = '', $appendTag = false, $ns = '', $firstChild = false, $createNS = true, $aSearch = array("\r\n", "\n", "\r", "\t"), $aReplace = "") {
+	public function signXML($docxml, $tagid = '', $appendTag = false, $ns = '', $firstChild = false, $createNS = true, $aSearch = array("\r\n", "\n", "\r", "\t"), $aReplace = "", bool $sendFullChain = false) {
 
 		if ($tagid == '') {
 			$msg = "Uma tag deve ser indicada para que seja assinada!!";
@@ -189,7 +189,7 @@ class NFSe {
 		// carrega a cadeia de certificacao (titular + intermediarios, quando disponivel);
 		// sem a cadeia, alguns webServices nao conseguem validar a confianca do certificado
 		// e recusam a assinatura mesmo com o digest/signature corretos
-		$certChainFile = !empty($this->certChainKey) && is_file($this->certChainKey) ? $this->certChainKey : $this->certPubKey;
+		$certChainFile = !empty($this->certChainKey) && is_file($this->certChainKey) && $sendFullChain ? $this->certChainKey : $this->certPubKey;
 		foreach ($this->splitCerts(file_get_contents($certChainFile)) as $cert) {
 			// X509Certificate
 			$newNode = $xmldoc->createElement($ns . 'X509Certificate', $cert);

@@ -1,0 +1,2 @@
+<!-- Item repetido de gItemPed (xItemPed, 1 a 99). Montado uma vez por item em NFSeGenerico::retItensPed() e injetado em {@gItemPed} do DPS.xml -->
+<xItemPed>{@xItemPed}</xItemPed>

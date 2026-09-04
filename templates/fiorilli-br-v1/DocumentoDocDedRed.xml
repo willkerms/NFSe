@@ -1,0 +1,109 @@
+<!-- Item repetido de documentos (docDedRed, 1 a 1000). Montado uma vez por documento em NFSeGenerico::retDocumentosDocDedRed() e injetado em {@documentos} do DPS.xml. Ordem conforme TCDocDedRed do tiposComplexos_v1.01.xsd -->
+<docDedRed>
+	<!-- IF CHOICE do documento: so um dos seis grupos pode ir -->
+	{@ifChNFSe}
+	<chNFSe>{@chNFSe}</chNFSe>
+	{@endifChNFSe}
+	<!-- IF CHOICE -->
+	{@ifChNFe}
+	<chNFe>{@chNFe}</chNFe>
+	{@endifChNFe}
+	<!-- IF CHOICE: outras NFS-e (padrao anterior de NFS-e) -->
+	{@ifNFSeMun}
+	<NFSeMun>
+		<cMunNFSeMun>{@cMunNFSeMun}</cMunNFSeMun>
+		<nNFSeMun>{@nNFSeMun}</nNFSeMun>
+		<cVerifNFSeMun>{@cVerifNFSeMun}</cVerifNFSeMun>
+	</NFSeMun>
+	{@endifNFSeMun}
+	<!-- IF CHOICE: NF ou NFS (modelo nao eletronico) -->
+	{@ifNFNFS}
+	<NFNFS>
+		<nNFS>{@nNFS}</nNFS>
+		<modNFS>{@modNFS}</modNFS>
+		<serieNFS>{@serieNFS}</serieNFS>
+	</NFNFS>
+	{@endifNFNFS}
+	<!-- IF CHOICE -->
+	{@ifNDocFisc}
+	<nDocFisc>{@nDocFisc}</nDocFisc>
+	{@endifNDocFisc}
+	<!-- IF CHOICE -->
+	{@ifNDoc}
+	<nDoc>{@nDoc}</nDoc>
+	{@endifNDoc}
+	<tpDedRed>{@tpDedRed}</tpDedRed>
+	<!-- IF OPCIONAL -->
+	{@ifXDescOutDed}
+	<xDescOutDed>{@xDescOutDed}</xDescOutDed>
+	{@endifXDescOutDed}
+	<dtEmiDoc>{@dtEmiDoc}</dtEmiDoc>
+	<vDedutivelRedutivel>{@vDedutivelRedutivel}</vDedutivelRedutivel>
+	<vDeducaoReducao>{@vDeducaoReducao}</vDeducaoReducao>
+	<!-- IF OPCIONAL fornecedor (TCInfoPessoa) -->
+	{@ifFornec}
+	<fornec>
+		<!-- IF CHOICE CNPJ/CPF/NIF/C NAO NIF FORNECEDOR -->
+		{@ifCNPJFornec}
+		<CNPJ>{@CNPJFornec}</CNPJ>
+		{@endifCNPJFornec}
+		<!-- IF CHOICE -->
+		{@ifCPFFornec}
+		<CPF>{@CPFFornec}</CPF>
+		{@endifCPFFornec}
+		<!-- IF CHOICE -->
+		{@ifNIFFornec}
+		<NIF>{@NIFFornec}</NIF>
+		{@endifNIFFornec}
+		<!-- IF CHOICE -->
+		{@ifCNaoNIFFornec}
+		<cNaoNIF>{@cNaoNIFFornec}</cNaoNIF>
+		{@endifCNaoNIFFornec}
+		<!-- IF OPCIONAL -->
+		{@ifCAEPFFornec}
+		<CAEPF>{@CAEPFFornec}</CAEPF>
+		{@endifCAEPFFornec}
+		<!-- IF OPCIONAL -->
+		{@ifIMFornec}
+		<IM>{@IMFornec}</IM>
+		{@endifIMFornec}
+		<xNome>{@xNomeFornec}</xNome>
+		<!-- IF OPCIONAL -->
+		{@ifEndFornec}
+		<end>
+			<!-- IF CHOICE -->
+			{@ifEndNacFornec}
+			<endNac>
+				<cMun>{@cMunFornec}</cMun>
+				<CEP>{@CEPFornec}</CEP>
+			</endNac>
+			{@endifEndNacFornec}
+			<!-- IF CHOICE -->
+			{@ifEndExtFornec}
+			<endExt>
+				<cPais>{@cPaisFornec}</cPais>
+				<cEndPost>{@cEndPostFornec}</cEndPost>
+				<xCidade>{@xCidadeFornec}</xCidade>
+				<xEstProvReg>{@xEstProvRegFornec}</xEstProvReg>
+			</endExt>
+			{@endifEndExtFornec}
+			<xLgr>{@xLgrFornec}</xLgr>
+			<nro>{@nroFornec}</nro>
+			<!-- IF OPCIONAL -->
+			{@ifXCplFornec}
+			<xCpl>{@xCplFornec}</xCpl>
+			{@endifXCplFornec}
+			<xBairro>{@xBairroFornec}</xBairro>
+		</end>
+		{@endifEndFornec}
+		<!-- IF OPCIONAL -->
+		{@ifFoneFornec}
+		<fone>{@foneFornec}</fone>
+		{@endifFoneFornec}
+		<!-- IF OPCIONAL -->
+		{@ifEmailFornec}
+		<email>{@emailFornec}</email>
+		{@endifEmailFornec}
+	</fornec>
+	{@endifFornec}
+</docDedRed>

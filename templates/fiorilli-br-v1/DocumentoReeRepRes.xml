@@ -1,0 +1,59 @@
+<!-- Item repetido de gReeRepRes (documentos, 1 a 1000) - reembolso/repasse/ressarcimento. Montado uma vez por documento em NFSeGenerico::retReeRepRes() e injetado em {@documentosReeRepRes} do DPS.xml. Ordem conforme TCRTCListaDoc do tiposComplexos_v1.01.xsd -->
+<documentos>
+	<!-- IF CHOICE do documento: so um dos tres grupos pode ir -->
+	{@ifDFeNacional}
+	<dFeNacional>
+		<tipoChaveDFe>{@tipoChaveDFe}</tipoChaveDFe>
+		<!-- IF OPCIONAL -->
+		{@ifXTipoChaveDFe}
+		<xTipoChaveDFe>{@xTipoChaveDFe}</xTipoChaveDFe>
+		{@endifXTipoChaveDFe}
+		<chaveDFe>{@chaveDFe}</chaveDFe>
+	</dFeNacional>
+	{@endifDFeNacional}
+	<!-- IF CHOICE -->
+	{@ifDocFiscalOutro}
+	<docFiscalOutro>
+		<cMunDocFiscal>{@cMunDocFiscal}</cMunDocFiscal>
+		<nDocFiscal>{@nDocFiscal}</nDocFiscal>
+		<xDocFiscal>{@xDocFiscal}</xDocFiscal>
+	</docFiscalOutro>
+	{@endifDocFiscalOutro}
+	<!-- IF CHOICE -->
+	{@ifDocOutro}
+	<docOutro>
+		<nDoc>{@nDoc}</nDoc>
+		<xDoc>{@xDoc}</xDoc>
+	</docOutro>
+	{@endifDocOutro}
+	<!-- IF OPCIONAL fornecedor (TCRTCListaDocFornec) -->
+	{@ifFornecReeRepRes}
+	<fornec>
+		<!-- IF CHOICE CNPJ/CPF/NIF/C NAO NIF FORNECEDOR -->
+		{@ifCNPJFornecReeRepRes}
+		<CNPJ>{@CNPJFornecReeRepRes}</CNPJ>
+		{@endifCNPJFornecReeRepRes}
+		<!-- IF CHOICE -->
+		{@ifCPFFornecReeRepRes}
+		<CPF>{@CPFFornecReeRepRes}</CPF>
+		{@endifCPFFornecReeRepRes}
+		<!-- IF CHOICE -->
+		{@ifNIFFornecReeRepRes}
+		<NIF>{@NIFFornecReeRepRes}</NIF>
+		{@endifNIFFornecReeRepRes}
+		<!-- IF CHOICE -->
+		{@ifCNaoNIFFornecReeRepRes}
+		<cNaoNIF>{@cNaoNIFFornecReeRepRes}</cNaoNIF>
+		{@endifCNaoNIFFornecReeRepRes}
+		<xNome>{@xNomeFornecReeRepRes}</xNome>
+	</fornec>
+	{@endifFornecReeRepRes}
+	<dtEmiDoc>{@dtEmiDoc}</dtEmiDoc>
+	<dtCompDoc>{@dtCompDoc}</dtCompDoc>
+	<tpReeRepRes>{@tpReeRepRes}</tpReeRepRes>
+	<!-- IF OPCIONAL -->
+	{@ifXTpReeRepRes}
+	<xTpReeRepRes>{@xTpReeRepRes}</xTpReeRepRes>
+	{@endifXTpReeRepRes}
+	<vlrReeRepRes>{@vlrReeRepRes}</vlrReeRepRes>
+</documentos>
