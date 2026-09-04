@@ -1612,8 +1612,8 @@ class NFSeGenerico extends NFSe {
 			['begin' => '{@ifCNaoNIFPrestador}', 'end' => '{@endifCNaoNIFPrestador}', 'bool' => !empty($oDPS->prest->cNaoNIF)],
 			['begin' => '{@ifCAEPFPrestador}', 'end' => '{@endifCAEPFPrestador}', 'bool' => !empty($oDPS->prest->CAEPF)],
 			['begin' => '{@ifIMPrestador}', 'end' => '{@endifIMPrestador}', 'bool' => !empty($oDPS->prest->IM)],
-			['begin' => '{@ifXNomePrestador}', 'end' => '{@endifXNomePrestador}', 'bool' => !empty($oDPS->prest->xNome)],
-			['begin' => '{@ifEndPrestador}', 'end' => '{@endifEndPrestador}', 'bool' => !is_null($oDPS->prest->end->endNacEndExt->CEP) || !is_null($oDPS->prest->end->endNacEndExt->cPais)],
+			['begin' => '{@ifXNomePrestador}', 'end' => '{@endifXNomePrestador}', 'bool' => !empty($oDPS->prest->xNome) && $oDPS->tpEmit != 1 ],
+			['begin' => '{@ifEndPrestador}', 'end' => '{@endifEndPrestador}', 'bool' => $oDPS->tpEmit != 1 && ( !is_null($oDPS->prest->end->endNacEndExt->CEP) || !is_null($oDPS->prest->end->endNacEndExt->cPais) ) ],
 			['begin' => '{@ifEndNacPrestador}', 'end' => '{@endifEndNacPrestador}', 'bool' =>  !is_null($oDPS->prest->end->endNacEndExt->CEP)],
 			['begin' => '{@ifEndExtPrestador}', 'end' => '{@endifEndExtPrestador}', 'bool' => is_null($oDPS->prest->end->endNacEndExt->CEP)],
 			['begin' => '{@ifXCplPrestador}', 'end' => '{@endifXCplPrestador}', 'bool' => !empty($oDPS->prest->end->xCpl)],
@@ -1718,7 +1718,7 @@ class NFSeGenerico extends NFSe {
 
 			// IBS/CBS
 			['begin' => '{@ifIBSCBS}', 'end' => '{@endifIBSCBS}', 'bool' => !is_null($oDPS->IBSCBS->finNFSe ?? null)],
-			['begin' => '{@ifIndFinal}', 'end' => '{@endifIndFinal}', 'bool' => !empty($oDPS->IBSCBS->indFinal)],
+			['begin' => '{@ifIndFinal}', 'end' => '{@endifIndFinal}', 'bool' => !is_null($oDPS->IBSCBS->indFinal)],
 			['begin' => '{@ifTpOper}', 'end' => '{@endifTpOper}', 'bool' => !empty($oDPS->IBSCBS->tpOper)],
 			['begin' => '{@ifGRefNFSe}', 'end' => '{@endifGRefNFSe}', 'bool' => !empty($oDPS->IBSCBS->gRefNFSe)],
 			['begin' => '{@ifTpEnteGov}', 'end' => '{@endifTpEnteGov}', 'bool' => !empty($oDPS->IBSCBS->tpEnteGov)],
