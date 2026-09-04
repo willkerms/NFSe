@@ -896,7 +896,8 @@ class NFSeGenericoReturn extends NFSeReturn {
 						$oDocument,
 						PQDUtil::retDefault($aTagMap, 'tagListaEvento', 'ListaEvento'),
 						PQDUtil::retDefault($aTagMap, 'tagRetCancelamento', 'RetCancelamento'),
-						PQDUtil::retDefault($aTagMap, 'tagConfirmacao', 'Confirmacao')
+						PQDUtil::retDefault($aTagMap, 'tagConfirmacao', 'Confirmacao'),
+						PQDUtil::retDefault($aTagMap, 'confirmacaoValue')
 					);
 				break;
 
@@ -906,8 +907,9 @@ class NFSeGenericoReturn extends NFSeReturn {
 
 					$tagRetCancelamento = PQDUtil::retDefault($configGerarNfse['tagMap'], 'tagRetCancelamento', 'RetCancelamento');
 					$tagConfirmacao = PQDUtil::retDefault($configGerarNfse['tagMap'], 'tagConfirmacao', 'Confirmacao');
+					$confirmacaoValue = PQDUtil::retDefault($configGerarNfse['tagMap'], 'confirmacaoValue');
 					
-					return $this->cancelarNfseResposta($oDocument, $tagRetCancelamento, $tagConfirmacao);
+					return $this->cancelarNfseResposta($oDocument, $tagRetCancelamento, $tagConfirmacao, $confirmacaoValue);
 				break;
 				
 				case "gerarNfse":
@@ -1167,7 +1169,7 @@ class NFSeGenericoReturn extends NFSeReturn {
 	 *
 	 * @return array
 	 */
-	private function retCancelamento(NFSeDocument $oCancelarNfseResposta, $tagRetCancelamento = 'RetCancelamento', $tagConfirmacao = 'Confirmacao') {
+	private function retCancelamento(NFSeDocument $oCancelarNfseResposta, $tagRetCancelamento = 'RetCancelamento', $tagConfirmacao = 'Confirmacao', ?string $confirmacaoValue) {
 
 		$return = array(
 			'NfseCancelamento' => array()
@@ -1239,6 +1241,23 @@ class NFSeGenericoReturn extends NFSeReturn {
 
 			}
 
+			//Não achou a tag 'NfseCancelamento', prefeitura com layout de cancelamento fora do padrão! Procura confirmação, caso o valor da confirmação seja igual ao esperado retorna ok!
+			$Confirmacao = $oCancelarNfseResposta->getElementsByTagName($tagConfirmacao)->item(0);
+			if( count($return['NfseCancelamento']) == 0 && !is_null($Confirmacao) && !is_null($confirmacaoValue) && $Confirmacao->nodeValue == $confirmacaoValue){
+
+				$return['NfseCancelamento'][] = array(
+					'Confirmacao' => array(
+						'Pedido' => array(
+							'InfPedidoCancelamento' => array(
+								'IdentificacaoNfse' => new NFSeGenericoIdentificacaoNfse(),
+								'CodigoCancelamento' => $confirmacaoValue,
+								'DescricaoCancelamento' => 'Nota cancelada!'
+							)
+						),
+						'DataHora' => $oCancelarNfseResposta->getValue($oCancelarNfseResposta->firstChild, "DataRecebimento")
+					)
+				);
+			}
 		}
 
 		return $return;
@@ -1271,10 +1290,10 @@ class NFSeGenericoReturn extends NFSeReturn {
 
 	/**
 	 * Monta o retorno do cancelamento no padrao Nacional (CancelarNfseResposta)
-	 *
+	 * 
 	 * @return array
 	 */
-	private function cancelarNFSeEnvioResposta(NFSeDocument $oCancelarNfseResposta, $tagListaEvento = 'ListaEvento', $tagRetCancelamento = 'RetCancelamento', $tagConfirmacao = 'Confirmacao') {
+	private function cancelarNFSeEnvioResposta(NFSeDocument $oCancelarNfseResposta, $tagListaEvento = 'ListaEvento', $tagRetCancelamento = 'RetCancelamento', $tagConfirmacao = 'Confirmacao', ?string $confirmacaoValue) {
 
 		$aMensagens = $this->retListaMensagem($oCancelarNfseResposta);
 
@@ -1300,7 +1319,7 @@ class NFSeGenericoReturn extends NFSeReturn {
 		}
 
 		//Prefeitura hibrida: envelope do padrao Nacional com RetCancelamento no formato ABRASF
-		$aRetCancelamento = $this->retCancelamento($oCancelarNfseResposta, $tagRetCancelamento, $tagConfirmacao);
+		$aRetCancelamento = $this->retCancelamento($oCancelarNfseResposta, $tagRetCancelamento, $tagConfirmacao, $confirmacaoValue);
 
 		if (count($aRetCancelamento['NfseCancelamento']) > 0)
 			return array(

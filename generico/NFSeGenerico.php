@@ -187,7 +187,8 @@ class NFSeGenerico extends NFSe {
 					'tagMap' => array(
 						'return' => 'cancelarNfseResponse', //Tag externa da resposta
 						'tagRetCancelamento' => 'RetCancelamento', //Tag de retorno do cancelamento (default 'RetCancelamento')
-						'tagConfirmacao' => 'Confirmacao' //Tag de confirmacao do cancelamento (default 'Confirmacao')
+						'tagConfirmacao' => 'Confirmacao', //Tag de confirmacao do cancelamento (default 'Confirmacao')
+						'confirmacaoValue' => null //Quando a prefeiturua tem um retorno fora de todos os padrões só verifica se acha a tagConfirmacao e o valor é igual ao esperado aqui para confirmar o cancelamento.
 					)
 				),
 				'cancelarNFSeEnvio' => array(
@@ -203,7 +204,8 @@ class NFSeGenerico extends NFSe {
 						'return' => 'CancelarNfseResposta', //Tag externa da resposta, recortada por retDocReturn
 						'tagListaEvento' => 'ListaEvento', //Tag com a lista de eventos registrados (padrão Nacional)
 						'tagRetCancelamento' => 'RetCancelamento', //Tag de retorno do cancelamento, quando a prefeitura responde no formato ABRASF
-						'tagConfirmacao' => 'Confirmacao' //Tag de confirmacao do cancelamento, quando a prefeitura responde no formato ABRASF
+						'tagConfirmacao' => 'Confirmacao', //Tag de confirmacao do cancelamento, quando a prefeitura responde no formato ABRASF
+						'confirmacaoValue' => null //Quando a prefeiturua tem um retorno fora de todos os padrões só verifica se acha a tagConfirmacao e o valor é igual ao esperado aqui para confirmar o cancelamento.
 					)
 				)
 			)/*,
