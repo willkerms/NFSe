@@ -116,6 +116,7 @@ class NFSeGenerico extends NFSe {
 						'return' => 'gerarNfseResponse', //Tag externa da resposta de onde o XML de retorno é extraído
 						'tagResposta' => 'GerarNfseResposta' //Tag que confirma a resposta de geração da nota (default GerarNfseResposta)
 					),
+					'sendFullChain' => false, //Enviar toda cadeia de certificados na assinatura? Padrão false/não
 					//'replaceXmlSOAP' => ['action2' => 'GerarNfse'],//Para replaces no do XML SOAP, quando a prefeitura tem mais de um action
 					'search' => array("\r\n", "\n", "\r", "\t"), //Strings removidas/normalizadas do XML do RPS antes de assinar (evita invalidar a assinatura)
 					'replace' => "" //Substituto correspondente a cada item de 'search'
@@ -540,7 +541,8 @@ class NFSeGenerico extends NFSe {
 			true,
 			true,
 			$search,
-			$replace
+			$replace,
+			PQDUtil::retDefault($this->aConfig['metodos'][$metodo], 'sendFullChain', false)
 		);
 
 		if($this->isHomologacao)
