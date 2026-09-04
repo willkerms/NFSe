@@ -1676,7 +1676,7 @@ class NFSeGenerico extends NFSe {
 			['begin' => '{@ifCEPAtvEvento}', 'end' => '{@endifCEPAtvEvento}', 'bool' => !empty($oDPS->serv->atvEvento->end->CEP)],
 			['begin' => '{@ifEndExtAtvEvento}', 'end' => '{@endifEndExtAtvEvento}', 'bool' => !empty($oDPS->serv->atvEvento->end->endNacEndExt->cEndPost)],
 			['begin' => '{@ifXCplAtvEvento}', 'end' => '{@endifXCplAtvEvento}', 'bool' => !empty($oDPS->serv->atvEvento->end->xCpl)],
-			['begin' => '{@ifInfoCompl}', 'end' => '{@endifInfoCompl}', 'bool' => !empty($oDPS->serv->infoCompl->xInfComp) || !empty($oDPS->serv->infoCompl->idDocTec) || !empty($oDPS->serv->infoCompl->docRef)],
+			['begin' => '{@ifInfoCompl}', 'end' => '{@endifInfoCompl}', 'bool' => !empty($oDPS->serv->infoCompl->xInfComp) || !empty($oDPS->serv->infoCompl->idDocTec) || !empty($oDPS->serv->infoCompl->docRef) || !empty($oDPS->serv->infoCompl->xPed) ],
 			['begin' => '{@ifIdDocTec}', 'end' => '{@endifIdDocTec}', 'bool' => !empty($oDPS->serv->infoCompl->idDocTec)],
 			['begin' => '{@ifDocRef}', 'end' => '{@endifDocRef}', 'bool' => !empty($oDPS->serv->infoCompl->docRef)],
 			['begin' => '{@ifXPed}', 'end' => '{@endifXPed}', 'bool' => !empty($oDPS->serv->infoCompl->xPed)],
