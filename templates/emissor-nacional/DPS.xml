@@ -304,19 +304,35 @@
 				{@endifEndAtvEv}
 			</atvEvento>
 			{@endifAtvEvento}
+
 			{@ifInfoCompl}
 			<infoCompl>
+
 				{@ifIdDocTec}
 				<idDocTec>{@idDocTec}</idDocTec>
 				{@endifIdDocTec}
+				
 				{@ifDocRef}
 				<docRef>{@docRef}</docRef>
 				{@endifDocRef}
+
+				{@ifXPed}
+				<xPed>{@xPed}</xPed>
+				{@endifXPed}
+				
+				{@ifGItemPed}
+				<gItemPed>
+					{@gItemPed}
+				</gItemPed>
+				{@endifGItemPed}
+
 				{@ifXInfComp}
 				<xInfComp>{@xInfComp}</xInfComp>
 				{@endifXInfComp}
+
 			</infoCompl>
 			{@endifInfoCompl}
+
 		</serv>
 		<valores>
 			<vServPrest>
@@ -340,99 +356,14 @@
 				{@ifPDR}
 				<pDR>{@pDR}</pDR>
 				{@endifPDR}
+
 				{@ifVDR}
 				<vDR>{@vDR}</vDR>
 				{@endifVDR}
+
 				{@ifDocumentos}
 				<documentos>
-					<docDedRed>
-						{@ifChNFSe}
-						<chNFSe>{@chNFSe}</chNFSe>
-						{@endifChNFSe}
-						{@ifChNFe}
-						<chNFe>{@chNFe}</chNFe>
-						{@endifChNFe}
-						{@ifNFSeMun}
-						<NFSeMun>
-							<cMunNFSeMun>{@cMunNFSeMun}</cMunNFSeMun>
-							<nNFSeMun>{@nNFSeMun}</nNFSeMun>
-							<cVerifNFSeMun>{@cVerifNFSeMun}</cVerifNFSeMun>
-						</NFSeMun>
-						{@endifNFSeMun}
-						{@ifNFNFS}
-						<NFNFS>
-							<nNFNFS>{@nNFNFS}</nNFNFS>
-							<modNFNFS>{@modNFNFS}</modNFNFS>
-							<serieNFNFS>{@serieNFNFS}</serieNFNFS>
-						</NFNFS>
-						{@endifNFNFS}
-						{@ifNDocFisc}
-						<nDocFisc>{@nDocFisc}</nDocFisc>
-						{@endifNDocFisc}
-						{@ifNDoc}
-						<nDoc>{@nDoc}</nDoc>
-						{@endifNDoc}
-						<tpDedRed>{@tpDedRed}</tpDedRed>
-						{@ifXDescOutDed}
-						<xDescOutDed>{@xDescOutDed}</xDescOutDed>
-						{@endifXDescOutDed}
-						<dtEmiDoc>{@dtEmiDoc}</dtEmiDoc>
-						<vDedutivelRedutivel>{@vDedutivelRedutivel}</vDedutivelRedutivel>
-						<vDeducaoReducao>{@vDeducaoReducao}</vDeducaoReducao>
-						{@ifFornec}
-						<fornec>
-							{@ifCNPJFornec}
-							<CNPJ>{@CNPJFornec}</CNPJ>
-							{@endifCNPJFornec}
-							{@ifCPFFornec}
-							<CPF>{@CPFFornec}</CPF>
-							{@endifCPFFornec}
-							{@ifNIFFornec}
-							<NIF>{@NIFFornec}</NIF>
-							{@endifNIFFornec}
-							{@ifCNaoNIFFornec}
-							<cNaoNIF>{@cNaoNIFFornec}</cNaoNIF>
-							{@endifCNaoNIFFornec}
-							{@ifCAEPFFornec}
-							<CAEPF>{@CAEPFFornec}</CAEPF>
-							{@endifCAEPFFornec}
-							{@ifIMFornec}
-							<IM>{@IMFornec}</IM>
-							{@endifIMFornec}
-							<xNome>{@xNomeFornec}</xNome>
-							{@ifEndFornec}
-							<end>
-								{@ifEndNacFornec}
-								<endNac>
-									<cMun>{@cMunFornec}</cMun>
-									<CEP>{@CEPFornec}</CEP>
-								</endNac>
-								{@endifEndNacFornec}
-								{@ifEndExtFornec}
-								<endExt>
-									<cPais>{@cPaisFornec}</cPais>
-									<cEndPost>{@cEndPostFornec}</cEndPost>
-									<xCidade>{@xCidadeFornec}</xCidade>
-									<xEstProvReg>{@xEstProvRegFornec}</xEstProvReg>
-								</endExt>
-								{@endifEndExtFornec}
-								<xLgr>{@xLgrFornec}</xLgr>
-								<nro>{@nroFornec}</nro>
-								{@ifXCplFornec}
-								<xCpl>{@xCplFornec}</xCpl>
-								{@endifXCplFornec}
-								<xBairro>{@xBairroFornec}</xBairro>
-							</end>
-							{@endifEndFornec}
-							{@ifFoneFornec}
-							<fone>{@foneFornec}</fone>
-							{@endifFoneFornec}
-							{@ifEmailFornec}
-							<email>{@emailFornec}</email>
-							{@endifEmailFornec}
-						</fornec>
-						{@endifFornec}
-					</docDedRed>
+					{@documentos}
 				</documentos>
 				{@endifDocumentos}
 			</vDedRed>
@@ -543,7 +474,7 @@
 			<!-- IF OPCIONAL -->
 			{@ifGRefNFSe}
 			<gRefNFSe>
-				<refNFSe>{@refNFSe}</refNFSe>
+				{@gRefNFSe}
 			</gRefNFSe>
 			{@endifGRefNFSe}
 			<!-- IF OPCIONAL -->
@@ -650,61 +581,7 @@
 				<!-- IF OPCIONAL -->
 				{@ifGReeRepRes}
 				<gReeRepRes>
-					<documentos>
-						<!-- IF CHOICE -->
-						{@ifDFeNacional}
-						<dFeNacional>
-							<tipoChaveDFe>{@tipoChaveDFe}</tipoChaveDFe>
-							{@ifXTipoChaveDFe}
-							<xTipoChaveDFe>{@xTipoChaveDFe}</xTipoChaveDFe>
-							{@endifXTipoChaveDFe}
-							<chaveDFe>{@chaveDFe}</chaveDFe>
-						</dFeNacional>
-						{@endifDFeNacional}
-						<!-- IF CHOICE -->
-						{@ifDocFiscalOutro}
-						<docFiscalOutro>
-							<cMunDocFiscal>{@cMunDocFiscal}</cMunDocFiscal>
-							<nDocFiscal>{@nDocFiscal}</nDocFiscal>
-							<xDocFiscal>{@xDocFiscal}</xDocFiscal>
-						</docFiscalOutro>
-						{@endifDocFiscalOutro}
-						<!-- IF CHOICE -->
-						{@ifDocOutro}
-						<docOutro>
-							<nDoc>{@nDoc}</nDoc>
-							<xDoc>{@xDoc}</xDoc>
-						</docOutro>
-						{@endifDocOutro}
-						{@ifFornecReeRepRes}
-						<fornec>
-							<!-- IF CHOICE -->
-							{@ifCNPJFornecReeRepRes}
-							<CNPJ>{@CNPJFornecReeRepRes}</CNPJ>
-							{@endifCNPJFornecReeRepRes}
-							<!-- IF CHOICE -->
-							{@ifCPFFornecReeRepRes}
-							<CPF>{@CPFFornecReeRepRes}</CPF>
-							{@endifCPFFornecReeRepRes}
-							<!-- IF CHOICE -->
-							{@ifNIFFornecReeRepRes}
-							<NIF>{@NIFFornecReeRepRes}</NIF>
-							{@endifNIFFornecReeRepRes}
-							<!-- IF CHOICE -->
-							{@ifCNaoNIFFornecReeRepRes}
-							<cNaoNIF>{@cNaoNIFFornecReeRepRes}</cNaoNIF>
-							{@endifCNaoNIFFornecReeRepRes}
-							<xNome>{@xNomeFornecReeRepRes}</xNome>
-						</fornec>
-						{@endifFornecReeRepRes}
-						<dtEmitDoc>{@dtEmitDoc}</dtEmitDoc>
-						<dtCompDoc>{@dtCompDoc}</dtCompDoc>
-						<tpReeRepRes>{@tpReeRepRes}</tpReeRepRes>
-						{@ifXTpReeRepRes}
-						<xTpReeRepRes>{@xTpReeRepRes}</xTpReeRepRes>
-						{@endifXTpReeRepRes}
-						<vlrReeRepRes>{@vlrReeRepRes}</vlrReeRepRes>
-					</documentos>
+					{@documentosReeRepRes}
 				</gReeRepRes>
 				{@endifGReeRepRes}
 				<trib>
