@@ -6,6 +6,7 @@ use NFSe\generico\nfseNacional\NFSeGenericoInfDPS;
 use NFSe\generico\nfseNacional\NFSeGenericoConsultarNfseDps;
 use NFSe\generico\nfseNacional\NFSeGenericoDocDedRed;
 use NFSe\generico\nfseNacional\NFSeGenericoInfoItemPed;
+use NFSe\generico\nfseNacional\NFSeGenericoRTCDoc;
 use NFSe\NFSe;
 use NFSe\NFSeDocument;
 use PQD\PQDUtil;
@@ -1746,7 +1747,6 @@ class NFSeGenerico extends NFSe {
 			['begin' => '{@ifXCplImovel}', 'end' => '{@endifXCplImovel}', 'bool' => !empty($oDPS->IBSCBS->imovel->end->xCpl)],
 			['begin' => '{@ifGReeRepRes}', 'end' => '{@endifGReeRepRes}', 'bool' => !empty($oDPS->IBSCBS->valores->gReeRepRes->documentos->dtCompDoc)],
 			['begin' => '{@ifDFeNacional}', 'end' => '{@endifDFeNacional}', 'bool' => !empty($oDPS->IBSCBS->valores->gReeRepRes->documentos->dFeNacional)],
-			['begin' => '{@ifXTipoChaveDFe}', 'end' => '{@endifXTipoChaveDFe}', 'bool' => !empty($oDPS->IBSCBS->valores->gReeRepRes->documentos->dFeNacional->xTipoChaveDFe)],
 			['begin' => '{@ifDocFiscalOutro}', 'end' => '{@endifDocFiscalOutro}', 'bool' => !empty($oDPS->IBSCBS->valores->gReeRepRes->documentos->docFiscalOutro)],
 			['begin' => '{@ifDocOutro}', 'end' => '{@endifDocOutro}', 'bool' => !empty($oDPS->IBSCBS->valores->gReeRepRes->documentos->docOutro)],
 			['begin' => '{@ifFornecReeRepRes}', 'end' => '{@endifFornecReeRepRes}', 'bool' => !empty($oDPS->IBSCBS->valores->gReeRepRes->documentos->fornec)],
@@ -1943,6 +1943,9 @@ class NFSeGenerico extends NFSe {
 			['begin' => '{@ifGReeRepRes}', 'end' => '{@endifGReeRepRes}', 'bool' => count($aDocumentos) > 0],
 		];
 
+		/**
+		 * @var NFSeGenericoRTCDoc $doc
+		 */
 		foreach($aDocumentos as $doc){
 
 			$aReplace = [
@@ -1988,6 +1991,8 @@ class NFSeGenerico extends NFSe {
 				['begin' => '{@ifCNaoNIFFornecReeRepRes}', 'end' => '{@endifCNaoNIFFornecReeRepRes}', 'bool' => !empty($doc->fornec->cNaoNIF)],
 
 				['begin' => '{@ifXTpReeRepRes}', 'end' => '{@endifXTpReeRepRes}', 'bool' => !empty($doc->xTpReeRepRes)],
+
+				['begin' => '{@ifXTipoChaveDFe}', 'end' => '{@endifXTipoChaveDFe}', 'bool' => !empty($doc->dFeNacional->xTipoChaveDFe)],
 			];
 
 			$aIfsFinal = array_merge($aIfs, $aIfs2);
