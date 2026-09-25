@@ -216,7 +216,7 @@ class NFSeGenerico extends NFSe {
 					'args' => array(0, 10) //Argumentos extras (o valor do campo é sempre passado como 1º argumento)
 				)
 			),
-			'customFields' => array( //(opcional) Condição do {@if<Campo>} dos campos de uma classe filha de NFSeGenericoInfRps (ex.: templates/elotech-pr-v2-03/Elotech.php). Chave em camelCase como em 'fields'; valor é uma expressão PHP avaliada com $value (valor do campo) e $oRps. Sem entrada, o bloco aparece quando o campo não é nulo nem vazio
+			'customFields' => array( //(opcional) Condição do {@if<Campo>} dos campos de uma classe filha de NFSeGenericoInfRps ou NFSeGenericoInfDPS (ex.: templates/elotech-pr-v2-03/Elotech.php). Chave em camelCase como em 'fields'; valor é uma expressão PHP avaliada com $value (valor do campo) e $oRps (no RPS) ou $oDPS (no DPS). Sem entrada, o bloco aparece quando o campo não é nulo nem vazio
 				'cSTPisCofins' => '$value != "00"'
 			)*/
 		));
@@ -1781,6 +1781,24 @@ class NFSeGenerico extends NFSe {
 			['begin' => '{@ifGTribRegularIBSCBS}', 'end' => '{@endifGTribRegularIBSCBS}', 'bool' => !is_null($oDPS->IBSCBS->valores->trib->gIBSCBS->gTribRegular->CSTReg)],
 			['begin' => '{@ifGDif}', 'end' => '{@endifGDif}', 'bool' => !is_null($oDPS->IBSCBS->valores->trib->gIBSCBS->gDif->pDifUF)],
 		);
+
+		//Campos exclusivos de um emissor: classe filha de NFSeGenericoInfDPS
+		if(get_class($oDPS) != NFSeGenericoInfDPS::class){
+			$aCustomFields = PQDUtil::retDefault($this->aConfig, 'customFields', array());
+
+			foreach((new \ReflectionClass($oDPS))->getProperties(\ReflectionProperty::IS_PUBLIC) as $oProperty){
+				if($oProperty->getDeclaringClass()->getName() == NFSeGenericoInfDPS::class)
+					continue;
+
+				$name = $oProperty->getName();
+				$value = $oDPS->$name;
+				$field = lcfirst($name);//Mesma chave camelCase do 'fields'
+				$condicao = PQDUtil::retDefault($aCustomFields, $field);
+
+				$aReplace['{@' . $name . '}'] = $this->applyFnField($field, $value);
+				$aIfs[] = array('begin' => '{@if' . $name . '}', 'end' => '{@endif' . $name . '}', 'bool' => is_null($condicao) ? !is_null($value) && $value !== '' : (bool)eval('return ' . $condicao . ';'));
+			}
+		}
 
 		return $this->retXML(PQDUtil::procTplText($tplDPS, $aReplace, $aIfs));
 	}

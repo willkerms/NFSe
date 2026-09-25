@@ -286,7 +286,7 @@ Funções aplicadas a um campo antes de ele ir para o template (`applyFnField`).
 
 #### `customFields` — condição dos campos exclusivos de um emissor (opcional)
 
-Troca a condição do `{@if<Campo>}` dos campos de uma classe filha de `NFSeGenericoInfRps` (ver [Campos exclusivos de um emissor](#campos-exclusivos-de-um-emissor)). A chave segue a mesma regra do `fields` (primeira letra minúscula: `CSTPisCofins` → `cSTPisCofins`); o valor é uma **expressão PHP em texto**, avaliada com `$value` (valor do campo, antes do `fields`) e `$oRps` (o RPS inteiro):
+Troca a condição do `{@if<Campo>}` dos campos de uma classe filha de `NFSeGenericoInfRps` ou `NFSeGenericoInfDPS` (ver [Campos exclusivos de um emissor](#campos-exclusivos-de-um-emissor)). A chave segue a mesma regra do `fields` (primeira letra minúscula: `CSTPisCofins` → `cSTPisCofins`); o valor é uma **expressão PHP em texto**, avaliada com `$value` (valor do campo, antes do `fields`) e o documento inteiro: `$oRps` no RPS, `$oDPS` no DPS:
 
 ```php
 'customFields' => [
@@ -438,7 +438,7 @@ NFSeGenericoInfRps
 
 #### Campos exclusivos de um emissor
 
-Campo que só um emissor usa não entra nos DTOs genéricos: vai numa classe filha de `NFSeGenericoInfRps`, dentro da pasta do pacote. Para cada propriedade **pública declarada na filha**, o `retXMLRps` cria sozinho o placeholder `{@<Propriedade>}` e o bloco `{@if<Propriedade>} … {@endif<Propriedade>}` (condição padrão: valor não nulo nem `''`, trocável por [`customFields`](#customfields--condição-dos-campos-exclusivos-de-um-emissor-opcional)). O `fields` também vale para esses campos.
+Campo que só um emissor usa não entra nos DTOs genéricos: vai numa classe filha de `NFSeGenericoInfRps` (RPS) ou de `NFSeGenericoInfDPS` (DPS), dentro da pasta do pacote. Para cada propriedade **pública declarada na filha**, o `retXMLRps`/`retXMLDPS` cria sozinho o placeholder `{@<Propriedade>}` e o bloco `{@if<Propriedade>} … {@endif<Propriedade>}` (condição padrão: valor não nulo nem `''`, trocável por [`customFields`](#customfields--condição-dos-campos-exclusivos-de-um-emissor-opcional)). O `fields` também vale para esses campos.
 
 Exemplo: `templates/elotech-pr-v2-03/Elotech.php`
 
@@ -460,7 +460,7 @@ class Elotech extends NFSeGenericoInfRps {
 
 O placeholder pode ficar dentro de um `{@if...}` de outro campo, como o `<RetidoPis>` acima, que só vai junto com o `<ValorPis>`. Nesse caso o `{@ifRetidoPis}` gerado fica sem uso.
 
-Quem monta o RPS instancia a filha (`new Elotech()`) no lugar de `NFSeGenericoInfRps`. Um pacote que usa esses placeholders **exige** a filha: com o `NFSeGenericoInfRps` puro os `{@...}` saem literais no XML.
+Quem monta o documento instancia a filha (`new Elotech()`) no lugar de `NFSeGenericoInfRps`/`NFSeGenericoInfDPS`. Um pacote que usa esses placeholders **exige** a filha: com a classe base pura os `{@...}` saem literais no XML.
 
 **DPS (Nacional)** — `NFSe\generico\nfseNacional\NFSeGenericoInfDPS` agrega os grupos do padrão nacional:
 
@@ -517,7 +517,7 @@ Regra prática: uma operação **deu certo** quando `ListaMensagemRetorno` está
 2. **Ajuste os templates** (`Rps.xml`/`DPS.xml`, `GerarNfseEnvio.xml`, `Soap.xml`, consultas, cancelamento) para o layout exato da prefeitura — usando os placeholders `{@...}` e os blocos `{@if...}`.
 3. **Monte o `$aConfig`** apontando `templates.folder` para o novo pacote, os `wsdl` de homologação/produção, o tipo de autenticação e os `metodos` (`action`, `tagSign`, `tagAppend`, `tagMap`, transporte).
 4. Se a prefeitura exigir limpeza/assinatura especial, use `search`/`replace`, `signConsulta`, `returnType`/`returnReplace` e `replaceXmlSOAP`.
-5. Se o layout tiver campos que só esse emissor usa, crie a classe filha de `NFSeGenericoInfRps` na pasta do pacote (ver [Campos exclusivos de um emissor](#campos-exclusivos-de-um-emissor)) e rode `composer dump-autoload` (ou `composer update willkerms/nfs-e` no projeto que usa a lib) para o classmap enxergá-la.
+5. Se o layout tiver campos que só esse emissor usa, crie a classe filha de `NFSeGenericoInfRps` ou `NFSeGenericoInfDPS` na pasta do pacote (ver [Campos exclusivos de um emissor](#campos-exclusivos-de-um-emissor)) e rode `composer dump-autoload` (ou `composer update willkerms/nfs-e` no projeto que usa a lib) para o classmap enxergá-la.
 
 No melhor caso, **nenhuma linha de PHP** precisa ser escrita.
 
