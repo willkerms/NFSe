@@ -40,7 +40,7 @@ Cobre a assinatura digital dos XMLs (XML-DSig), a comunicação com os WebServic
 composer require willkerms/nfs-e
 ```
 
-Autoload PSR-4 (`NFSe\`) + classmap das pastas `generico/`, `sigep/`, `issweb/`, `ginfes/` (configurado no `composer.json`).
+Autoload PSR-4 (`NFSe\`) + classmap das pastas `generico/`, `sigep/`, `issweb/`, `ginfes/` e `templates/` (configurado no `composer.json`). O `templates/` entra no classmap porque as pastas dos pacotes têm hífen e não resolvem por PSR-4 — é lá que ficam as classes de campos exclusivos de um emissor (ver [Campos exclusivos de um emissor](#campos-exclusivos-de-um-emissor)).
 
 > A biblioteca usa a constante global `IS_DEVELOPMENT`. Quando `true`, o `SoapClient` é criado com `trace`/`exceptions` ativos e sem cache de WSDL. Defina-a no _bootstrap_ da sua aplicação (`define('IS_DEVELOPMENT', false);`) antes de instanciar as classes.
 
@@ -79,6 +79,7 @@ nfs-e/
 │   └── nfseNacional/             # DTOs do padrão Nacional (DPS, IBS/CBS, ...)
 ├── templates/            # Pacotes de templates XML, uma pasta por prefeitura/padrão
 │   ├── abrasf-v2.4/
+│   ├── elotech-pr-v2-03/     # inclui Elotech.php (campos exclusivos da Elotech)
 │   ├── prefGoiania-v1/
 │   ├── notacontrol-br-v1/
 │   └── ...
@@ -283,6 +284,19 @@ Funções aplicadas a um campo antes de ele ir para o template (`applyFnField`).
 ],
 ```
 
+#### `customFields` — condição dos campos exclusivos de um emissor (opcional)
+
+Troca a condição do `{@if<Campo>}` dos campos de uma classe filha de `NFSeGenericoInfRps` (ver [Campos exclusivos de um emissor](#campos-exclusivos-de-um-emissor)). A chave segue a mesma regra do `fields` (primeira letra minúscula: `CSTPisCofins` → `cSTPisCofins`); o valor é uma **expressão PHP em texto**, avaliada com `$value` (valor do campo, antes do `fields`) e `$oRps` (o RPS inteiro):
+
+```php
+'customFields' => [
+    'cSTPisCofins' => '$value != "00"',   // só envia o CST quando não for 00
+    //'cSTPisCofins' => '$oRps->Servico->Valores->ValorPis > 0', // ou: só envia o CST quando houver PIS
+],
+```
+
+Sem entrada para o campo, o bloco entra quando o valor não é nulo nem `''` (`0` e `'00'` entram). A expressão é executada com `eval`, então a configuração tem o mesmo nível de confiança do `fields.fn`, que já chama qualquer função PHP.
+
 ### Certificado digital
 
 Há dois jeitos de informar o certificado no `$aConfig`:
@@ -347,6 +361,7 @@ Cada pasta em `templates/` é um pacote. Selecione com `templates.folder`. Já a
 | Pacote | Padrão / observação |
 |--------|---------------------|
 | `abrasf-v2.4` | Referência ABRASF 2.04 (RPS). |
+| `elotech-pr-v2-03` | Provedor Elotech (ABRASF 2.03). Exige o RPS `NFSe\templates\Elotech` (campos `Retido*` e `CSTPisCofins`). |
 | `coplan-v1`, `coplan-br-v1` | Provedor Coplan (ABRASF e DPS). |
 | `fiorilli-ro-v2-01`, `fiorilli-br-v1` | Provedor Fiorilli (ABRASF e DPS). |
 | `notacontrol-go-v1`, `notacontrol-br-v1` | Provedor NotaControl (ABRASF e DPS). |
@@ -421,6 +436,32 @@ NFSeGenericoInfRps
 > **duas** condições valem: o template do pacote em uso declara `{@ifIBSCBS} … {@endifIBSCBS}` e
 > `IBSCBS->finNFSe` não é nulo. Hoje só o pacote `webISS-se-v2-02` traz esse bloco ativo.
 
+#### Campos exclusivos de um emissor
+
+Campo que só um emissor usa não entra nos DTOs genéricos: vai numa classe filha de `NFSeGenericoInfRps`, dentro da pasta do pacote. Para cada propriedade **pública declarada na filha**, o `retXMLRps` cria sozinho o placeholder `{@<Propriedade>}` e o bloco `{@if<Propriedade>} … {@endif<Propriedade>}` (condição padrão: valor não nulo nem `''`, trocável por [`customFields`](#customfields--condição-dos-campos-exclusivos-de-um-emissor-opcional)). O `fields` também vale para esses campos.
+
+Exemplo: `templates/elotech-pr-v2-03/Elotech.php`
+
+```php
+namespace NFSe\templates;
+
+use NFSe\generico\NFSeGenericoInfRps;
+
+class Elotech extends NFSeGenericoInfRps {
+    public $RetidoPis = 2;  // 1 - Sim; 2 - Não (também RetidoCofins, RetidoInss, RetidoIr, RetidoCsll, RetidoOutrasRetencoes)
+    public $CSTPisCofins;   // CST do PIS/COFINS
+}
+```
+
+```xml
+{@ifValorPis}<RetidoPis>{@RetidoPis}</RetidoPis><ValorPis>{@ValorPis}</ValorPis>{@endifValorPis}
+{@ifCSTPisCofins}<CSTPisCofins>{@CSTPisCofins}</CSTPisCofins>{@endifCSTPisCofins}
+```
+
+O placeholder pode ficar dentro de um `{@if...}` de outro campo, como o `<RetidoPis>` acima, que só vai junto com o `<ValorPis>`. Nesse caso o `{@ifRetidoPis}` gerado fica sem uso.
+
+Quem monta o RPS instancia a filha (`new Elotech()`) no lugar de `NFSeGenericoInfRps`. Um pacote que usa esses placeholders **exige** a filha: com o `NFSeGenericoInfRps` puro os `{@...}` saem literais no XML.
+
 **DPS (Nacional)** — `NFSe\generico\nfseNacional\NFSeGenericoInfDPS` agrega os grupos do padrão nacional:
 
 ```
@@ -476,6 +517,7 @@ Regra prática: uma operação **deu certo** quando `ListaMensagemRetorno` está
 2. **Ajuste os templates** (`Rps.xml`/`DPS.xml`, `GerarNfseEnvio.xml`, `Soap.xml`, consultas, cancelamento) para o layout exato da prefeitura — usando os placeholders `{@...}` e os blocos `{@if...}`.
 3. **Monte o `$aConfig`** apontando `templates.folder` para o novo pacote, os `wsdl` de homologação/produção, o tipo de autenticação e os `metodos` (`action`, `tagSign`, `tagAppend`, `tagMap`, transporte).
 4. Se a prefeitura exigir limpeza/assinatura especial, use `search`/`replace`, `signConsulta`, `returnType`/`returnReplace` e `replaceXmlSOAP`.
+5. Se o layout tiver campos que só esse emissor usa, crie a classe filha de `NFSeGenericoInfRps` na pasta do pacote (ver [Campos exclusivos de um emissor](#campos-exclusivos-de-um-emissor)) e rode `composer dump-autoload` (ou `composer update willkerms/nfs-e` no projeto que usa a lib) para o classmap enxergá-la.
 
 No melhor caso, **nenhuma linha de PHP** precisa ser escrita.
 

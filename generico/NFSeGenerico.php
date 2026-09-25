@@ -215,6 +215,9 @@ class NFSeGenerico extends NFSe {
 					'fn' => 'substr', //Função PHP a ser chamada sobre o valor do campo
 					'args' => array(0, 10) //Argumentos extras (o valor do campo é sempre passado como 1º argumento)
 				)
+			),
+			'customFields' => array( //(opcional) Condição do {@if<Campo>} dos campos de uma classe filha de NFSeGenericoInfRps (ex.: templates/elotech-pr-v2-03/Elotech.php). Chave em camelCase como em 'fields'; valor é uma expressão PHP avaliada com $value (valor do campo) e $oRps. Sem entrada, o bloco aparece quando o campo não é nulo nem vazio
+				'cSTPisCofins' => '$value != "00"'
 			)*/
 		));
 
@@ -1306,6 +1309,24 @@ class NFSeGenerico extends NFSe {
 			['begin' => '{@ifIBSCBS}', 'end' => '{@endifIBSCBS}', 'bool' => !is_null($oRps->IBSCBS->finNFSe ?? null)],
 			['begin' => '{@ifIndFinal}', 'end' => '{@endifIndFinal}', 'bool' => !empty($oRps->IBSCBS->indFinal)],
 		);
+
+		//Campos exclusivos de um emissor: classe filha de NFSeGenericoInfRps (ex.: templates/elotech-pr-v2-03/Elotech.php)
+		if(get_class($oRps) != NFSeGenericoInfRps::class){
+			$aCustomFields = PQDUtil::retDefault($this->aConfig, 'customFields', array());
+
+			foreach((new \ReflectionClass($oRps))->getProperties(\ReflectionProperty::IS_PUBLIC) as $oProperty){
+				if($oProperty->getDeclaringClass()->getName() == NFSeGenericoInfRps::class)
+					continue;
+
+				$name = $oProperty->getName();
+				$value = $oRps->$name;
+				$field = lcfirst($name);//Mesma chave camelCase do 'fields'
+				$condicao = PQDUtil::retDefault($aCustomFields, $field);
+
+				$aReplace['{@' . $name . '}'] = $this->applyFnField($field, $value);
+				$aIfs[] = array('begin' => '{@if' . $name . '}', 'end' => '{@endif' . $name . '}', 'bool' => is_null($condicao) ? !is_null($value) && $value !== '' : (bool)eval('return ' . $condicao . ';'));
+			}
+		}
 
 		return $this->retXML(PQDUtil::procTplText($tplRps, $aReplace, $aIfs));
 	}

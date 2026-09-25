@@ -1270,14 +1270,14 @@ class NFSeGenericoReturn extends NFSeReturn {
 	 *
 	 * @return array
 	 */
-	private function cancelarNfseResposta(NFSeDocument $oCancelarNfseResposta, $tagRetCancelamento = 'RetCancelamento', $tagConfirmacao = 'Confirmacao') {
+	private function cancelarNfseResposta(NFSeDocument $oCancelarNfseResposta, $tagRetCancelamento = 'RetCancelamento', $tagConfirmacao = 'Confirmacao', ?string $confirmacaoValue = null) {
 
 		
 		if ($oCancelarNfseResposta->getElementsByTagName('CancelarNfseResposta')->length == 1) {
 			
 			return array(
 				'ListaMensagemRetorno' => $this->retListaMensagem($oCancelarNfseResposta),
-				'RetCancelamento' => $this->retCancelamento($oCancelarNfseResposta, $tagRetCancelamento, $tagConfirmacao)
+				'RetCancelamento' => $this->retCancelamento($oCancelarNfseResposta, $tagRetCancelamento, $tagConfirmacao, $confirmacaoValue)
 			);
 
 		} else {
