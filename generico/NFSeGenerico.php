@@ -1318,7 +1318,7 @@ class NFSeGenerico extends NFSe {
 				$value = $oRps->$name;
 				$field = lcfirst($name);//Mesma chave camelCase do 'fields'
 				$aField = (new NFSeAnnotation($oProperty->getDeclaringClass()->getFileName()))->getField($name);
-				$condicao = isset($aField['condicao']) ? $aField['condicao'] : null;//Anotação @if da propriedade
+				$condicao = isset($aField['if']) ? $aField['if'] : null;//Anotação @if da propriedade
 
 				$aReplace['{@' . $name . '}'] = $this->applyFnField($field, $value);
 				$aIfs[] = array('begin' => '{@if' . $name . '}', 'end' => '{@endif' . $name . '}', 'bool' => is_null($condicao) ? !empty($value) : (bool)eval('return ' . $condicao . ';'));
@@ -1789,7 +1789,7 @@ class NFSeGenerico extends NFSe {
 				$value = $oDPS->$name;
 				$field = lcfirst($name);//Mesma chave camelCase do 'fields'
 				$aField = (new NFSeAnnotation($oProperty->getDeclaringClass()->getFileName()))->getField($name);
-				$condicao = isset($aField['condicao']) ? $aField['condicao'] : null;//Anotação @if da propriedade
+				$condicao = isset($aField['if']) ? $aField['if'] : null;//Anotação @if da propriedade
 
 				$aReplace['{@' . $name . '}'] = $this->applyFnField($field, $value);
 				$aIfs[] = array('begin' => '{@if' . $name . '}', 'end' => '{@endif' . $name . '}', 'bool' => is_null($condicao) ? !empty($value) : (bool)eval('return ' . $condicao . ';'));

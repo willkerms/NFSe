@@ -6,7 +6,7 @@ use PQD\PQDAnnotation;
 /**
  * Anotações das classes filhas de NFSeGenericoInfRps/NFSeGenericoInfDPS (campos exclusivos de um emissor).
  * Acrescenta ao PQDAnnotation a anotação @if(<expressão PHP>): condição do {@if<Campo>} do campo anotado com @field,
- * disponível em getField(<Campo>)['condicao'].
+ * disponível em getField(<Campo>)['if'].
  *
  * @since 2026-09-28
  * @author Victor Hugo Benatti
@@ -14,7 +14,7 @@ use PQD\PQDAnnotation;
 class NFSeAnnotation extends PQDAnnotation {
 
 	/**
-	 * Campos anotados com @field, com a chave 'condicao' nos que têm @if
+	 * Campos anotados com @field, com a chave 'if' nos que têm @if
 	 *
 	 * @return array
 	 */
@@ -29,7 +29,7 @@ class NFSeAnnotation extends PQDAnnotation {
 
 		foreach($matches[0] as $comment){
 			if(preg_match('/\@field\([^)]*name=([^,)]+)/', $comment, $field) && preg_match('/\@if\((.*)\)\s*$/m', $comment, $if) && isset(self::$annotation[$this->class]['fields'][$field[1]]))
-				self::$annotation[$this->class]['fields'][$field[1]]['condicao'] = $if[1];
+				self::$annotation[$this->class]['fields'][$field[1]]['if'] = $if[1];
 		}
 
 		return self::$annotation[$this->class]['fields'];
