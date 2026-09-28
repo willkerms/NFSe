@@ -68,6 +68,7 @@ monta XML  →  assina (XML-DSig)  →  embrulha no envelope SOAP (se aplicável
 ```
 nfs-e/
 ├── NFSe.php              # Classe base: certificado, assinatura XML-DSig, SOAP/cURL
+├── NFSeAnnotation.php    # PQDAnnotation + @if (condição dos campos exclusivos de um emissor)
 ├── NFSeDocument.php      # DOMDocument com helper getValue()
 ├── NFSeElement.php       # DOMElement (registro de nó)
 ├── NFSeReturn.php        # Base de parsing de retorno (detecção de SOAP Fault)
@@ -427,7 +428,7 @@ NFSeGenericoInfRps
 
 Campo que só um emissor usa não entra nos DTOs genéricos: vai numa classe filha de `NFSeGenericoInfRps` (RPS) ou de `NFSeGenericoInfDPS` (DPS), dentro da pasta do pacote. Para cada propriedade **pública declarada na filha**, o `retXMLRps`/`retXMLDPS` cria sozinho o placeholder `{@<Propriedade>}` e o bloco `{@if<Propriedade>} … {@endif<Propriedade>}`. O `fields` também vale para esses campos.
 
-A condição do `{@if<Propriedade>}` vem da anotação `@if(<expressão PHP>)` no phpDOC da propriedade, lida pelo `NFSe\generico\NFSeAnnotation` (extensão do `PQDAnnotation`). O bloco precisa ter também o `@field(name=<Propriedade>)`. A expressão é avaliada com `$value` (valor do campo, antes do `fields`) e o documento inteiro: `$oRps` no RPS, `$oDPS` no DPS. Sem `@if`, o bloco entra quando `!empty($value)` (`'00'` entra; `0`, `'0'`, `''` e `null` não). A expressão é executada com `eval`, com o mesmo nível de confiança do `fields.fn`, que já chama qualquer função PHP.
+A condição do `{@if<Propriedade>}` vem da anotação `@if(<expressão PHP>)` no phpDOC da propriedade, lida pelo `NFSe\NFSeAnnotation` (extensão do `PQDAnnotation`). O bloco precisa ter também o `@field(name=<Propriedade>)`. A expressão é avaliada com `$value` (valor do campo, antes do `fields`) e o documento inteiro: `$oRps` no RPS, `$oDPS` no DPS. Sem `@if`, o bloco entra quando `!empty($value)` (`'00'` entra; `0`, `'0'`, `''` e `null` não). A expressão é executada com `eval`, com o mesmo nível de confiança do `fields.fn`, que já chama qualquer função PHP.
 
 Exemplo: `templates/elotech-pr-v2-03/ElotechInfRps.php`
 

@@ -8,6 +8,7 @@ use NFSe\generico\nfseNacional\NFSeGenericoDocDedRed;
 use NFSe\generico\nfseNacional\NFSeGenericoInfoItemPed;
 use NFSe\generico\nfseNacional\NFSeGenericoRTCDoc;
 use NFSe\NFSe;
+use NFSe\NFSeAnnotation;
 use NFSe\NFSeDocument;
 use PQD\PQDUtil;
 

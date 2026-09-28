@@ -1,5 +1,5 @@
 <?php
-namespace NFSe\generico;
+namespace NFSe;
 
 use PQD\PQDAnnotation;
 
