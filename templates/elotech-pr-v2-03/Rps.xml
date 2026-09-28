@@ -391,6 +391,22 @@
 					<gIBSCBS>
 						<Cst>{@CSTIBSCBS}</Cst>
 						<cClassTrib>{@cClassTribIBSCBS}</cClassTrib>
+						{@ifCCredPresIBSCBS}
+						<cCredPres>{@cCredPresIBSCBS}</cCredPres>
+						{@endifCCredPresIBSCBS}
+						{@ifGTribRegularIBSCBS}
+						<gTribRegular>
+							<CstReg>{@CSTReg}</CstReg>
+							<cClassTribReg>{@cClassTribReg}</cClassTribReg>
+						</gTribRegular>
+						{@endifGTribRegularIBSCBS}
+						{@ifGDif}
+						<gDif>
+							<pDifUF>{@pDifUF}</pDifUF>
+							<pDifMun>{@pDifMun}</pDifMun>
+							<pDifCBS>{@pDifCBS}</pDifCBS>
+						</gDif>
+						{@endifGDif}
 					</gIBSCBS>
 				</trib>
 			</valores>
