@@ -79,7 +79,7 @@ nfs-e/
 │   └── nfseNacional/             # DTOs do padrão Nacional (DPS, IBS/CBS, ...)
 ├── templates/            # Pacotes de templates XML, uma pasta por prefeitura/padrão
 │   ├── abrasf-v2.4/
-│   ├── elotech-pr-v2-03/     # inclui Elotech.php (campos exclusivos da Elotech)
+│   ├── elotech-pr-v2-03/     # inclui ElotechInfRps.php (campos exclusivos da Elotech)
 │   ├── prefGoiania-v1/
 │   ├── notacontrol-br-v1/
 │   └── ...
@@ -284,19 +284,6 @@ Funções aplicadas a um campo antes de ele ir para o template (`applyFnField`).
 ],
 ```
 
-#### `customFields` — condição dos campos exclusivos de um emissor (opcional)
-
-Troca a condição do `{@if<Campo>}` dos campos de uma classe filha de `NFSeGenericoInfRps` ou `NFSeGenericoInfDPS` (ver [Campos exclusivos de um emissor](#campos-exclusivos-de-um-emissor)). A chave segue a mesma regra do `fields` (primeira letra minúscula: `CSTPisCofins` → `cSTPisCofins`); o valor é uma **expressão PHP em texto**, avaliada com `$value` (valor do campo, antes do `fields`) e o documento inteiro: `$oRps` no RPS, `$oDPS` no DPS:
-
-```php
-'customFields' => [
-    'cSTPisCofins' => '$value != "00"',   // só envia o CST quando não for 00
-    //'cSTPisCofins' => '$oRps->Servico->Valores->ValorPis > 0', // ou: só envia o CST quando houver PIS
-],
-```
-
-Sem entrada para o campo, o bloco entra quando o valor não é nulo nem `''` (`0` e `'00'` entram). A expressão é executada com `eval`, então a configuração tem o mesmo nível de confiança do `fields.fn`, que já chama qualquer função PHP.
-
 ### Certificado digital
 
 Há dois jeitos de informar o certificado no `$aConfig`:
@@ -361,7 +348,7 @@ Cada pasta em `templates/` é um pacote. Selecione com `templates.folder`. Já a
 | Pacote | Padrão / observação |
 |--------|---------------------|
 | `abrasf-v2.4` | Referência ABRASF 2.04 (RPS). |
-| `elotech-pr-v2-03` | Provedor Elotech (ABRASF 2.03). Exige o RPS `NFSe\templates\Elotech` (campos `Retido*` e `CSTPisCofins`). |
+| `elotech-pr-v2-03` | Provedor Elotech (ABRASF 2.03). Exige o RPS `NFSe\templates\ElotechInfRps` (campos `Retido*` e `CSTPisCofins`). |
 | `coplan-v1`, `coplan-br-v1` | Provedor Coplan (ABRASF e DPS). |
 | `fiorilli-ro-v2-01`, `fiorilli-br-v1` | Provedor Fiorilli (ABRASF e DPS). |
 | `notacontrol-go-v1`, `notacontrol-br-v1` | Provedor NotaControl (ABRASF e DPS). |
@@ -438,29 +425,41 @@ NFSeGenericoInfRps
 
 #### Campos exclusivos de um emissor
 
-Campo que só um emissor usa não entra nos DTOs genéricos: vai numa classe filha de `NFSeGenericoInfRps` (RPS) ou de `NFSeGenericoInfDPS` (DPS), dentro da pasta do pacote. Para cada propriedade **pública declarada na filha**, o `retXMLRps`/`retXMLDPS` cria sozinho o placeholder `{@<Propriedade>}` e o bloco `{@if<Propriedade>} … {@endif<Propriedade>}` (condição padrão: valor não nulo nem `''`, trocável por [`customFields`](#customfields--condição-dos-campos-exclusivos-de-um-emissor-opcional)). O `fields` também vale para esses campos.
+Campo que só um emissor usa não entra nos DTOs genéricos: vai numa classe filha de `NFSeGenericoInfRps` (RPS) ou de `NFSeGenericoInfDPS` (DPS), dentro da pasta do pacote. Para cada propriedade **pública declarada na filha**, o `retXMLRps`/`retXMLDPS` cria sozinho o placeholder `{@<Propriedade>}` e o bloco `{@if<Propriedade>} … {@endif<Propriedade>}`. O `fields` também vale para esses campos.
 
-Exemplo: `templates/elotech-pr-v2-03/Elotech.php`
+A condição do `{@if<Propriedade>}` vem da anotação `@if(<expressão PHP>)` no phpDOC da propriedade, lida pelo `NFSe\generico\NFSeAnnotation` (extensão do `PQDAnnotation`). O bloco precisa ter também o `@field(name=<Propriedade>)`. A expressão é avaliada com `$value` (valor do campo, antes do `fields`) e o documento inteiro: `$oRps` no RPS, `$oDPS` no DPS. Sem `@if`, o bloco entra quando `!empty($value)` (`'00'` entra; `0`, `'0'`, `''` e `null` não). A expressão é executada com `eval`, com o mesmo nível de confiança do `fields.fn`, que já chama qualquer função PHP.
+
+Exemplo: `templates/elotech-pr-v2-03/ElotechInfRps.php`
 
 ```php
 namespace NFSe\templates;
 
 use NFSe\generico\NFSeGenericoInfRps;
 
-class Elotech extends NFSeGenericoInfRps {
-    public $RetidoPis = 2;  // 1 - Sim; 2 - Não (também RetidoCofins, RetidoInss, RetidoIr, RetidoCsll, RetidoOutrasRetencoes)
-    public $CSTPisCofins;   // CST do PIS/COFINS
+class ElotechInfRps extends NFSeGenericoInfRps {
+
+    /**
+     * @field(name=RetidoPis)
+     * @if($oRps->Servico->Valores->ValorPis > 0)
+     * Indicador de retenção do PIS: 1 - Sim; 2 - Não (também RetidoCofins, RetidoInss, RetidoIr, RetidoCsll, RetidoOutrasRetencoes)
+     */
+    public $RetidoPis = 2;
+
+    /**
+     * @field(name=CSTPisCofins)
+     * CST do PIS/COFINS: sem @if, entra quando não vazio
+     */
+    public $CSTPisCofins;
 }
 ```
 
 ```xml
-{@ifValorPis}<RetidoPis>{@RetidoPis}</RetidoPis><ValorPis>{@ValorPis}</ValorPis>{@endifValorPis}
+{@ifRetidoPis}<RetidoPis>{@RetidoPis}</RetidoPis>{@endifRetidoPis}
+{@ifValorPis}<ValorPis>{@ValorPis}</ValorPis>{@endifValorPis}
 {@ifCSTPisCofins}<CSTPisCofins>{@CSTPisCofins}</CSTPisCofins>{@endifCSTPisCofins}
 ```
 
-O placeholder pode ficar dentro de um `{@if...}` de outro campo, como o `<RetidoPis>` acima, que só vai junto com o `<ValorPis>`. Nesse caso o `{@ifRetidoPis}` gerado fica sem uso.
-
-Quem monta o documento instancia a filha (`new Elotech()`) no lugar de `NFSeGenericoInfRps`/`NFSeGenericoInfDPS`. Um pacote que usa esses placeholders **exige** a filha: com a classe base pura os `{@...}` saem literais no XML.
+Quem monta o documento instancia a filha (`new ElotechInfRps()`) no lugar de `NFSeGenericoInfRps`/`NFSeGenericoInfDPS`. Um pacote que usa esses placeholders **exige** a filha: com a classe base pura os `{@...}` saem literais no XML.
 
 **DPS (Nacional)** — `NFSe\generico\nfseNacional\NFSeGenericoInfDPS` agrega os grupos do padrão nacional:
 

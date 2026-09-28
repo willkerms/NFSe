@@ -26,19 +26,25 @@
 				<ValorServicos>{@ValorServicos}</ValorServicos>
 				{@ifValorDeducoes}<ValorDeducoes>{@ValorDeducoes}</ValorDeducoes>{@endifValorDeducoes}
 				<!-- {@ifAliquotaPis}<AliquotaPis>{@AliquotaPis}</AliquotaPis>{@endifAliquotaPis} -->
-				{@ifValorPis}<RetidoPis>{@RetidoPis}</RetidoPis><ValorPis>{@ValorPis}</ValorPis>{@endifValorPis}
+				{@ifRetidoPis}<RetidoPis>{@RetidoPis}</RetidoPis>{@endifRetidoPis}
+				{@ifValorPis}<ValorPis>{@ValorPis}</ValorPis>{@endifValorPis}
 				<!-- {@ifAliquotaCofins}<AliquotaCofins>{@AliquotaCofins}</AliquotaCofins>{@endifAliquotaCofins} -->
-				{@ifValorCofins}<RetidoCofins>{@RetidoCofins}</RetidoCofins><ValorCofins>{@ValorCofins}</ValorCofins>{@endifValorCofins}
+				{@ifRetidoCofins}<RetidoCofins>{@RetidoCofins}</RetidoCofins>{@endifRetidoCofins}
+				{@ifValorCofins}<ValorCofins>{@ValorCofins}</ValorCofins>{@endifValorCofins}
 				<!-- {@ifAliquotaInss}<AliquotaInss>{@AliquotaInss}</AliquotaInss>{@endifAliquotaInss} -->
-				{@ifValorInss}<RetidoInss>{@RetidoInss}</RetidoInss><ValorInss>{@ValorInss}</ValorInss>{@endifValorInss}
+				{@ifRetidoInss}<RetidoInss>{@RetidoInss}</RetidoInss>{@endifRetidoInss}
+				{@ifValorInss}<ValorInss>{@ValorInss}</ValorInss>{@endifValorInss}
 				<!-- {@ifAliquotaIr}<AliquotaIr>{@AliquotaIr}</AliquotaIr>{@endifAliquotaIr} -->
-				{@ifValorIr}<RetidoIr>{@RetidoIr}</RetidoIr><ValorIr>{@ValorIr}</ValorIr>{@endifValorIr}
+				{@ifRetidoIr}<RetidoIr>{@RetidoIr}</RetidoIr>{@endifRetidoIr}
+				{@ifValorIr}<ValorIr>{@ValorIr}</ValorIr>{@endifValorIr}
 				<!-- {@ifAliquotaCsll}<AliquotaCsll>{@AliquotaCsll}</AliquotaCsll>{@endifAliquotaCsll} -->
-				{@ifValorCsll}<RetidoCsll>{@RetidoCsll}</RetidoCsll><ValorCsll>{@ValorCsll}</ValorCsll>{@endifValorCsll}
+				{@ifRetidoCsll}<RetidoCsll>{@RetidoCsll}</RetidoCsll>{@endifRetidoCsll}
+				{@ifValorCsll}<ValorCsll>{@ValorCsll}</ValorCsll>{@endifValorCsll}
 				<!-- {@ifAliquotaCpp}<AliquotaCpp>{@AliquotaCpp}</AliquotaCpp>{@endifAliquotaCpp} -->
 				<!-- {@ifRetidoCpp}<RetidoCpp>{@RetidoCpp}</RetidoCpp>{@endifRetidoCpp} -->
 				<!-- {@ifValorCpp}<ValorCpp>{@ValorCpp}</ValorCpp>{@endifValorCpp} -->
-				{@ifOutrasRetencoes}<OutrasRetencoes>{@OutrasRetencoes}</OutrasRetencoes><RetidoOutrasRetencoes>{@RetidoOutrasRetencoes}</RetidoOutrasRetencoes>{@endifOutrasRetencoes}
+				{@ifOutrasRetencoes}<OutrasRetencoes>{@OutrasRetencoes}</OutrasRetencoes>{@endifOutrasRetencoes}
+				{@ifRetidoOutrasRetencoes}<RetidoOutrasRetencoes>{@RetidoOutrasRetencoes}</RetidoOutrasRetencoes>{@endifRetidoOutrasRetencoes}
 				<!-- {@ifAliquotaTotTributos}<AliquotaTotTributos>{@AliquotaTotTributos}</AliquotaTotTributos>{@endifAliquotaTotTributos} -->
 				{@ifValTotTributos}<ValTotTributos>{@ValTotTributos}</ValTotTributos>{@endifValTotTributos}
 				{@ifValorIss}<ValorIss>{@ValorIss}</ValorIss>{@endifValorIss}
