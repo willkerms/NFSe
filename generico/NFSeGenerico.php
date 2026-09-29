@@ -8,6 +8,7 @@ use NFSe\generico\nfseNacional\NFSeGenericoDocDedRed;
 use NFSe\generico\nfseNacional\NFSeGenericoInfoItemPed;
 use NFSe\generico\nfseNacional\NFSeGenericoRTCDoc;
 use NFSe\NFSe;
+use NFSe\NFSeAnnotation;
 use NFSe\NFSeDocument;
 use PQD\PQDUtil;
 
@@ -1307,6 +1308,23 @@ class NFSeGenerico extends NFSe {
 			['begin' => '{@ifIndFinal}', 'end' => '{@endifIndFinal}', 'bool' => !empty($oRps->IBSCBS->indFinal)],
 		);
 
+		//Campos exclusivos de um emissor: classe filha de NFSeGenericoInfRps (ex.: templates/elotech-pr-v2-03/ElotechInfRps.php)
+		if(get_class($oRps) != NFSeGenericoInfRps::class){
+			foreach((new \ReflectionClass($oRps))->getProperties(\ReflectionProperty::IS_PUBLIC) as $oProperty){
+				if($oProperty->getDeclaringClass()->getName() == NFSeGenericoInfRps::class)
+					continue;
+
+				$name = $oProperty->getName();
+				$value = $oRps->$name;
+				$field = lcfirst($name);//Mesma chave camelCase do 'fields'
+				$aField = (new NFSeAnnotation($oProperty->getDeclaringClass()->getFileName()))->getField($name);
+				$condicao = isset($aField['if']) ? $aField['if'] : null;//Anotação @if da propriedade
+
+				$aReplace['{@' . $name . '}'] = $this->applyFnField($field, $value);
+				$aIfs[] = array('begin' => '{@if' . $name . '}', 'end' => '{@endif' . $name . '}', 'bool' => is_null($condicao) ? !empty($value) : (bool)eval('return ' . $condicao . ';'));
+			}
+		}
+
 		return $this->retXML(PQDUtil::procTplText($tplRps, $aReplace, $aIfs));
 	}
 
@@ -1760,6 +1778,23 @@ class NFSeGenerico extends NFSe {
 			['begin' => '{@ifGTribRegularIBSCBS}', 'end' => '{@endifGTribRegularIBSCBS}', 'bool' => !is_null($oDPS->IBSCBS->valores->trib->gIBSCBS->gTribRegular->CSTReg)],
 			['begin' => '{@ifGDif}', 'end' => '{@endifGDif}', 'bool' => !is_null($oDPS->IBSCBS->valores->trib->gIBSCBS->gDif->pDifUF)],
 		);
+
+		//Campos exclusivos de um emissor: classe filha de NFSeGenericoInfDPS
+		if(get_class($oDPS) != NFSeGenericoInfDPS::class){
+			foreach((new \ReflectionClass($oDPS))->getProperties(\ReflectionProperty::IS_PUBLIC) as $oProperty){
+				if($oProperty->getDeclaringClass()->getName() == NFSeGenericoInfDPS::class)
+					continue;
+
+				$name = $oProperty->getName();
+				$value = $oDPS->$name;
+				$field = lcfirst($name);//Mesma chave camelCase do 'fields'
+				$aField = (new NFSeAnnotation($oProperty->getDeclaringClass()->getFileName()))->getField($name);
+				$condicao = isset($aField['if']) ? $aField['if'] : null;//Anotação @if da propriedade
+
+				$aReplace['{@' . $name . '}'] = $this->applyFnField($field, $value);
+				$aIfs[] = array('begin' => '{@if' . $name . '}', 'end' => '{@endif' . $name . '}', 'bool' => is_null($condicao) ? !empty($value) : (bool)eval('return ' . $condicao . ';'));
+			}
+		}
 
 		return $this->retXML(PQDUtil::procTplText($tplDPS, $aReplace, $aIfs));
 	}

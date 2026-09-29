@@ -40,7 +40,7 @@ Cobre a assinatura digital dos XMLs (XML-DSig), a comunicação com os WebServic
 composer require willkerms/nfs-e
 ```
 
-Autoload PSR-4 (`NFSe\`) + classmap das pastas `generico/`, `sigep/`, `issweb/`, `ginfes/` (configurado no `composer.json`).
+Autoload PSR-4 (`NFSe\`) + classmap das pastas `generico/`, `sigep/`, `issweb/`, `ginfes/` e `templates/` (configurado no `composer.json`). O `templates/` entra no classmap porque as pastas dos pacotes têm hífen e não resolvem por PSR-4 — é lá que ficam as classes de campos exclusivos de um emissor (ver [Campos exclusivos de um emissor](#campos-exclusivos-de-um-emissor)).
 
 > A biblioteca usa a constante global `IS_DEVELOPMENT`. Quando `true`, o `SoapClient` é criado com `trace`/`exceptions` ativos e sem cache de WSDL. Defina-a no _bootstrap_ da sua aplicação (`define('IS_DEVELOPMENT', false);`) antes de instanciar as classes.
 
@@ -68,6 +68,7 @@ monta XML  →  assina (XML-DSig)  →  embrulha no envelope SOAP (se aplicável
 ```
 nfs-e/
 ├── NFSe.php              # Classe base: certificado, assinatura XML-DSig, SOAP/cURL
+├── NFSeAnnotation.php    # PQDAnnotation + @if (condição dos campos exclusivos de um emissor)
 ├── NFSeDocument.php      # DOMDocument com helper getValue()
 ├── NFSeElement.php       # DOMElement (registro de nó)
 ├── NFSeReturn.php        # Base de parsing de retorno (detecção de SOAP Fault)
@@ -79,6 +80,7 @@ nfs-e/
 │   └── nfseNacional/             # DTOs do padrão Nacional (DPS, IBS/CBS, ...)
 ├── templates/            # Pacotes de templates XML, uma pasta por prefeitura/padrão
 │   ├── abrasf-v2.4/
+│   ├── elotech-pr-v2-03/     # inclui ElotechInfRps.php (campos exclusivos da Elotech)
 │   ├── prefGoiania-v1/
 │   ├── notacontrol-br-v1/
 │   └── ...
@@ -347,6 +349,7 @@ Cada pasta em `templates/` é um pacote. Selecione com `templates.folder`. Já a
 | Pacote | Padrão / observação |
 |--------|---------------------|
 | `abrasf-v2.4` | Referência ABRASF 2.04 (RPS). |
+| `elotech-pr-v2-03` | Provedor Elotech (ABRASF 2.03). Exige o RPS `NFSe\templates\ElotechInfRps` (campos `Retido*` e `CSTPisCofins`). |
 | `coplan-v1`, `coplan-br-v1` | Provedor Coplan (ABRASF e DPS). |
 | `fiorilli-ro-v2-01`, `fiorilli-br-v1` | Provedor Fiorilli (ABRASF e DPS). |
 | `notacontrol-go-v1`, `notacontrol-br-v1` | Provedor NotaControl (ABRASF e DPS). |
@@ -421,6 +424,44 @@ NFSeGenericoInfRps
 > **duas** condições valem: o template do pacote em uso declara `{@ifIBSCBS} … {@endifIBSCBS}` e
 > `IBSCBS->finNFSe` não é nulo. Hoje só o pacote `webISS-se-v2-02` traz esse bloco ativo.
 
+#### Campos exclusivos de um emissor
+
+Campo que só um emissor usa não entra nos DTOs genéricos: vai numa classe filha de `NFSeGenericoInfRps` (RPS) ou de `NFSeGenericoInfDPS` (DPS), dentro da pasta do pacote. Para cada propriedade **pública declarada na filha**, o `retXMLRps`/`retXMLDPS` cria sozinho o placeholder `{@<Propriedade>}` e o bloco `{@if<Propriedade>} … {@endif<Propriedade>}`. O `fields` também vale para esses campos.
+
+A condição do `{@if<Propriedade>}` vem da anotação `@if(<expressão PHP>)` no phpDOC da propriedade, lida pelo `NFSe\NFSeAnnotation` (extensão do `PQDAnnotation`). O bloco precisa ter também o `@field(name=<Propriedade>)`. A expressão é avaliada com `$value` (valor do campo, antes do `fields`) e o documento inteiro: `$oRps` no RPS, `$oDPS` no DPS. Sem `@if`, o bloco entra quando `!empty($value)` (`'00'` entra; `0`, `'0'`, `''` e `null` não). A expressão é executada com `eval`, com o mesmo nível de confiança do `fields.fn`, que já chama qualquer função PHP.
+
+Exemplo: `templates/elotech-pr-v2-03/ElotechInfRps.php`
+
+```php
+namespace NFSe\templates;
+
+use NFSe\generico\NFSeGenericoInfRps;
+
+class ElotechInfRps extends NFSeGenericoInfRps {
+
+    /**
+     * @field(name=RetidoPis)
+     * @if($oRps->Servico->Valores->ValorPis > 0)
+     * Indicador de retenção do PIS: 1 - Sim; 2 - Não (também RetidoCofins, RetidoInss, RetidoIr, RetidoCsll, RetidoOutrasRetencoes)
+     */
+    public $RetidoPis = 2;
+
+    /**
+     * @field(name=CSTPisCofins)
+     * CST do PIS/COFINS: sem @if, entra quando não vazio
+     */
+    public $CSTPisCofins;
+}
+```
+
+```xml
+{@ifRetidoPis}<RetidoPis>{@RetidoPis}</RetidoPis>{@endifRetidoPis}
+{@ifValorPis}<ValorPis>{@ValorPis}</ValorPis>{@endifValorPis}
+{@ifCSTPisCofins}<CSTPisCofins>{@CSTPisCofins}</CSTPisCofins>{@endifCSTPisCofins}
+```
+
+Quem monta o documento instancia a filha (`new ElotechInfRps()`) no lugar de `NFSeGenericoInfRps`/`NFSeGenericoInfDPS`. Um pacote que usa esses placeholders **exige** a filha: com a classe base pura os `{@...}` saem literais no XML.
+
 **DPS (Nacional)** — `NFSe\generico\nfseNacional\NFSeGenericoInfDPS` agrega os grupos do padrão nacional:
 
 ```
@@ -476,6 +517,7 @@ Regra prática: uma operação **deu certo** quando `ListaMensagemRetorno` está
 2. **Ajuste os templates** (`Rps.xml`/`DPS.xml`, `GerarNfseEnvio.xml`, `Soap.xml`, consultas, cancelamento) para o layout exato da prefeitura — usando os placeholders `{@...}` e os blocos `{@if...}`.
 3. **Monte o `$aConfig`** apontando `templates.folder` para o novo pacote, os `wsdl` de homologação/produção, o tipo de autenticação e os `metodos` (`action`, `tagSign`, `tagAppend`, `tagMap`, transporte).
 4. Se a prefeitura exigir limpeza/assinatura especial, use `search`/`replace`, `signConsulta`, `returnType`/`returnReplace` e `replaceXmlSOAP`.
+5. Se o layout tiver campos que só esse emissor usa, crie a classe filha de `NFSeGenericoInfRps` ou `NFSeGenericoInfDPS` na pasta do pacote (ver [Campos exclusivos de um emissor](#campos-exclusivos-de-um-emissor)) e rode `composer dump-autoload` (ou `composer update willkerms/nfs-e` no projeto que usa a lib) para o classmap enxergá-la.
 
 No melhor caso, **nenhuma linha de PHP** precisa ser escrita.
 

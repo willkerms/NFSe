@@ -25,7 +25,8 @@
             "./generico/",
             "./sigep/",
             "./issweb/",
-            "./ginfes/"
+            "./ginfes/",
+            "./templates/"
         ]
     }
 }
