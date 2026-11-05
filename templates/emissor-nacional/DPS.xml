@@ -374,6 +374,15 @@
 					{@ifCPaisResult}
 					<cPaisResult>{@cPaisResult}</cPaisResult>
 					{@endifCPaisResult}
+					{@ifTpImunidade}
+					<tpImunidade>{@tpImunidade}</tpImunidade>
+					{@endifTpImunidade}
+					{@ifExigSusp}
+					<exigSusp>
+						<tpSusp>{@tpSusp}</tpSusp>
+						<nProcesso>{@nProcesso}</nProcesso>
+					</exigSusp>
+					{@endifExigSusp}
 					{@ifBM}
 					<BM>
 						<nBM>{@nBM}</nBM>
@@ -385,19 +394,10 @@
 						{@endifPRedBCBM}
 					</BM>
 					{@endifBM}
-					{@ifExigSusp}
-					<exigSusp>
-						<tpSusp>{@tpSusp}</tpSusp>
-						<nProcesso>{@nProcesso}</nProcesso>
-					</exigSusp>
-					{@endifExigSusp}
-					{@ifTpImunidade}
-					<tpImunidade>{@tpImunidade}</tpImunidade>
-					{@endifTpImunidade}
+					<tpRetISSQN>{@tpRetISSQN}</tpRetISSQN>
 					{@ifPAliqISSQN}
 					<pAliq>{@pAliq}</pAliq>
 					{@endifPAliqISSQN}
-					<tpRetISSQN>{@tpRetISSQN}</tpRetISSQN>
 				</tribMun>
 				{@ifTribFed}
 				<tribFed>
